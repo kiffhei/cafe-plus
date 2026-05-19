@@ -1,0 +1,91 @@
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
+const NAV_ITEMS = [
+  { label: 'Nuevo Pedido',  path: '/pedido',      roles: ['admin','cajero'],
+    icon: 'M12 4v16m8-8H4' },
+  { label: 'Pedidos del Día', path: '/pedidos-hoy', roles: ['admin','cajero'],
+    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+  { label: 'Historial',     path: '/historial',   roles: ['admin','cajero'],
+    icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { label: 'Clientes Plus', path: '/clientes',    roles: ['admin','cajero'],
+    icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+  { label: 'Análisis IA',   path: '/analisis',    roles: ['admin','cajero'],
+    icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+  { label: 'Productos',     path: '/productos',   roles: ['admin'], adminSection: true,
+    icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+  { label: 'Usuarios',      path: '/usuarios',    roles: ['admin'],
+    icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+]
+
+export default function Sidebar({ collapsed, onToggle }) {
+  const { user, logout, isAdmin } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() { logout(); navigate('/login') }
+
+  const items = NAV_ITEMS.filter(i => i.roles.includes(user?.categoria))
+
+  return (
+    <aside className={`flex flex-col bg-cafe-800 text-crema-200 transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} min-h-screen shrink-0`}>
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-cafe-700">
+        <div className="w-8 h-8 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
+          <span className="text-white font-bold text-sm">C+</span>
+        </div>
+        {!collapsed && (
+          <div className="animate-fade-in overflow-hidden">
+            <p className="font-semibold text-crema-100 text-sm leading-tight">Café Plus</p>
+            <p className="text-cafe-400 text-xs">{isAdmin ? 'Administrador' : 'Cajero'}</p>
+          </div>
+        )}
+      </div>
+
+      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        {items.map(item => (
+          <div key={item.path}>
+            {item.adminSection && !collapsed && (
+              <p className="text-cafe-500 text-xs uppercase tracking-wider px-2 pt-4 pb-1">Administración</p>
+            )}
+            {item.adminSection && collapsed && <div className="border-t border-cafe-700 my-2" />}
+            <NavLink
+              to={item.path}
+              title={collapsed ? item.label : undefined}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-150
+                ${isActive ? 'bg-cafe-600 text-crema-100' : 'text-cafe-300 hover:bg-cafe-700 hover:text-crema-200'}
+                ${collapsed ? 'justify-center' : ''}`
+              }
+            >
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+              </svg>
+              {!collapsed && <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>}
+            </NavLink>
+          </div>
+        ))}
+      </nav>
+
+      <div className="border-t border-cafe-700 p-3">
+        {!collapsed && (
+          <div className="mb-2 px-1">
+            <p className="text-crema-200 text-xs font-medium truncate">{user?.nombre}</p>
+            <p className="text-cafe-400 text-xs truncate">{user?.usuario}</p>
+          </div>
+        )}
+        <button onClick={handleLogout}
+          className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg text-cafe-400 hover:bg-cafe-700 hover:text-red-400 transition-all text-sm ${collapsed ? 'justify-center' : ''}`}>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          {!collapsed && <span>Cerrar sesión</span>}
+        </button>
+        <button onClick={onToggle}
+          className="flex items-center justify-center w-full px-2 py-2 rounded-lg text-cafe-500 hover:bg-cafe-700 hover:text-cafe-300 transition-all mt-1">
+          <svg className={`w-4 h-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+  )
+}

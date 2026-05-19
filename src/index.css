@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cafe:      #8B4513;
+  --cafe-dark: #5c2d0d;
+  --crema:     #F5DEB3;
+  --crema-bg:  #fdf8f3;
+  --terracota: #C1440E;
+  --olivo:     #6B7C3D;
+  --texto:     #2c1810;
+  --texto-sub: #7a5c4a;
+  --borde:     #e8c9a0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--crema-bg);
+  color: var(--texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f5e6d3; }
+::-webkit-scrollbar-thumb { background: #d4a96a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cafe); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in    { animation: fadeIn 0.35s ease forwards; }
+.animate-slide-left { animation: slideInLeft 0.3s ease forwards; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-cafe-500 text-crema-100 font-medium px-4 py-2 rounded-lg
+           hover:bg-cafe-600 active:bg-cafe-700 transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed shadow-warm;
+  }
+  .btn-secondary {
+    @apply bg-crema-200 text-cafe-700 font-medium px-4 py-2 rounded-lg
+           border border-cafe-200 hover:bg-crema-300 transition-all duration-150;
+  }
+  .btn-danger {
+    @apply bg-terracota-500 text-white font-medium px-4 py-2 rounded-lg
+           hover:bg-terracota-600 transition-all duration-150;
+  }
+  .input-field {
+    @apply w-full bg-white border border-cafe-200 rounded-lg px-3 py-2
+           text-sm text-cafe-900 placeholder-cafe-300
+           focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:border-transparent
+           transition-all duration-150;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-cafe-100 shadow-card p-4;
+  }
+  .badge-canal-local     { @apply bg-olivo-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-canal-didi      { @apply bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-canal-rappi     { @apply bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-canal-ubereats  { @apply bg-gray-800 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-estado-pendiente   { @apply bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-estado-preparacion { @apply bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-estado-entregado   { @apply bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-estado-cancelado   { @apply bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium; }
+}
