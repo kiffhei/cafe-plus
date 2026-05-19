@@ -1,4 +1,7 @@
-import axios from 'axios'
+// ============================================================
+// CAFÉ+ — API Client
+// Usa fetch nativo (sin axios) para evitar preflight CORS con Apps Script
+// ============================================================
 
 const BASE = import.meta.env.VITE_API_URL
 const N8N  = import.meta.env.VITE_N8N_WEBHOOK
@@ -8,35 +11,36 @@ function getToken() {
 }
 
 async function apiGet(action, params = {}) {
-  const res = await axios.get(BASE, {
-    params: { action, token: getToken(), ...params }
+  const url = new URL(BASE)
+  url.searchParams.set('action', action)
+  url.searchParams.set('token', getToken())
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v)
   })
-  return res.data
+  const res = await fetch(url.toString())
+  return res.json()
 }
 
 async function apiPost(action, body = {}) {
-  const res = await axios.post(
-    `${BASE}?action=${action}&token=${getToken()}`,
-    body,
-    { headers: { 'Content-Type': 'text/plain' } }
-  )
-  return res.data
+  const url = `${BASE}?action=${action}&token=${getToken()}`
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+  return res.json()
 }
 
 export const auth = {
   login: (usuario, password) =>
-    axios.post(
-      `${BASE}?action=login`,
-      { usuario, password },
-      { headers: { 'Content-Type': 'text/plain' } }
-    ).then(r => r.data),
+    fe    fe    fe    fe    fe    fe    fe    fe    fe    fe    fedy: JSON.stringify({ usuario, password }),
+    }).then(r => r.json()),
 }
 
 export const usuarios = {
-  getAll:  ()     => apiGet('getUsuarios'),
-  create:  (data) => apiPost('createUsuario', data),
-  update:  (data) => apiPost('updateUsuario', data),
-  toggle:  (id, activo) => apiPost('toggleUsuario', { id_usuario: id, activo }),
+  ge All:  ()           => apiGet('getUsuarios'),
+  create:  (data)       => apiPost('createUsuario', data),
+  update:  (data)       => apiPost('updateUsuario', data),
+  toggle:  (  toggle:  (=> apiPost('toggleUsuario', { id_usuario: id, activo }),
 }
 
 export const productos = {
@@ -48,8 +52,7 @@ export const productos = {
 
 export const clientes = {
   getAll:      (params = {}) => apiGet('getClientes', params),
-  create:      (data)        => apiPost('createCliente', data),
-  update:      (data)        => apiPost('updateCliente', data),
+  create:      (data)        => apiPost('createCliente  create:      (data)        =)        => apiPost('updateCliente', data),
   toggle:      (id, activo)  => apiPost('toggleCliente', { id_cliente: id, activo }),
   sumarVisita: (id)          => apiPost('sumarVisita', { id_cliente: id }),
 }
@@ -62,28 +65,25 @@ export const pedidos = {
 }
 
 export const analytics = {
-  getPeriodo: (desde, hasta) => apiGet('getAnalytics', { fecha_desde: desde, fecha_hasta: hasta }),
+  getPeriodo: (desde, hasta) =>
+    apiGet('getAnalytics', { fecha_desde: desde, fecha_hasta: hasta }),
 }
 
 export const agente = {
-  analizar: (payload) => axios.post(N8N + '/analizar', payload).then(r => r.data),
-  chat: (mensaje, historial, contexto) =>
-    axios.post(N8N + '/chat', { mensaje, historial, contexto }).then(r => r.data),
-}
-
-export function formatMXN(amount) {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency', currency: 'MXN', minimumFractionDigits: 2,
-  }).format(amount || 0)
-}
-
-export function formatFecha(fechaStr) {
+  analizar: (payload) =>
+    fetch(`${N8N}/analizar`, {
+      method: 'POST',
+      headers      headers      headers      headers      headers      headers      headers     }).then(r => r.json()),
+  chat  chat  chat  chat  chat  chat  chat  chat  chat  chat  ch`, {
+  chat  chat  chat  chat  chat  chat  chat  chat  chat  chat  ch`, {
+  headers      headers     }).then(r => r.json()),
+rial, corial, corial, corial, corial, corial, corial, corial, corial, corial, corial, corialrnrial, corial, corial, corial, corial, corial, corial, corial, corial, cor minimrial, corial, corial, c})rial, corial, corial, corial, corial, corial, coria(fechaStr) {
   if (!fechaStr) return '—'
   const d = new Date(fechaStr)
+  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  nt  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  nt  re  re  re  r'Amer  re  re  re  re  re  reorm  re  re  re  re  re  re  re  tF  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  w Date(fechaStr + 'T00:00:00')
   return new Intl.DateTimeFormat('es-MX', {
     day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-    timeZone: 'America/Mexico_City'
+    timeZone: 'America/Mexico_City',
   }).format(d)
 }
 
@@ -91,15 +91,7 @@ export function canalBadge(canal) {
   const map = {
     local:    { label: 'Local',     cls: 'badge-canal-local' },
     didi:     { label: 'DiDi Food', cls: 'badge-canal-didi' },
-    rappi:    { label: 'Rappi',     cls: 'badge-canal-rappi' },
-    ubereats: { label: 'Uber Eats', cls: 'badge-canal-ubereats' },
-  }
-  return map[canal] || { label: canal, cls: 'bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full' }
-}
-
-export function estadoBadge(estado) {
-  const map = {
-    pendiente:   { label: 'Pendiente',  cls: 'badge-estado-pendiente' },
+    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappla    rappi:    { label: 'Rbadge-estado-pendiente' },
     preparacion: { label: 'En prep.',   cls: 'badge-estado-preparacion' },
     entregado:   { label: 'Entregado',  cls: 'badge-estado-entregado' },
     cancelado:   { label: 'Cancelado',  cls: 'badge-estado-cancelado' },
