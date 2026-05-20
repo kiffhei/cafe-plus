@@ -16,6 +16,13 @@
   --borde:     #e8c9a0;
 }
 
+.dark {
+  --crema-bg:  #1a0d05;
+  --texto:     #f5e6d3;
+  --texto-sub: #c9a07a;
+  --borde:     #5c2d0d;
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -29,6 +36,9 @@ body {
 ::-webkit-scrollbar-track { background: #f5e6d3; }
 ::-webkit-scrollbar-thumb { background: #d4a96a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--cafe); }
+
+.dark ::-webkit-scrollbar-track { background: #3d1e08; }
+.dark ::-webkit-scrollbar-thumb { background: #7a3d11; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -50,27 +60,34 @@ body {
   }
   .btn-secondary {
     @apply bg-crema-200 text-cafe-700 font-medium px-4 py-2 rounded-lg
-           border border-cafe-200 hover:bg-crema-300 transition-all duration-150;
+           border border-cafe-200 hover:bg-crema-300 transition-all duration-150
+           dark:bg-cafe-700 dark:text-crema-200 dark:border-cafe-600 dark:hover:bg-cafe-600;
   }
   .btn-danger {
     @apply bg-terracota-500 text-white font-medium px-4 py-2 rounded-lg
            hover:bg-terracota-600 transition-all duration-150;
   }
-  .input-field {
+  .input-cafe {
     @apply w-full bg-white border border-cafe-200 rounded-lg px-3 py-2
            text-sm text-cafe-900 placeholder-cafe-300
            focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:border-transparent
-           transition-all duration-150;
+           transition-all duration-150
+           dark:bg-cafe-800 dark:border-cafe-600 dark:text-crema-100
+           dark:placeholder-cafe-500 dark:focus:ring-cafe-500;
+  }
+  .input-field {
+    @apply input-cafe;
   }
   .card {
-    @apply bg-white rounded-xl border border-cafe-100 shadow-card p-4;
+    @apply bg-white rounded-xl border border-cafe-100 shadow-card p-4
+           dark:bg-cafe-800 dark:border-cafe-700;
   }
   .badge-canal-local     { @apply bg-olivo-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-canal-didi      { @apply bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-canal-rappi     { @apply bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-canal-ubereats  { @apply bg-gray-800 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-estado-pendiente   { @apply bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-estado-preparacion { @apply bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-estado-entregado   { @apply bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-estado-cancelado   { @apply bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-estado-pendiente   { @apply bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-yellow-900 dark:text-yellow-200; }
+  .badge-estado-preparacion { @apply bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-blue-900 dark:text-blue-200; }
+  .badge-estado-entregado   { @apply bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-green-900 dark:text-green-200; }
+  .badge-estado-cancelado   { @apply bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-red-900 dark:text-red-200; }
 }
