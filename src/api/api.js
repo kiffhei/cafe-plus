@@ -32,15 +32,21 @@ async function apiPost(action, body = {}) {
 
 export const auth = {
   login: (usuario, password) =>
-    fe    fe    fe    fe    fe    fe    fe    fe    fe    fe    fedy: JSON.stringify({ usuario, password }),
+    fetch(`${BASE}?action=login`, {
+      method: 'POST',
+      body: JSON.stringify({ usuario, password }),
     }).then(r => r.json()),
+
+  validateToken: (token) =>
+    fetch(`${BASE}?action=validateToken&token=${token}`)
+      .then(r => r.json()),
 }
 
 export const usuarios = {
-  ge All:  ()           => apiGet('getUsuarios'),
-  create:  (data)       => apiPost('createUsuario', data),
-  update:  (data)       => apiPost('updateUsuario', data),
-  toggle:  (  toggle:  (=> apiPost('toggleUsuario', { id_usuario: id, activo }),
+  getAll:  ()            => apiGet('getUsuarios'),
+  create:  (data)        => apiPost('createUsuario', data),
+  update:  (data)        => apiPost('updateUsuario', data),
+  toggle:  (id, activo)  => apiPost('toggleUsuario', { id_usuario: id, activo }),
 }
 
 export const productos = {
@@ -52,7 +58,8 @@ export const productos = {
 
 export const clientes = {
   getAll:      (params = {}) => apiGet('getClientes', params),
-  create:      (data)        => apiPost('createCliente  create:      (data)        =)        => apiPost('updateCliente', data),
+  create:      (data)        => apiPost('createCliente', data),
+  update:      (data)        => apiPost('updateCliente', data),
   toggle:      (id, activo)  => apiPost('toggleCliente', { id_cliente: id, activo }),
   sumarVisita: (id)          => apiPost('sumarVisita', { id_cliente: id }),
 }
@@ -73,16 +80,41 @@ export const agente = {
   analizar: (payload) =>
     fetch(`${N8N}/analizar`, {
       method: 'POST',
-      headers      headers      headers      headers      headers      headers      headers     }).then(r => r.json()),
-  chat  chat  chat  chat  chat  chat  chat  chat  chat  chat  ch`, {
-  chat  chat  chat  chat  chat  chat  chat  chat  chat  chat  ch`, {
-  headers      headers     }).then(r => r.json()),
-rial, corial, corial, corial, corial, corial, corial, corial, corial, corial, corial, corialrnrial, corial, corial, corial, corial, corial, corial, corial, corial, cor minimrial, corial, corial, c})rial, corial, corial, corial, corial, corial, coria(fechaStr) {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(r => r.json()),
+
+  chat: (mensaje, contexto) =>
+    fetch(`${N8N}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mensaje, contexto }),
+    }).then(r => r.json()),
+}
+
+export function formatMXN(cantidad) {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 2,
+  }).format(cantidad || 0)
+}
+
+export function formatFecha(fechaStr) {
   if (!fechaStr) return '—'
-  const d = new Date(fechaStr)
-  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  nt  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  nt  re  re  re  r'Amer  re  re  re  re  re  reorm  re  re  re  re  re  re  re  tF  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  re  w Date(fechaStr + 'T00:00:00')
+  const d = new Date(fechaStr + 'T00:00:00')
   return new Intl.DateTimeFormat('es-MX', {
     day: '2-digit', month: 'short', year: 'numeric',
+    timeZone: 'America/Mexico_City',
+  }).format(d)
+}
+
+export function formatFechaHora(fechaStr) {
+  if (!fechaStr) return '—'
+  const d = new Date(fechaStr)
+  return new Intl.DateTimeFormat('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
     timeZone: 'America/Mexico_City',
   }).format(d)
 }
@@ -91,7 +123,15 @@ export function canalBadge(canal) {
   const map = {
     local:    { label: 'Local',     cls: 'badge-canal-local' },
     didi:     { label: 'DiDi Food', cls: 'badge-canal-didi' },
-    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappi',     cls: 'badge-canal-rapp    rappi:    { label: 'Rappla    rappi:    { label: 'Rbadge-estado-pendiente' },
+    rappi:    { label: 'Rappi',     cls: 'badge-canal-rappi' },
+    ubereats: { label: 'Uber Eats', cls: 'badge-canal-ubereats' },
+  }
+  return map[canal] || { label: canal, cls: '' }
+}
+
+export function estadoBadge(estado) {
+  const map = {
+    pendiente:   { label: 'Pendiente',  cls: 'badge-estado-pendiente' },
     preparacion: { label: 'En prep.',   cls: 'badge-estado-preparacion' },
     entregado:   { label: 'Entregado',  cls: 'badge-estado-entregado' },
     cancelado:   { label: 'Cancelado',  cls: 'badge-estado-cancelado' },
