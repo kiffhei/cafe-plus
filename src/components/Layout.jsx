@@ -20,25 +20,26 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       title={dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      className="w-9 h-9 flex items-center justify-center rounded-lg
-                 bg-crema-100 dark:bg-cafe-700
-                 border border-cafe-200 dark:border-cafe-600
-                 text-cafe-600 dark:text-crema-300
-                 hover:bg-crema-200 dark:hover:bg-cafe-600
-                 transition-all duration-200"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+                 transition-all duration-200 border
+                 bg-cafe-800 text-crema-200 border-cafe-600 hover:bg-cafe-700
+                 dark:bg-crema-200 dark:text-cafe-800 dark:border-crema-300 dark:hover:bg-crema-100"
     >
       {dark ? (
-        /* Sol — modo claro */
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round"
-            d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71M17.66 17.66l.71.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
-        </svg>
+        <>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71M17.66 17.66l.71.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
+          </svg>
+          <span className="hidden sm:inline">Claro</span>
+        </>
       ) : (
-        /* Luna — modo oscuro */
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round"
-            d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-        </svg>
+        <>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+          <span className="hidden sm:inline">Oscuro</span>
+        </>
       )}
     </button>
   )
@@ -57,7 +58,7 @@ export default function Layout() {
         <header className="bg-white dark:bg-cafe-800 border-b border-cafe-100 dark:border-cafe-700 px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
           <div>
             <h1 className="font-semibold text-cafe-800 dark:text-crema-100 text-lg leading-tight">{title}</h1>
-            <p className="text-cafe-400 dark:text-cafe-400 text-xs mt-0.5">
+            <p className="text-cafe-400 text-xs mt-0.5">
               {new Date().toLocaleDateString('es-MX', {
                 weekday: 'long', day: 'numeric', month: 'long',
                 timeZone: 'America/Mexico_City'

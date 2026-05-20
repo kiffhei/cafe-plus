@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { auth } from '../api/api'
 
 export default function Login() {
@@ -9,6 +10,7 @@ export default function Login() {
   const [error,   setError]   = useState('')
   const [showPw,  setShowPw]  = useState(false)
   const { login } = useAuth()
+  const { dark, toggle } = useTheme()
   const navigate  = useNavigate()
 
   async function handleSubmit(e) {
@@ -25,6 +27,27 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex bg-cafe-900 overflow-hidden relative">
+
+      {/* Botón dark mode flotante */}
+      <button onClick={toggle}
+        title={dark ? 'Modo claro' : 'Modo oscuro'}
+        className="fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full
+                   bg-cafe-700 hover:bg-cafe-600 border border-cafe-500
+                   text-crema-300 hover:text-crema-100
+                   shadow-warm transition-all duration-200">
+        {dark ? (
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71M17.66 17.66l.71.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
+          </svg>
+        ) : (
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        )}
+      </button>
+
+      {/* Panel izquierdo — decorativo */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-cafe-800 via-cafe-900 to-cafe-900" />
         <div className="absolute inset-0 opacity-20" style={{backgroundImage:`radial-gradient(circle at 20% 50%, #C1440E 0%, transparent 50%), radial-gradient(circle at 80% 20%, #8B4513 0%, transparent 40%)`}} />
@@ -54,38 +77,41 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 relative bg-crema-50">
-        <div className="absolute inset-0 opacity-30" style={{backgroundImage:`radial-gradient(circle, #d4a96a 1px, transparent 1px)`,backgroundSize:'24px 24px'}} />
+      {/* Panel derecho — formulario */}
+      <div className="flex-1 flex items-center justify-center p-8 relative
+                      bg-crema-50 dark:bg-cafe-900">
+        <div className="absolute inset-0 opacity-30 dark:opacity-10"
+          style={{backgroundImage:`radial-gradient(circle, #d4a96a 1px, transparent 1px)`,backgroundSize:'24px 24px'}} />
         <div className="relative z-10 w-full max-w-sm">
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 rounded-xl bg-terracota-500 flex items-center justify-center">
               <span className="text-white font-bold">C+</span>
             </div>
-            <span className="text-cafe-800 text-lg font-semibold">Café Plus</span>
+            <span className="text-cafe-800 dark:text-crema-100 text-lg font-semibold">Café Plus</span>
           </div>
           <div className="mb-8">
-            <h1 className="text-cafe-800 text-3xl font-bold mb-1">Bienvenido</h1>
+            <h1 className="text-cafe-800 dark:text-crema-100 text-3xl font-bold mb-1">Bienvenido</h1>
             <p className="text-cafe-400 text-sm">Ingresa tus credenciales para continuar</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-cafe-700 text-sm font-medium mb-1.5">Usuario</label>
+              <label className="block text-cafe-700 dark:text-crema-300 text-sm font-medium mb-1.5">Usuario</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </span>
-                <input type="text" className="input-field pl-9" placeholder="tu_usuario"
+                <input type="text" className="input-cafe pl-9" placeholder="tu_usuario"
                   value={form.usuario} onChange={e => setForm(f => ({...f, usuario: e.target.value}))}
                   autoComplete="username" autoFocus />
               </div>
             </div>
             <div>
-              <label className="block text-cafe-700 text-sm font-medium mb-1.5">Contraseña</label>
+              <label className="block text-cafe-700 dark:text-crema-300 text-sm font-medium mb-1.5">Contraseña</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 </span>
-                <input type={showPw ? 'text' : 'password'} className="input-field pl-9 pr-10" placeholder="••••••••"
+                <input type={showPw ? 'text' : 'password'} className="input-cafe pl-9 pr-10" placeholder="••••••••"
                   value={form.password} onChange={e => setForm(f => ({...f, password: e.target.value}))}
                   autoComplete="current-password" />
                 <button type="button" onClick={() => setShowPw(s => !s)}
@@ -100,9 +126,9 @@ export default function Login() {
               </div>
             </div>
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 flex items-center gap-2 animate-fade-in">
+              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2.5 flex items-center gap-2 animate-fade-in">
                 <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <p className="text-red-600 text-sm">{error}</p>
+                <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
               </div>
             )}
             <button type="submit" disabled={loading}
@@ -112,7 +138,7 @@ export default function Login() {
               ) : 'Ingresar al sistema'}
             </button>
           </form>
-          <p className="text-center text-cafe-300 text-xs mt-8">Café Plus · Sistema de Gestión v1.0</p>
+          <p className="text-center text-cafe-300 dark:text-cafe-500 text-xs mt-8">Café Plus · Sistema de Gestión v1.0</p>
         </div>
       </div>
     </div>
