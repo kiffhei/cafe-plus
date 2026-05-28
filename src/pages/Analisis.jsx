@@ -59,21 +59,43 @@ function BarraHorizontal({ label, value, max, color, sublabel }) {
 function GraficaBarras({ data, keyX, keyY, color }) {
   if (!data?.length) return null
   const max = Math.max(...data.map(d => d[keyY]))
+  const ALTURA = 160 // px — altura fija del área de barras
+
   return (
-    <div className="flex items-end gap-1 h-40 mt-2">
-      {data.map((d, i) => {
-        const pct = max > 0 ? (d[keyY] / max) * 100 : 0
-        return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-cafe-800 dark:bg-crema-100 text-crema-100 dark:text-cafe-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-              {formatMXN(d[keyY])}
+    <div className="mt-2">
+      {/* Área de barras con altura fija en px */}
+      <div className="flex items-end gap-1" style={{ height: ALTURA }}>
+        {data.map((d, i) => {
+          const pct      = max > 0 ? d[keyY] / max : 0
+          const barraH   = Math.max(Math.round(pct * ALTURA), 3)
+          return (
+            <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+              {/* Tooltip */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-cafe-800 dark:bg-crema-100 text-crema-100 dark:text-cafe-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                {formatMXN(d[keyY])}
+              </div>
+              {/* Barra */}
+              <div
+                className="w-full rounded-t transition-all duration-700"
+                style={{
+                  height:     barraH,
+                  background: color || '#8B4513',
+                  opacity:    0.85,
+                  minHeight:  3,
+                }}
+              />
             </div>
-            <div className="w-full rounded-t transition-all duration-500"
-              style={{ height: `${Math.max(pct, 2)}%`, background: color || '#8B4513', opacity: 0.85 }} />
-            <span className="text-[9px] text-cafe-400 dark:text-cafe-500 truncate w-full text-center">{d[keyX]}</span>
+          )
+        })}
+      </div>
+      {/* Eje X — etiquetas debajo */}
+      <div className="flex gap-1 mt-1">
+        {data.map((d, i) => (
+          <div key={i} className="flex-1 text-center">
+            <span className="text-[9px] text-cafe-400 dark:text-cafe-500 truncate block">{d[keyX]}</span>
           </div>
-        )
-      })}
+        ))}
+      </div>
     </div>
   )
 }
