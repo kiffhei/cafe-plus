@@ -103,6 +103,18 @@ export default function PedidosHoy() {
 
   useEffect(() => { cargar() }, [cargar])
 
+  // Recargar al volver a la página (desde Nuevo Pedido u otra sección)
+  useEffect(() => {
+    const onFocus    = () => cargar()
+    const onVisible  = () => { if (document.visibilityState === 'visible') cargar() }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [cargar])
+
   // Auto-refresh cada 30s
   useEffect(() => {
     const id = setInterval(cargar, 30000)

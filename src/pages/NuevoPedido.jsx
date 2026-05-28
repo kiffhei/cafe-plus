@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { productos as productosApi, clientes as clientesApi, pedidos as pedidosApi,
          formatMXN, canalBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
@@ -67,6 +68,7 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
 
 export default function NuevoPedido() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [canal, setCanal]         = useState('local')
   const [cliente, setCliente]     = useState(null)
   const [catalogo, setCatalogo]   = useState([])
@@ -175,7 +177,10 @@ export default function NuevoPedido() {
       <h2 className="text-2xl font-bold text-cafe-800 dark:text-crema-100 mb-2">¡Pedido creado!</h2>
       <p className="text-cafe-500 mb-1">Folio: <span className="font-mono font-semibold">{exito.id_pedido}</span></p>
       <p className="text-cafe-500 mb-6">Total: <span className="font-semibold text-cafe-700 dark:text-crema-200">{formatMXN(exito.total)}</span></p>
-      <button onClick={() => setExito(null)} className="btn-primary">Nuevo pedido</button>
+      <div className="flex gap-3 justify-center">
+      <button onClick={() => setExito(null)} className="btn-secondary">Nuevo pedido</button>
+      <button onClick={() => navigate("/pedidos-hoy")} className="btn-primary">Ver pedidos del día →</button>
+    </div>
     </div>
   )
 
