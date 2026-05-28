@@ -94,7 +94,7 @@ export default function PedidosHoy() {
 
   const cargar = useCallback(async () => {
     setLoading(true)
-    const hoy = new Date().toISOString().split('T')[0]
+    const hoy = new Intl.DateTimeFormat("es-MX", { timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()).split("/").reverse().join("-")
     const res = await pedidosApi.getAll({ fecha_desde: hoy, fecha_hasta: hoy })
     if (res.ok) setPedidos(res.data)
     else setError('Error cargando pedidos')

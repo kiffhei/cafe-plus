@@ -96,8 +96,8 @@ export default function Historial() {
   const POR_PAGINA = 15
 
   // Filtros
-  const hoy = new Date().toISOString().split('T')[0]
-  const haceMes = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]
+  const hoy = new Intl.DateTimeFormat("es-MX", { timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()).split("/").reverse().join("-")
+  const haceMes = new Intl.DateTimeFormat("es-MX", { timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(Date.now() - 30*24*60*60*1000)).split("/").reverse().join("-")
   const [filtros, setFiltros] = useState({
     fecha_desde: haceMes,
     fecha_hasta: hoy,

@@ -1,6 +1,6 @@
 // ============================================================
-// CAFÉ+ — API Client
-// Usa fetch nativo (sin axios) para evitar preflight CORS con Apps Script
+// CAFÉ+ — API Client v2
+// fetch nativo sin headers — evita preflight CORS con Apps Script
 // ============================================================
 
 const BASE = import.meta.env.VITE_API_URL
@@ -10,20 +10,35 @@ function getToken() {
   return localStorage.getItem('cafe_token') || ''
 }
 
+// Fetch con timeout configurable (default 25s — Apps Script puede tardar)
+async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal })
+    clearTimeout(id)
+    return res
+  } catch (err) {
+    clearTimeout(id)
+    if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado. Apps Script tardó demasiado.')
+    throw err
+  }
+}
+
 async function apiGet(action, params = {}) {
   const url = new URL(BASE)
   url.searchParams.set('action', action)
   url.searchParams.set('token', getToken())
   Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v)
+    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v))
   })
-  const res = await fetch(url.toString())
+  const res = await fetchWithTimeout(url.toString())
   return res.json()
 }
 
 async function apiPost(action, body = {}) {
   const url = `${BASE}?action=${action}&token=${getToken()}`
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'POST',
     body: JSON.stringify(body),
   })
@@ -32,21 +47,21 @@ async function apiPost(action, body = {}) {
 
 export const auth = {
   login: (usuario, password) =>
-    fetch(`${BASE}?action=login`, {
+    fetchWithTimeout(`${BASE}?action=login`, {
       method: 'POST',
       body: JSON.stringify({ usuario, password }),
-    }).then(r => r.json()),
+    }, 20000).then(r => r.json()),
 
   validateToken: (token) =>
-    fetch(`${BASE}?action=validateToken&token=${token}`)
+    fetchWithTimeout(`${BASE}?action=validateToken&token=${token}`, {}, 15000)
       .then(r => r.json()),
 }
 
 export const usuarios = {
-  getAll:  ()            => apiGet('getUsuarios'),
-  create:  (data)        => apiPost('createUsuario', data),
-  update:  (data)        => apiPost('updateUsuario', data),
-  toggle:  (id, activo)  => apiPost('toggleUsuario', { id_usuario: id, activo }),
+  getAll:  ()           => apiGet('getUsuarios'),
+  create:  (data)       => apiPost('createUsuario', data),
+  update:  (data)       => apiPost('updateUsuario', data),
+  toggle:  (id, activo) => apiPost('toggleUsuario', { id_usuario: id, activo }),
 }
 
 export const productos = {
@@ -65,7 +80,9 @@ export const clientes = {
 }
 
 export const pedidos = {
-  getAll:       (params = {}) => apiGet('getPedidos', params),
+  // sin_detalle=true → GAS omite el join con DetallePedidos (mucho más rápido para listas)
+  getAll:       (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'false' }),
+  getHoy:       (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'false' }),
   getById:      (id)          => apiGet('getPedidoById', { id }),
   create:       (data)        => apiPost('createPedido', data),
   updateEstado: (id, estado)  => apiPost('updateEstado', { id_pedido: id, estado }),
@@ -91,6 +108,8 @@ export const agente = {
       body: JSON.stringify({ mensaje, contexto }),
     }).then(r => r.json()),
 }
+
+// ── Helpers de formato ────────────────────────────────────────
 
 export function formatMXN(cantidad) {
   return new Intl.NumberFormat('es-MX', {
@@ -131,10 +150,10 @@ export function canalBadge(canal) {
 
 export function estadoBadge(estado) {
   const map = {
-    pendiente:   { label: 'Pendiente',  cls: 'badge-estado-pendiente' },
-    preparacion: { label: 'En prep.',   cls: 'badge-estado-preparacion' },
-    entregado:   { label: 'Entregado',  cls: 'badge-estado-entregado' },
-    cancelado:   { label: 'Cancelado',  cls: 'badge-estado-cancelado' },
+    pendiente:   { label: 'Pendiente',   cls: 'badge-estado-pendiente' },
+    preparacion: { label: 'En prep.',    cls: 'badge-estado-preparacion' },
+    entregado:   { label: 'Entregado',   cls: 'badge-estado-entregado' },
+    cancelado:   { label: 'Cancelado',   cls: 'badge-estado-cancelado' },
   }
   return map[estado] || { label: estado, cls: '' }
 }
