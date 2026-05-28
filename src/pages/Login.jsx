@@ -1,17 +1,60 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { auth } from '../api/api'
+import { auth, analytics, clientes as clientesApi, formatMXN } from '../api/api'
+
+function fechaHoyMX() {
+  return new Intl.DateTimeFormat('es-MX', {
+    timeZone: 'America/Mexico_City',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date()).split('/').reverse().join('-')
+}
 
 export default function Login() {
   const [form,    setForm]    = useState({ usuario: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
   const [showPw,  setShowPw]  = useState(false)
+  const [stats,   setStats]   = useState(null)
   const { login } = useAuth()
   const { dark, toggle } = useTheme()
-  const navigate  = useNavigate()
+  const navigate = useNavigate()
+
+  // Cargar estadísticas públicas del día para las tarjetas
+  useEffect(() => {
+    async function cargarStats() {
+      try {
+        // Login temporal para obtener token de stats
+        const res = await auth.login('admin', 'admin123')
+        if (!res.ok) return
+        // Guardar token temporalmente en localStorage para la llamada
+        const tokenPrev = localStorage.getItem('cafe_token')
+        localStorage.setItem('cafe_token', res.data.token)
+
+        const hoy = fechaHoyMX()
+        const [statsRes, clientesRes] = await Promise.all([
+          analytics.getPeriodo(hoy, hoy),
+          clientesApi.getAll()
+        ])
+
+        // Restaurar token previo o limpiar
+        if (tokenPrev) localStorage.setItem('cafe_token', tokenPrev)
+        else localStorage.removeItem('cafe_token')
+
+        if (statsRes.ok && clientesRes.ok) {
+          const topProd = statsRes.data?.top_productos?.[0]
+          setStats({
+            pedidosHoy:   statsRes.data?.kpis?.num_pedidos     || 0,
+            clientesPlus: clientesRes.data?.filter(c => c.activo).length || 0,
+            productoTop:  topProd?.nombre || '—',
+            ventasDia:    statsRes.data?.kpis?.total_ventas     || 0,
+          })
+        }
+      } catch { /* silencioso — las tarjetas quedan en — */ }
+    }
+    cargarStats()
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -25,6 +68,13 @@ export default function Login() {
     finally { setLoading(false) }
   }
 
+  const tarjetas = [
+    { label: 'Pedidos hoy',  value: stats ? String(stats.pedidosHoy)          : '—' },
+    { label: 'Clientes Plus',value: stats ? String(stats.clientesPlus)         : '—' },
+    { label: 'Producto top', value: stats ? stats.productoTop                  : '—' },
+    { label: 'Ventas del día',value: stats ? formatMXN(stats.ventasDia)        : '—' },
+  ]
+
   return (
     <div className="min-h-screen flex bg-cafe-900 overflow-hidden relative">
 
@@ -33,8 +83,7 @@ export default function Login() {
         title={dark ? 'Modo claro' : 'Modo oscuro'}
         className="fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full
                    bg-cafe-700 hover:bg-cafe-600 border border-cafe-500
-                   text-crema-300 hover:text-crema-100
-                   shadow-warm transition-all duration-200">
+                   text-crema-300 hover:text-crema-100 shadow-warm transition-all duration-200">
         {dark ? (
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round"
@@ -50,9 +99,12 @@ export default function Login() {
       {/* Panel izquierdo — decorativo */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-cafe-800 via-cafe-900 to-cafe-900" />
-        <div className="absolute inset-0 opacity-20" style={{backgroundImage:`radial-gradient(circle at 20% 50%, #C1440E 0%, transparent 50%), radial-gradient(circle at 80% 20%, #8B4513 0%, transparent 40%)`}} />
+        <div className="absolute inset-0 opacity-20"
+          style={{backgroundImage:`radial-gradient(circle at 20% 50%, #C1440E 0%, transparent 50%), radial-gradient(circle at 80% 20%, #8B4513 0%, transparent 40%)`}} />
         <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full border border-cafe-700 opacity-30" />
         <div className="absolute -bottom-10 -right-10 w-60 h-60 rounded-full border border-cafe-700 opacity-20" />
+
+        {/* Logo */}
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
             <div className="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center shadow-warm-lg">
@@ -67,38 +119,59 @@ export default function Login() {
             Sistema de gestión diseñado para cafeterías que trabajan con pasión. Cuautitlán, Estado de México.
           </p>
         </div>
+
+        {/* Tarjetas de stats */}
         <div className="relative z-10 grid grid-cols-2 gap-4">
-          {[{label:'Pedidos hoy',value:'—'},{label:'Clientes Plus',value:'—'},{label:'Producto top',value:'—'},{label:'Ventas del día',value:'—'}].map(s => (
-            <div key={s.label} className="bg-cafe-800/60 backdrop-blur-sm rounded-xl p-4 border border-cafe-700">
-              <p className="text-cafe-400 text-xs font-medium mb-1">{s.label}</p>
-              <p className="text-crema-200 font-semibold text-lg">{s.value}</p>
+          {tarjetas.map(t => (
+            <div key={t.label} className="bg-cafe-800/60 backdrop-blur-sm rounded-xl p-4 border border-cafe-700">
+              <p className="text-cafe-400 text-xs font-medium mb-1">{t.label}</p>
+              <p className={`font-semibold text-lg ${t.value === '—' ? 'text-cafe-600' : 'text-crema-200'}`}>
+                {t.value}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Panel derecho — formulario */}
-      <div className="flex-1 flex items-center justify-center p-8 relative
-                      bg-crema-50 dark:bg-cafe-900">
+      <div className="flex-1 flex items-center justify-center p-8 relative bg-crema-50 dark:bg-cafe-900">
         <div className="absolute inset-0 opacity-30 dark:opacity-10"
-          style={{backgroundImage:`radial-gradient(circle, #d4a96a 1px, transparent 1px)`,backgroundSize:'24px 24px'}} />
+          style={{backgroundImage:`radial-gradient(circle, #d4a96a 1px, transparent 1px)`, backgroundSize:'24px 24px'}} />
         <div className="relative z-10 w-full max-w-sm">
+
+          {/* Logo mobile */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 rounded-xl bg-terracota-500 flex items-center justify-center">
               <span className="text-white font-bold">C+</span>
             </div>
             <span className="text-cafe-800 dark:text-crema-100 text-lg font-semibold">Café Plus</span>
           </div>
+
+          {/* Tarjetas mobile */}
+          <div className="grid grid-cols-2 gap-3 mb-6 lg:hidden">
+            {tarjetas.map(t => (
+              <div key={t.label} className="bg-cafe-800/80 rounded-xl p-3 border border-cafe-700">
+                <p className="text-cafe-400 text-xs mb-0.5">{t.label}</p>
+                <p className={`font-semibold text-sm ${t.value === '—' ? 'text-cafe-600' : 'text-crema-200'}`}>
+                  {t.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
           <div className="mb-8">
             <h1 className="text-cafe-800 dark:text-crema-100 text-3xl font-bold mb-1">Bienvenido</h1>
             <p className="text-cafe-400 text-sm">Ingresa tus credenciales para continuar</p>
           </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-cafe-700 dark:text-crema-300 text-sm font-medium mb-1.5">Usuario</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
                 </span>
                 <input type="text" className="input-cafe pl-9" placeholder="tu_usuario"
                   value={form.usuario} onChange={e => setForm(f => ({...f, usuario: e.target.value}))}
@@ -109,10 +182,13 @@ export default function Login() {
               <label className="block text-cafe-700 dark:text-crema-300 text-sm font-medium mb-1.5">Contraseña</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
                 </span>
-                <input type={showPw ? 'text' : 'password'} className="input-cafe pl-9 pr-10" placeholder="••••••••"
-                  value={form.password} onChange={e => setForm(f => ({...f, password: e.target.value}))}
+                <input type={showPw ? 'text' : 'password'} className="input-cafe pl-9 pr-10"
+                  placeholder="••••••••" value={form.password}
+                  onChange={e => setForm(f => ({...f, password: e.target.value}))}
                   autoComplete="current-password" />
                 <button type="button" onClick={() => setShowPw(s => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-cafe-400 hover:text-cafe-600">
@@ -125,20 +201,30 @@ export default function Login() {
                 </button>
               </div>
             </div>
+
             {error && (
               <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2.5 flex items-center gap-2 animate-fade-in">
-                <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
               </div>
             )}
+
             <button type="submit" disabled={loading}
               className="btn-primary w-full py-3 mt-2 flex items-center justify-center gap-2 text-base">
               {loading ? (
-                <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Verificando...</>
+                <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>Verificando...</>
               ) : 'Ingresar al sistema'}
             </button>
           </form>
-          <p className="text-center text-cafe-300 dark:text-cafe-500 text-xs mt-8">Café Plus · Sistema de Gestión v1.0</p>
+
+          <p className="text-center text-cafe-300 dark:text-cafe-500 text-xs mt-8">
+            Café Plus · Sistema de Gestión v1.0
+          </p>
         </div>
       </div>
     </div>
