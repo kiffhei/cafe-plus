@@ -1,18 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { analytics, formatMXN } from '../api/api'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
-} from 'recharts'
-
-const COLORES_CANAL = {
-  local:    '#6B7C3D',
-  didi:     '#f97316',
-  rappi:    '#16a34a',
-  ubereats: '#1f2937',
-}
-
-const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+import { analytics, formatMXN, formatFecha } from '../api/api'
 
 function fechaHoyMX() {
   return new Intl.DateTimeFormat('es-MX', {
@@ -28,40 +15,125 @@ function fechaHaceDias(dias) {
   }).format(new Date(Date.now() - dias * 86400000)).split('/').reverse().join('-')
 }
 
-function KPICard({ label, value, sub, color = 'text-cafe-800 dark:text-crema-100', bg = 'card' }) {
-  return (
-    <div className={`${bg} flex flex-col gap-1`}>
-      <p className="text-xs font-medium text-cafe-400 uppercase tracking-wide">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-xs text-cafe-400">{sub}</p>}
-    </div>
-  )
-}
-
-const TooltipMXN = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 rounded-xl px-3 py-2 shadow-warm text-sm">
-      <p className="text-cafe-500 dark:text-cafe-400 text-xs mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="font-semibold" style={{ color: p.color }}>
-          {formatMXN(p.value)}
-        </p>
-      ))}
-    </div>
-  )
+const CANAL_CONFIG = {
+  local:    { label: 'Local',     color: '#6B7C3D' },
+  didi:     { label: 'DiDi Food', color: '#f97316' },
+  rappi:    { label: 'Rappi',     color: '#16a34a' },
+  ubereats: { label: 'Uber Eats', color: '#1f2937' },
 }
 
 const RANGOS = [
-  { label: 'Hoy',        dias: 0 },
-  { label: '7 días',     dias: 7 },
-  { label: '30 días',    dias: 30 },
-  { label: 'Este mes',   dias: null, tipo: 'mes' },
-  { label: 'Personalizado', dias: null, tipo: 'custom' },
+  { label: 'Hoy',          desde: () => fechaHoyMX(),        hasta: () => fechaHoyMX() },
+  { label: '7 días',       desde: () => fechaHaceDias(7),    hasta: () => fechaHoyMX() },
+  { label: '30 días',      desde: () => fechaHaceDias(30),   hasta: () => fechaHoyMX() },
+  { label: 'Este mes',     desde: () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-01` }, hasta: () => fechaHoyMX() },
+  { label: 'Personalizado', custom: true },
 ]
 
+function KPICard({ label, value, sub, accent }) {
+  return (
+    <div className="card">
+      <p className="text-xs font-medium text-cafe-400 dark:text-cafe-500 uppercase tracking-wide mb-1">{label}</p>
+      <p className={`text-2xl font-bold ${accent || 'text-cafe-800 dark:text-crema-100'}`}>{value}</p>
+      {sub && <p className="text-xs text-cafe-400 mt-0.5">{sub}</p>}
+    </div>
+  )
+}
+
+function BarraHorizontal({ label, value, max, color, sublabel }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0
+  return (
+    <div className="mb-3">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-xs text-cafe-700 dark:text-crema-200 font-medium truncate max-w-[60%]">{label}</span>
+        <span className="text-xs text-cafe-500 dark:text-cafe-400 ml-2 shrink-0">{sublabel || value}</span>
+      </div>
+      <div className="h-2 bg-crema-200 dark:bg-cafe-700 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: color || '#8B4513' }} />
+      </div>
+    </div>
+  )
+}
+
+function GraficaBarras({ data, keyX, keyY, color }) {
+  if (!data?.length) return null
+  const max = Math.max(...data.map(d => d[keyY]))
+  return (
+    <div className="flex items-end gap-1 h-40 mt-2">
+      {data.map((d, i) => {
+        const pct = max > 0 ? (d[keyY] / max) * 100 : 0
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-cafe-800 dark:bg-crema-100 text-crema-100 dark:text-cafe-800 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+              {formatMXN(d[keyY])}
+            </div>
+            <div className="w-full rounded-t transition-all duration-500"
+              style={{ height: `${Math.max(pct, 2)}%`, background: color || '#8B4513', opacity: 0.85 }} />
+            <span className="text-[9px] text-cafe-400 dark:text-cafe-500 truncate w-full text-center">{d[keyX]}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function PieSimple({ data }) {
+  if (!data?.length) return null
+  const total = data.reduce((s, d) => s + d.value, 0)
+  if (total === 0) return null
+
+  let offset = 0
+  const radius = 60
+  const cx = 70, cy = 70
+
+  const slices = data.map(d => {
+    const pct = d.value / total
+    const angle = pct * 360
+    const startAngle = offset
+    offset += angle
+    return { ...d, pct, startAngle, angle }
+  })
+
+  function polarToCart(cx, cy, r, angleDeg) {
+    const rad = (angleDeg - 90) * Math.PI / 180
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
+  }
+
+  function slicePath(cx, cy, r, startAngle, angle) {
+    if (angle >= 360) return `M ${cx} ${cy-r} A ${r} ${r} 0 1 1 ${cx-0.001} ${cy-r} Z`
+    const start = polarToCart(cx, cy, r, startAngle)
+    const end   = polarToCart(cx, cy, r, startAngle + angle)
+    const large = angle > 180 ? 1 : 0
+    return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${large} 1 ${end.x} ${end.y} Z`
+  }
+
+  return (
+    <div className="flex items-center gap-6">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        {slices.map((s, i) => (
+          <path key={i} d={slicePath(cx, cy, radius, s.startAngle, s.angle)}
+            fill={s.color} opacity={0.9} />
+        ))}
+        <circle cx={cx} cy={cy} r={28} fill="white" className="dark:fill-cafe-800" />
+      </svg>
+      <div className="space-y-2">
+        {slices.map((s, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full shrink-0" style={{ background: s.color }} />
+            <span className="text-xs text-cafe-600 dark:text-cafe-300">{s.label}</span>
+            <span className="text-xs font-semibold text-cafe-800 dark:text-crema-100 ml-1">
+              {Math.round(s.pct * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Analisis() {
-  const hoy    = fechaHoyMX()
+  const hoy = fechaHoyMX()
   const [rangoIdx,  setRangoIdx]  = useState(1)
   const [desde,     setDesde]     = useState(fechaHaceDias(7))
   const [hasta,     setHasta]     = useState(hoy)
@@ -83,43 +155,32 @@ export default function Analisis() {
 
   function aplicarRango(idx) {
     setRangoIdx(idx)
-    const r = RANGOS[idx]
-    if (r.tipo === 'custom') return
-    let d, h = hoy
-    if (r.dias === 0)        d = hoy
-    else if (r.dias)         d = fechaHaceDias(r.dias)
-    else if (r.tipo === 'mes') {
-      const now = new Date()
-      d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`
-    }
+    if (RANGOS[idx].custom) return
+    const d = RANGOS[idx].desde()
+    const h = RANGOS[idx].hasta()
     setDesde(d); setHasta(h)
     cargar(d, h)
   }
 
-  function aplicarPersonalizado() {
-    cargar(desde, hasta)
-  }
-
-  // Formatear datos para gráficas
-  const porDiaFmt = data?.por_dia?.map(d => ({
-    dia:   d.dia.substring(5),
+  // Formatear datos
+  const porDiaFmt = (data?.por_dia || []).map(d => ({
+    dia: d.dia.substring(5),
     total: d.total
-  })) || []
+  })).slice(-14) // últimos 14 días max
 
-  const porCanalFmt = data?.por_canal?.map(c => ({
-    name:  { local:'Local', didi:'DiDi Food', rappi:'Rappi', ubereats:'Uber Eats' }[c.canal] || c.canal,
+  const porCanalFmt = (data?.por_canal || []).map(c => ({
+    label: CANAL_CONFIG[c.canal]?.label || c.canal,
     value: c.total,
-    color: COLORES_CANAL[c.canal] || '#8B4513'
-  })) || []
+    color: CANAL_CONFIG[c.canal]?.color || '#8B4513',
+  }))
 
-  const topProdFmt = data?.top_productos?.slice(0,5).map(p => ({
-    nombre:   p.nombre.length > 18 ? p.nombre.substring(0,16)+'…' : p.nombre,
-    cantidad: p.cantidad,
-    total:    p.total
-  })) || []
+  const maxCanal = Math.max(...porCanalFmt.map(c => c.value), 1)
+
+  const topProdFmt = (data?.top_productos || []).slice(0, 5)
+  const maxProd = topProdFmt.length > 0 ? topProdFmt[0].cantidad : 1
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 max-w-6xl">
 
       {/* Selector de rango */}
       <div className="card">
@@ -129,7 +190,7 @@ export default function Analisis() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                 ${rangoIdx === i
                   ? 'bg-cafe-700 text-crema-100'
-                  : 'bg-crema-100 dark:bg-cafe-700 text-cafe-600 dark:text-cafe-300 hover:bg-crema-200 dark:hover:bg-cafe-600 border border-cafe-200 dark:border-cafe-600'}`}>
+                  : 'bg-crema-100 dark:bg-cafe-700 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-200 dark:hover:bg-cafe-600'}`}>
               {r.label}
             </button>
           ))}
@@ -146,15 +207,14 @@ export default function Analisis() {
               <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
                 className="input-cafe text-sm" />
             </div>
-            <button onClick={aplicarPersonalizado}
-              className="btn-primary text-sm py-2 px-4">
+            <button onClick={() => cargar(desde, hasta)} className="btn-primary text-sm py-2">
               Aplicar
             </button>
           </div>
         )}
-        {data && (
+        {data && !loading && (
           <p className="text-xs text-cafe-400 mt-2">
-            Período: {desde} → {hasta}
+            {desde} → {hasta}
           </p>
         )}
       </div>
@@ -180,140 +240,79 @@ export default function Analisis() {
         <>
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <KPICard
-              label="Ventas totales"
-              value={formatMXN(data.kpis.total_ventas)}
-              sub="en el período"
-              color="text-terracota-500"
-            />
-            <KPICard
-              label="Pedidos"
-              value={data.kpis.num_pedidos}
-              sub="en el período"
-            />
-            <KPICard
-              label="Ticket promedio"
-              value={formatMXN(data.kpis.ticket_promedio)}
-              sub="por pedido"
-              color="text-olivo-600 dark:text-olivo-400"
-            />
-            <KPICard
-              label="Hora pico"
-              value={data.kpis.hora_pico}
-              sub="más pedidos"
-              color="text-cafe-700 dark:text-crema-200"
-            />
+            <KPICard label="Ventas totales"   value={formatMXN(data.kpis.total_ventas)}    sub="en el período"    accent="text-terracota-500" />
+            <KPICard label="Pedidos"           value={data.kpis.num_pedidos}                sub="en el período" />
+            <KPICard label="Ticket promedio"   value={formatMXN(data.kpis.ticket_promedio)} sub="por pedido"       accent="text-olivo-600 dark:text-olivo-400" />
+            <KPICard label="Hora pico"         value={data.kpis.hora_pico}                  sub="más pedidos" />
           </div>
 
-          {/* Gráfica de ventas por día */}
-          {porDiaFmt.length > 0 && (
-            <div className="card">
-              <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-                Ventas por día
-              </h3>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={porDiaFmt} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8c9a0" opacity={0.5} />
-                  <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#c08040' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#c08040' }}
-                    tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
-                  <Tooltip content={<TooltipMXN />} />
-                  <Bar dataKey="total" fill="#8B4513" radius={[4,4,0,0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Pie por canal */}
-            {porCanalFmt.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Ventas por día */}
+            {porDiaFmt.length > 0 && (
               <div className="card">
-                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-                  Ventas por canal
-                </h3>
-                <div className="flex items-center gap-4">
-                  <ResponsiveContainer width="60%" height={180}>
-                    <PieChart>
-                      <Pie data={porCanalFmt} dataKey="value" cx="50%" cy="50%"
-                        outerRadius={70} innerRadius={35}>
-                        {porCanalFmt.map((entry, i) => (
-                          <Cell key={i} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(v) => formatMXN(v)} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex flex-col gap-2 text-xs">
-                    {porCanalFmt.map((c, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full shrink-0" style={{ background: c.color }} />
-                        <span className="text-cafe-600 dark:text-cafe-300">{c.name}</span>
-                        <span className="font-semibold text-cafe-800 dark:text-crema-100 ml-auto">
-                          {formatMXN(c.value)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-2">Ventas por día</h3>
+                <GraficaBarras data={porDiaFmt} keyX="dia" keyY="total" color="#8B4513" />
               </div>
             )}
 
+            {/* Por canal */}
+            {porCanalFmt.length > 0 && (
+              <div className="card">
+                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Ventas por canal</h3>
+                <PieSimple data={porCanalFmt} />
+                <div className="mt-4 space-y-1">
+                  {porCanalFmt.map((c, i) => (
+                    <BarraHorizontal key={i}
+                      label={c.label}
+                      value={c.value}
+                      max={maxCanal}
+                      color={c.color}
+                      sublabel={formatMXN(c.value)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Top productos */}
             {topProdFmt.length > 0 && (
               <div className="card">
-                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-                  Top 5 productos
-                </h3>
-                <div className="space-y-2.5">
-                  {topProdFmt.map((p, i) => {
-                    const maxCant = topProdFmt[0].cantidad
-                    const pct = Math.round((p.cantidad / maxCant) * 100)
-                    return (
-                      <div key={i}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-cafe-700 dark:text-crema-200 font-medium">
-                            {i+1}. {p.nombre}
-                          </span>
-                          <span className="text-cafe-500 dark:text-cafe-400">
-                            {p.cantidad} uds · {formatMXN(p.total)}
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-crema-200 dark:bg-cafe-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-cafe-500 to-terracota-500 rounded-full transition-all duration-500"
-                            style={{ width: `${pct}%` }} />
-                        </div>
+                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Top 5 productos</h3>
+                {topProdFmt.map((p, i) => (
+                  <BarraHorizontal key={i}
+                    label={`${i+1}. ${p.nombre}`}
+                    value={p.cantidad}
+                    max={maxProd}
+                    color={i === 0 ? '#C1440E' : '#8B4513'}
+                    sublabel={`${p.cantidad} uds · ${formatMXN(p.total)}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Por cajero */}
+            {data.por_cajero?.length > 0 && (
+              <div className="card">
+                <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Por cajero</h3>
+                <div className="space-y-3">
+                  {data.por_cajero.map((c, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 bg-crema-50 dark:bg-cafe-900/50 rounded-xl border border-cafe-100 dark:border-cafe-700">
+                      <div className="w-9 h-9 rounded-full bg-cafe-500 flex items-center justify-center text-crema-100 font-bold text-sm shrink-0">
+                        {c.nombre?.[0]?.toUpperCase() || '?'}
                       </div>
-                    )
-                  })}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-cafe-800 dark:text-crema-100 truncate">{c.nombre}</p>
+                        <p className="text-xs text-cafe-400">{c.pedidos} pedido{c.pedidos !== 1 ? 's' : ''}</p>
+                      </div>
+                      <span className="text-sm font-bold text-terracota-500 shrink-0">{formatMXN(c.total)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
           </div>
-
-          {/* Por cajero */}
-          {data.por_cajero?.length > 0 && (
-            <div className="card">
-              <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-                Rendimiento por cajero
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {data.por_cajero.map((c, i) => (
-                  <div key={i} className="bg-crema-50 dark:bg-cafe-900/50 rounded-xl p-4 border border-cafe-100 dark:border-cafe-700">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-cafe-500 flex items-center justify-center text-crema-100 text-sm font-bold shrink-0">
-                        {c.nombre?.[0]?.toUpperCase() || '?'}
-                      </div>
-                      <p className="text-sm font-semibold text-cafe-800 dark:text-crema-100 truncate">{c.nombre}</p>
-                    </div>
-                    <div className="flex justify-between text-xs text-cafe-500 dark:text-cafe-400">
-                      <span>{c.pedidos} pedido{c.pedidos !== 1 ? 's' : ''}</span>
-                      <span className="font-semibold text-terracota-500">{formatMXN(c.total)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>
