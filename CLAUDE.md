@@ -425,6 +425,66 @@ Siempre trabajar desde `~/proyectos/cafe-plus/`.
 
 ---
 
+## SUBAGENTES — PARALELIZACIÓN DE TAREAS
+
+Claude Code soporta subagentes desde v2.1.139+. Permiten correr tareas independientes
+en paralelo, cada una con su propio contexto limpio. Para Café+, usar con criterio:
+2-3 agentes en tareas independientes tiene sentido. Más de eso en un proyecto de este
+tamaño consume tokens sin beneficio proporcional.
+
+### Cuándo paralelizar (tareas de sesión 5)
+
+| Tareas | ¿Paralelizar? | Razón |
+|--------|--------------|-------|
+| Tarea 2 (Clientes CRM) + Tarea 3 (hora pico) | ✅ Sí | Archivos distintos, independientes |
+| Tarea 4 (Clerk) + cualquier otra | ✅ Sí | Rama separada, no toca main |
+| Tarea 5 (README) + cualquier otra | ✅ Sí | Solo documentación |
+| Bug fix que depende de ver el error | ❌ No | Requiere diagnóstico secuencial |
+
+### Forma rápida — comando /batch
+
+```
+/batch Ejecuta estas dos tareas en paralelo:
+1. Agrega campo notas, historial de pedidos y badge inactivo en Clientes.jsx
+2. Agrega gráfica de hora pico en Analisis.jsx
+Son independientes. Al terminar reporta los cambios de cada una.
+```
+
+### Forma avanzada — subagente especializado en YAML
+
+Crear archivo `.claude/agents/frontend-cafe.yaml` en la raíz del repo:
+
+```yaml
+name: frontend-cafe
+description: Especialista en componentes React + Tailwind para Café+
+model: claude-sonnet-4-6
+tools: [read, write, bash]
+prompt: |
+  Eres un especialista en React 18 + Vite + Tailwind CSS para el proyecto Café+.
+  Paleta activa: Fresh Matcha (cafe-500=#2d6a4f, terracota-500=#1e6091).
+  Tipografía: Plus Jakarta Sans (display) + Outfit (body).
+  Reglas obligatorias:
+  - Nunca usar formatFechaHora (no existe) → usar formatFecha
+  - Nunca usar input-cafeteria → usar input-cafe o input-field
+  - Dark mode en todos los elementos nuevos
+  - fetch nativo sin headers en POST a GAS y n8n
+  - recharts@2.15.3 — no actualizar a v3
+  - npm run build antes de cualquier push
+  Lee /mnt/skills/public/frontend-design/SKILL.md antes de crear UI nueva.
+```
+
+Invocar con `@frontend-cafe` en el chat de Claude Code.
+
+### Prompt de inicio de sesión con paralelización
+
+```
+Lee el CLAUDE.md. Usa /batch para Tarea 2 y Tarea 3 en paralelo.
+Son independientes — Clientes.jsx y Analisis.jsx no se tocan entre sí.
+Tarea 4 (Clerk) después, en rama feat/clerk-auth como sesión individual.
+```
+
+---
+
 ## OPTIMIZACIÓN DE TOKENS EN CLAUDE CODE
 
 ### Estrategias actuales (ya aplicadas)
