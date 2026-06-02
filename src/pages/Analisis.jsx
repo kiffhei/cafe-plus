@@ -264,15 +264,12 @@ export default function Analisis() {
           sub="más vendido" />
       </div>
 
-      {/* ── Sección B: Gráficas ── */}
+      {/* ── Sección B: Gráficas — COMENTADAS para diagnóstico ── */}
+      {/* GRAFICA_1_BAR */}
       {!loading && ventasDia.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-          {/* Ventas por día — BarChart */}
           <div className="lg:col-span-2 card">
-            <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-              Ventas por día
-            </h3>
+            <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Ventas por día</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={ventasDia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e8c9a0" strokeOpacity={0.4} />
@@ -286,68 +283,43 @@ export default function Analisis() {
                   itemStyle={TOOLTIP_ITEM_STYLE}
                   labelStyle={TOOLTIP_LABEL_STYLE}
                 />
-                <Bar dataKey="Ventas" fill={CHART_COLORS[0]}
-                  radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="Ventas" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} maxBarSize={40} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-
-          {/* Distribución por canal — PieChart */}
-          <div className="card flex flex-col">
-            <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-              Por canal
-            </h3>
-            {porCanal.length > 0 ? (
-              <>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie data={porCanal} cx="50%" cy="50%"
-                      innerRadius={45} outerRadius={70}
-                      dataKey="value" paddingAngle={3}
-                      label={({ name, percent }) =>
-                        `${name} ${(percent * 100).toFixed(0)}%`
-                      }
-                      labelLine={false}>
-                      {porCanal.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value, name) => [`${value} pedidos`, name]}
-                      contentStyle={TOOLTIP_STYLE}
-                      itemStyle={TOOLTIP_ITEM_STYLE}
-                      labelStyle={TOOLTIP_LABEL_STYLE}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-3 space-y-1.5">
-                  {porCanal.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                        <span className="text-cafe-600 dark:text-cafe-300">{c.name}</span>
-                      </div>
-                      <span className="font-semibold text-cafe-700 dark:text-crema-200">
-                        {c.value} pedidos
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-xs text-cafe-400 text-center py-8">Sin datos de canales</p>
-            )}
           </div>
         </div>
       )}
 
-      {/* Tendencia acumulada — LineChart */}
+      {/* GRAFICA_2_PIE */}
+      {!loading && porCanal.length > 0 && (
+        <div className="card flex flex-col">
+          <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Por canal</h3>
+          <ResponsiveContainer width="100%" height={160}>
+            <PieChart>
+              <Pie data={porCanal} cx="50%" cy="50%"
+                innerRadius={45} outerRadius={70}
+                dataKey="value" paddingAngle={3}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}>
+                {porCanal.map((_, i) => (
+                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value, name) => [`${value} pedidos`, name]}
+                contentStyle={TOOLTIP_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
+                labelStyle={TOOLTIP_LABEL_STYLE}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* GRAFICA_3_LINE */}
       {!loading && tendencia.length > 1 && (
         <div className="card">
-          <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">
-            Tendencia acumulada del periodo
-          </h3>
+          <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Tendencia acumulada</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={tendencia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e8c9a0" strokeOpacity={0.4} />
