@@ -287,7 +287,7 @@ export default function Analisis() {
                 <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false}
                   tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
-                <Tooltip content={<TooltipCafe />} />
+                <Tooltip content={(props) => <TooltipCafe {...props} />} />
                 <Bar dataKey="Ventas" fill={CHART_COLORS[0]}
                   radius={[4, 4, 0, 0]} maxBarSize={40} />
               </BarChart>
@@ -347,7 +347,7 @@ export default function Analisis() {
               <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false}
                 tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
-              <Tooltip content={<TooltipCafe />} />
+              <Tooltip content={(props) => <TooltipCafe {...props} />} />
               <Line type="monotone" dataKey="Acumulado" stroke={CHART_COLORS[1]}
                 strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
@@ -366,7 +366,7 @@ export default function Analisis() {
       )}
 
       {/* ── Sección C: Chat IA ── */}
-      <div className="card p-0 overflow-hidden">
+      <div className="bg-white dark:bg-cafe-800 rounded-xl border border-cafe-100 dark:border-cafe-700 shadow-card overflow-hidden">
 
         {/* Header */}
         <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700 flex items-center gap-3">
