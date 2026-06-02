@@ -38,14 +38,24 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        body:    ['"Outfit"', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
         'warm':    '0 4px 24px rgba(45, 106, 79, 0.12)',
-        'warm-lg': '0 8px 40px rgba(45, 106, 79, 0.18)',
+        'warm-lg': '0 8px 40px rgba(45, 106, 79, 0.22)',
         'card':    '0 2px 12px rgba(45, 106, 79, 0.08)',
+        'glow':    '0 0 0 3px rgba(45, 106, 79, 0.15)',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
+      animationDelay: {
+        '75':  '75ms',
+        '150': '150ms',
+        '225': '225ms',
+        '300': '300ms',
       },
     },
   },
