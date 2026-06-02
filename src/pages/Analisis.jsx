@@ -13,6 +13,17 @@ const CHART_COLORS = ['#8B4513', '#C1440E', '#6B7C3D', '#d4a96a', '#3b82f6']
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
 
+// Estilo compartido para todos los tooltips de recharts
+const TOOLTIP_STYLE = {
+  backgroundColor: '#3d1e08',
+  border: '1px solid #7a3d11',
+  borderRadius: '8px',
+  color: '#f5e6d3',
+  fontSize: '12px',
+}
+const TOOLTIP_ITEM_STYLE  = { color: '#f5e6d3' }
+const TOOLTIP_LABEL_STYLE = { color: '#d4a96a', fontWeight: '600' }
+
 // ── Helpers de fecha ─────────────────────────────────────────────
 
 function fechaMX(offsetDias = 0) {
@@ -26,25 +37,6 @@ function fechaMX(offsetDias = 0) {
 const PERIODOS = {
   semana: { label: 'Esta semana', desde: fechaMX(-6), hasta: fechaMX() },
   mes:    { label: 'Este mes',    desde: fechaMX(-29), hasta: fechaMX() },
-}
-
-// ── Tooltip personalizado ────────────────────────────────────────
-
-function TooltipCafe({ active, payload, label }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600
-                    rounded-xl px-3 py-2 shadow-warm text-xs">
-      <p className="font-semibold text-cafe-700 dark:text-crema-200 mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} style={{ color: p.color }} className="font-medium">
-          {p.name}: {p.name === 'Pedidos'
-            ? p.value
-            : formatMXN(p.value)}
-        </p>
-      ))}
-    </div>
-  )
 }
 
 // ── KPI card ─────────────────────────────────────────────────────
@@ -287,7 +279,13 @@ export default function Analisis() {
                 <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false}
                   tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
-                <Tooltip content={(props) => <TooltipCafe {...props} />} />
+                <Tooltip
+                  formatter={(value) => [formatMXN(value), 'Ventas']}
+                  labelFormatter={(label) => `Día: ${label}`}
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                />
                 <Bar dataKey="Ventas" fill={CHART_COLORS[0]}
                   radius={[4, 4, 0, 0]} maxBarSize={40} />
               </BarChart>
@@ -305,12 +303,21 @@ export default function Analisis() {
                   <PieChart>
                     <Pie data={porCanal} cx="50%" cy="50%"
                       innerRadius={45} outerRadius={70}
-                      dataKey="value" paddingAngle={3}>
+                      dataKey="value" paddingAngle={3}
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
+                      labelLine={false}>
                       {porCanal.map((_, i) => (
                         <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(v, n) => [v + ' pedidos', n]} />
+                    <Tooltip
+                      formatter={(value, name) => [`${value} pedidos`, name]}
+                      contentStyle={TOOLTIP_STYLE}
+                      itemStyle={TOOLTIP_ITEM_STYLE}
+                      labelStyle={TOOLTIP_LABEL_STYLE}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-3 space-y-1.5">
@@ -347,7 +354,13 @@ export default function Analisis() {
               <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false}
                 tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
-              <Tooltip content={(props) => <TooltipCafe {...props} />} />
+              <Tooltip
+                formatter={(value) => [formatMXN(value), 'Acumulado']}
+                labelFormatter={(label) => `Día: ${label}`}
+                contentStyle={TOOLTIP_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
+                labelStyle={TOOLTIP_LABEL_STYLE}
+              />
               <Line type="monotone" dataKey="Acumulado" stroke={CHART_COLORS[1]}
                 strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
