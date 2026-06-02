@@ -87,12 +87,60 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
   )
 }
 
+// ── Helpers de ordenamiento ──────────────────────────────────────
+
+function SortBtn({ label, campo, sortState, onSort }) {
+  const { campo: campoActivo, dir } = sortState
+  const activo = campoActivo === campo
+  return (
+    <button
+      onClick={() => onSort(campo)}
+      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
+        ${activo
+          ? 'bg-cafe-700 text-crema-100'
+          : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}
+    >
+      {label}
+      <span className="text-[10px] leading-none opacity-70">
+        {activo ? (dir === 'asc' ? '↑' : '↓') : '↕'}
+      </span>
+    </button>
+  )
+}
+
+function aplicarOrden(lista, { campo, dir }) {
+  return [...lista].sort((a, b) => {
+    let va, vb
+    if (campo === 'id_pedido') {
+      va = parseInt(a.id_pedido) || 0
+      vb = parseInt(b.id_pedido) || 0
+    } else if (campo === 'total') {
+      va = parseFloat(a.total) || 0
+      vb = parseFloat(b.total) || 0
+    } else if (campo === 'fecha_hora') {
+      va = a.fecha_hora ? new Date(a.fecha_hora).getTime() : 0
+      vb = b.fecha_hora ? new Date(b.fecha_hora).getTime() : 0
+    } else {
+      return 0
+    }
+    return dir === 'asc' ? va - vb : vb - va
+  })
+}
+
 export default function PedidosHoy() {
   const [pedidos, setPedidos]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [cargando, setCargando] = useState(null)
   const [filtro, setFiltro]     = useState('todos')
   const [error, setError]       = useState('')
+  const [orden, setOrden]       = useState({ campo: 'id_pedido', dir: 'desc' })
+
+  function toggleOrden(campo) {
+    setOrden(o => ({
+      campo,
+      dir: o.campo === campo && o.dir === 'desc' ? 'asc' : 'desc',
+    }))
+  }
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -134,9 +182,10 @@ export default function PedidosHoy() {
     setCargando(null)
   }
 
-  const filtrados = filtro === 'todos'
-    ? pedidos
-    : pedidos.filter(p => p.estado === filtro)
+  const filtrados = aplicarOrden(
+    filtro === 'todos' ? pedidos : pedidos.filter(p => p.estado === filtro),
+    orden,
+  )
 
   // Métricas
   const pendientes   = pedidos.filter(p => p.estado === 'pendiente').length
@@ -161,7 +210,7 @@ export default function PedidosHoy() {
         ))}
       </div>
 
-      {/* Filtros + Refresh */}
+      {/* Filtros + Orden + Refresh */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div className="flex gap-2 flex-wrap">
           {['todos', ...ESTADOS].map(e => (
@@ -178,6 +227,12 @@ export default function PedidosHoy() {
               )}
             </button>
           ))}
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-cafe-400 dark:text-cafe-500">Ordenar:</span>
+          <SortBtn label="# Pedido" campo="id_pedido"  sortState={orden} onSort={toggleOrden} />
+          <SortBtn label="Total"    campo="total"       sortState={orden} onSort={toggleOrden} />
+          <SortBtn label="Hora"     campo="fecha_hora"  sortState={orden} onSort={toggleOrden} />
         </div>
         <button onClick={cargar} disabled={loading}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700 transition-all disabled:opacity-50">
