@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { analytics, formatMXN, formatFecha, canalBadge } from '../api/api'
+import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 
 const CHART_COLORS = ['#8B4513', '#C1440E', '#6B7C3D', '#d4a96a', '#3b82f6']
@@ -54,6 +54,43 @@ function KpiCard({ icon, label, value, sub, color = 'text-cafe-800 dark:text-cre
   )
 }
 
+// ── Helpers de cálculo frontend ─────────────────────────────────
+
+function agruparPorFecha(pedidos) {
+  return pedidos.reduce((acc, p) => {
+    // fecha_hora puede ser "2024-01-15 10:30:00" o "2024-01-15T10:30:00"
+    const fecha = p.fecha_hora
+      ? String(p.fecha_hora).substring(0, 10)
+      : null
+    if (!fecha) return acc
+    const prev = acc[fecha] || { total: 0, count: 0 }
+    return { ...acc, [fecha]: { total: prev.total + parseFloat(p.total || 0), count: prev.count + 1 } }
+  }, {})
+}
+
+function calcularTop(pedidos, campo) {
+  const mapa = {}
+  pedidos.forEach(p => {
+    const val = p[campo]
+    if (val) mapa[val] = (mapa[val] || 0) + 1
+  })
+  return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null
+}
+
+function calcularProductoTop(pedidos) {
+  const mapa = {}
+  pedidos.forEach(p => {
+    const items = typeof p.items === 'string'
+      ? (() => { try { return JSON.parse(p.items) } catch { return [] } })()
+      : (p.items || [])
+    items.forEach(it => {
+      const nombre = it.nombre_producto
+      if (nombre) mapa[nombre] = (mapa[nombre] || 0) + (it.cantidad || 1)
+    })
+  })
+  return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null
+}
+
 // ── Chips de preguntas rápidas ───────────────────────────────────
 
 const PREGUNTAS_RAPIDAS = [
@@ -87,48 +124,60 @@ export default function Analisis() {
   const [enviando, setEnviando]   = useState(false)
   const chatBottomRef             = useRef(null)
 
-  // ── Carga de datos ─────────────────────────────────────────────
+  // ── Carga de datos — usa getPedidos y calcula KPIs en frontend ──
 
   const cargar = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      const res = await analytics.getPeriodo(fechaDesde, fechaHasta)
+      const res = await pedidosApi.getAll({ fecha_desde: fechaDesde, fecha_hasta: fechaHasta })
       if (!res.ok) { setError(`Error: ${res.message || 'sin datos'}`); return }
 
-      const data = res.data
+      const todos = Array.isArray(res.data) ? res.data : []
+      const entregados = todos.filter(p => p.estado === 'entregado')
 
+      // ── KPIs ──
+      const totalVentas = entregados.reduce((s, p) => s + parseFloat(p.total || 0), 0)
       setKpis({
-        totalVentas:    data.total_ventas    ?? 0,
-        ticketPromedio: data.ticket_promedio ?? 0,
-        totalPedidos:   data.total_pedidos   ?? 0,
-        canalTop:       data.canal_top       ?? '—',
-        productoTop:    data.producto_top    ?? '—',
+        totalVentas,
+        ticketPromedio: entregados.length ? totalVentas / entregados.length : 0,
+        totalPedidos:   todos.length,
+        canalTop:       calcularTop(todos, 'canal')       || '—',
+        productoTop:    calcularProductoTop(todos)        || '—',
       })
 
+      // ── Ventas por día ──
+      const porDia = agruparPorFecha(entregados)
       setVentasDia(
-        (data.ventas_por_dia ?? []).map(d => ({
-          dia:     formatFecha(d.fecha),
-          Ventas:  parseFloat(d.total   ?? 0),
-          Pedidos: parseInt(d.pedidos   ?? 0, 10),
-        }))
+        Object.entries(porDia)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([fecha, { total, count }]) => ({
+            dia:     formatFecha(fecha),
+            Ventas:  total,
+            Pedidos: count,
+          }))
       )
 
+      // ── Por canal ──
+      const canalMap = {}
+      todos.forEach(p => {
+        const k = p.canal || 'local'
+        canalMap[k] = (canalMap[k] || 0) + 1
+      })
       setPorCanal(
-        (data.por_canal ?? []).map(c => ({
-          name:  canalBadge(c.canal).label,
-          value: parseInt(c.pedidos ?? 0, 10),
+        Object.entries(canalMap).map(([canal, count]) => ({
+          name:  canalBadge(canal).label,
+          value: count,
         }))
       )
 
-      // Tendencia acumulada
+      // ── Tendencia acumulada ──
       setTendencia(
-        (data.ventas_por_dia ?? []).reduce((acc, d) => {
-          const prev = acc.length ? acc[acc.length - 1].Acumulado : 0
-          return [...acc, {
-            dia:       formatFecha(d.fecha),
-            Acumulado: prev + parseFloat(d.total ?? 0),
-          }]
-        }, [])
+        Object.entries(porDia)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .reduce((acc, [fecha, { total }]) => {
+            const prev = acc.length ? acc[acc.length - 1].Acumulado : 0
+            return [...acc, { dia: formatFecha(fecha), Acumulado: prev + total }]
+          }, [])
       )
     } catch (err) {
       setError(`Error de conexión: ${err?.message || String(err)}`)
@@ -164,6 +213,16 @@ export default function Analisis() {
     setInputChat('')
     setEnviando(true)
 
+    if (!N8N_WEBHOOK) {
+      setMensajes(m => [...m, {
+        role:  'agent',
+        texto: 'El agente IA no está configurado aún. Agrega VITE_N8N_WEBHOOK en las variables de entorno de EasyPanel.',
+        ts:    Date.now(),
+      }])
+      setEnviando(false)
+      return
+    }
+
     try {
       const res = await fetch(N8N_WEBHOOK, {
         method: 'POST',
@@ -181,7 +240,7 @@ export default function Analisis() {
     } catch (err) {
       setMensajes(m => [...m, {
         role:  'agent',
-        texto: `Error al conectar con el agente: ${err?.message ?? 'sin respuesta'}`,
+        texto: 'Error al conectar con el agente IA. Verifica que el webhook de n8n esté activo.',
         ts:    Date.now(),
       }])
     } finally {
