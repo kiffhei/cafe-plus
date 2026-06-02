@@ -425,6 +425,32 @@ Siempre trabajar desde `~/proyectos/cafe-plus/`.
 
 ---
 
+## OPTIMIZACIÓN DE TOKENS EN CLAUDE CODE
+
+### Estrategias actuales (ya aplicadas)
+- **CLAUDE.md** en la raíz → evita que Claude redescubra el proyecto cada sesión
+- **Skills routing** → leer solo la skill relevante por tarea, no todas
+- **`/compact`** → ejecutar manualmente cuando la sesión lleve 40-50% de contexto usado.
+  Claude resume la conversación y reinicia la ventana sin perder el estado del trabajo.
+
+### Graphify — alternativa si el proyecto crece significativamente
+Si el proyecto supera ~50 archivos o las sesiones se vuelven lentas y costosas,
+evaluar **Graphify**: pre-compila el codebase en un grafo de conocimiento que
+Claude Code consulta en lugar de leer archivos uno por uno.
+
+Instalación cuando se requiera:
+```bash
+pip install graphify
+cd ~/proyectos/cafe-plus
+graphify build   # genera el grafo una vez
+# Claude Code lo usa automáticamente en sesiones siguientes
+```
+
+**Para el tamaño actual de Café+ (~15 archivos JSX) no es necesario.**
+El CLAUDE.md y el `/compact` son suficientes.
+
+---
+
 ## CREDENCIALES DE PRUEBA
 
 ```
