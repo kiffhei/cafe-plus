@@ -112,16 +112,23 @@ export const agente = {
 // ── Helpers de formato ────────────────────────────────────────
 
 export function formatMXN(cantidad) {
+  const num = parseFloat(cantidad)
+  if (cantidad == null || cantidad === '' || isNaN(num)) return '$0.00'
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency: 'MXN',
     minimumFractionDigits: 2,
-  }).format(cantidad || 0)
+  }).format(num)
 }
 
 export function formatFecha(fechaStr) {
-  if (!fechaStr) return '—'
-  const d = new Date(fechaStr + 'T00:00:00')
+  if (fechaStr == null || fechaStr === '') return '—'
+  // Si viene como datetime completo (contiene 'T' o espacio), usar directo.
+  // Si viene solo como fecha YYYY-MM-DD, agregar hora para evitar desfase UTC.
+  const raw = String(fechaStr)
+  const iso = raw.includes('T') || raw.includes(' ') ? raw : `${raw}T12:00:00`
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat('es-MX', {
     day: '2-digit', month: 'short', year: 'numeric',
     timeZone: 'America/Mexico_City',
@@ -129,8 +136,9 @@ export function formatFecha(fechaStr) {
 }
 
 export function formatFechaHora(fechaStr) {
-  if (!fechaStr) return '—'
-  const d = new Date(fechaStr)
+  if (fechaStr == null || fechaStr === '') return '—'
+  const d = new Date(String(fechaStr))
+  if (isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat('es-MX', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
