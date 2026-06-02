@@ -266,7 +266,7 @@ export default function Productos() {
       )}
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl border border-crema-200 overflow-hidden shadow-sm">
+      <div className="table-wrapper">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-cafe-400">
             <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
@@ -279,13 +279,13 @@ export default function Productos() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 border-b border-crema-200">
+              <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Producto</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Categoría</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Costo</th>
+                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Categoría</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Costo</th>
                 <th className="text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Precio</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Margen</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Stock</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Margen</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Stock</th>
                 {esAdmin && <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>}
                 {esAdmin && <th className="px-5 py-3" />}
               </tr>
@@ -297,27 +297,27 @@ export default function Productos() {
                   : null
                 return (
                   <tr key={p.id_producto}
-                    className={`border-b border-crema-100 hover:bg-crema-50/50 transition-colors
+                    className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors
                       ${!p.activo ? 'opacity-50' : ''}
-                      ${i % 2 === 0 ? '' : 'bg-crema-50/20'}`}>
+                      ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
                     <td className="px-5 py-4">
-                      <div className="font-medium text-cafe-800 text-sm">{p.nombre}</div>
+                      <div className="font-medium text-cafe-800 dark:text-crema-100 text-sm">{p.nombre}</div>
                       {p.descripcion && (
                         <div className="text-xs text-cafe-400 mt-0.5 truncate max-w-xs">{p.descripcion}</div>
                       )}
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-crema-100 text-cafe-700 capitalize">
+                    <td className="hidden sm:table-cell px-5 py-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-crema-100 dark:bg-cafe-700 text-cafe-700 dark:text-crema-200 capitalize">
                         {p.categoria}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-right text-sm text-cafe-600">
+                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-cafe-600 dark:text-cafe-400">
                       {p.costo ? `$${parseFloat(p.costo).toFixed(2)}` : '—'}
                     </td>
-                    <td className="px-5 py-4 text-right text-sm font-semibold text-cafe-800">
+                    <td className="px-5 py-4 text-right text-sm font-semibold text-cafe-800 dark:text-crema-100">
                       ${parseFloat(p.precio_venta || 0).toFixed(2)}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="hidden sm:table-cell px-5 py-4 text-right">
                       {margen !== null && (
                         <span className={`text-xs font-semibold
                           ${parseFloat(margen) >= 50 ? 'text-olivo-600' :
@@ -326,7 +326,7 @@ export default function Productos() {
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-right text-sm text-cafe-600">
+                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-cafe-600 dark:text-cafe-400">
                       {p.cantidad_stock ?? '—'}
                     </td>
                     {esAdmin && (

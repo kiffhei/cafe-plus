@@ -185,7 +185,7 @@ export default function NuevoPedido() {
   )
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex flex-col lg:flex-row gap-6 h-full">
       {/* Panel izquierdo — catálogo */}
       <div className="flex-1 min-w-0">
         {/* Canal + Cliente */}
@@ -272,7 +272,7 @@ export default function NuevoPedido() {
       </div>
 
       {/* Panel derecho — resumen */}
-      <div className="w-80 shrink-0">
+      <div className="w-full lg:w-80 shrink-0">
         <div className="bg-white dark:bg-cafe-800 rounded-2xl border border-cafe-100 dark:border-cafe-700 shadow-sm sticky top-0">
           <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700">
             <h2 className="font-semibold text-cafe-800 dark:text-crema-100">Resumen del pedido</h2>

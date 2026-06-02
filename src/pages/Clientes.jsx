@@ -225,7 +225,7 @@ export default function Clientes() {
       )}
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl border border-crema-200 overflow-hidden shadow-sm">
+      <div className="table-wrapper">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-cafe-400">
             <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
@@ -238,21 +238,21 @@ export default function Clientes() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 border-b border-crema-200">
+              <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Cliente</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Contacto</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide w-48">Visitas / Meta</th>
+                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Contacto</th>
+                <th className="hidden md:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide w-48">Visitas / Meta</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Descuento</th>
-                {esAdmin && <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>}
+                {esAdmin && <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>}
                 <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody>
               {filtrados.map((c, i) => (
                 <tr key={c.id_cliente}
-                  className={`border-b border-crema-100 hover:bg-crema-50/50 transition-colors
+                  className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors
                     ${!c.activo ? 'opacity-50' : ''}
-                    ${i % 2 === 0 ? '' : 'bg-crema-50/20'}`}>
+                    ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-terracota-100 flex items-center justify-center text-terracota-700 font-bold text-sm shrink-0">
@@ -267,11 +267,11 @@ export default function Clientes() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="text-sm text-cafe-700">{c.telefono}</div>
+                  <td className="hidden sm:table-cell px-5 py-4">
+                    <div className="text-sm text-cafe-700 dark:text-crema-200">{c.telefono}</div>
                     {c.email && <div className="text-xs text-cafe-400 truncate max-w-[160px]">{c.email}</div>}
                   </td>
-                  <td className="px-5 py-4 w-48">
+                  <td className="hidden md:table-cell px-5 py-4 w-48">
                     <BarraVisitas
                       visitas={c.visitas_acumuladas || 0}
                       proximo={c.proximo_regalo}
@@ -286,7 +286,7 @@ export default function Clientes() {
                     </span>
                   </td>
                   {esAdmin && (
-                    <td className="px-5 py-4">
+                    <td className="hidden sm:table-cell px-5 py-4">
                       <button onClick={() => handleToggle(c)}
                         disabled={toggling === c.id_cliente}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer

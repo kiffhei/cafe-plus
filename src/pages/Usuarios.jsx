@@ -196,7 +196,7 @@ export default function Usuarios() {
       )}
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl border border-crema-200 overflow-hidden shadow-sm">
+      <div className="table-wrapper">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-cafe-400">
             <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
@@ -209,11 +209,11 @@ export default function Usuarios() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 border-b border-crema-200">
+              <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Usuario</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Nombre</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Rol</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Registro</th>
+                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Registro</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>
                 <th className="px-5 py-3" />
               </tr>
@@ -221,27 +221,27 @@ export default function Usuarios() {
             <tbody>
               {filtrados.map((u, i) => (
                 <tr key={u.id_usuario}
-                  className={`border-b border-crema-100 hover:bg-crema-50/50 transition-colors ${i % 2 === 0 ? '' : 'bg-crema-50/20'}`}>
+                  className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-cafe-100 flex items-center justify-center text-cafe-700 font-semibold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-cafe-100 dark:bg-cafe-700 flex items-center justify-center text-cafe-700 dark:text-crema-200 font-semibold text-sm shrink-0">
                         {u.nombre?.[0]?.toUpperCase()}
                       </div>
-                      <span className="font-mono text-sm text-cafe-700">{u.usuario}</span>
+                      <span className="font-mono text-sm text-cafe-700 dark:text-crema-200">{u.usuario}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-cafe-800">
+                  <td className="px-5 py-4 text-sm text-cafe-800 dark:text-crema-100">
                     {u.nombre} {u.apellidos}
                   </td>
                   <td className="px-5 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                       ${u.categoria === 'admin'
-                        ? 'bg-terracota-100 text-terracota-700'
-                        : 'bg-olivo-100 text-olivo-700'}`}>
+                        ? 'bg-terracota-100 text-terracota-700 dark:bg-terracota-900/40 dark:text-terracota-300'
+                        : 'bg-olivo-100 text-olivo-700 dark:bg-olivo-900/40 dark:text-olivo-300'}`}>
                       {u.categoria}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-cafe-500">
+                  <td className="hidden sm:table-cell px-5 py-4 text-sm text-cafe-500 dark:text-cafe-400">
                     {u.fecha_registro || '—'}
                   </td>
                   <td className="px-5 py-4">

@@ -18,7 +18,7 @@ const NAV_ITEMS = [
     icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 ]
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user, logout, isAdmin } = useAuth()
   const navigate = useNavigate()
 
@@ -27,8 +27,15 @@ export default function Sidebar({ collapsed, onToggle }) {
   const items = NAV_ITEMS.filter(i => i.roles.includes(user?.categoria))
 
   return (
-    <aside className={`flex flex-col bg-cafe-800 text-crema-200 transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} min-h-screen shrink-0`}>
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-cafe-700">
+    <aside className={`
+      fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+      flex flex-col bg-cafe-800 text-crema-200
+      transition-all duration-300 ease-in-out
+      min-h-screen shrink-0
+      ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      ${collapsed ? 'w-16' : 'w-60'}
+    `}>
+      <div className="relative flex items-center gap-3 px-4 py-5 border-b border-cafe-700">
         <div className="w-8 h-8 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
           <span className="text-white font-bold text-sm">C+</span>
         </div>
@@ -38,6 +45,16 @@ export default function Sidebar({ collapsed, onToggle }) {
             <p className="text-cafe-400 text-xs">{isAdmin ? 'Administrador' : 'Cajero'}</p>
           </div>
         )}
+        <button
+          className="lg:hidden absolute top-4 right-4 p-1.5 rounded-lg
+                     text-cafe-400 hover:text-crema-200 hover:bg-cafe-700 transition-colors"
+          onClick={onMobileClose}
+          aria-label="Cerrar menú"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
 
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">

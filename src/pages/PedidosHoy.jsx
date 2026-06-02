@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { pedidos as pedidosApi, formatMXN, formatFechaHora, canalBadge, estadoBadge } from '../api/api'
+import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, estadoBadge } from '../api/api'
 
 const ESTADOS = ['pendiente', 'preparacion', 'entregado', 'cancelado']
 
@@ -50,7 +50,7 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
       <div className="px-4 pb-3 flex items-center justify-between">
         <div>
           <p className="text-base font-bold text-cafe-800 dark:text-crema-100">{formatMXN(pedido.total)}</p>
-          <p className="text-xs text-cafe-400">{formatFechaHora(pedido.fecha_hora)}</p>
+          <p className="text-xs text-cafe-400">{formatFecha(pedido.fecha_hora)}</p>
         </div>
 
         {/* Cambio de estado */}
