@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { pedidos as pedidosApi, formatMXN, formatFechaHora, canalBadge, estadoBadge } from '../api/api'
+import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, estadoBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 
 const CANALES = ['local','didi','rappi','ubereats']
@@ -23,7 +23,9 @@ function ModalDetalle({ pedido, onClose }) {
             <h3 className="font-semibold text-cafe-800 dark:text-crema-100">
               Pedido <span className="font-mono">#{pedido.id_pedido}</span>
             </h3>
-            <p className="text-xs text-cafe-400 mt-0.5">{formatFechaHora(pedido.fecha_hora)}</p>
+            <p className="text-xs text-cafe-400 mt-0.5">
+              {pedido.fecha_hora && pedido.fecha_hora !== '' ? formatFecha(pedido.fecha_hora) : '—'}
+            </p>
           </div>
           <button onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-cafe-400 hover:text-cafe-700 dark:hover:text-crema-200 hover:bg-crema-100 dark:hover:bg-cafe-700 transition-all">
@@ -108,12 +110,19 @@ export default function Historial() {
 
   const cargar = useCallback(async () => {
     setLoading(true); setError('')
-    const params = { ...filtros }
-    if (!isAdmin) params.id_cajero = user?.id_usuario
-    const res = await pedidosApi.getAll(params)
-    if (res.ok) { setPedidos(res.data); setPagina(1) }
-    else setError('Error cargando historial')
-    setLoading(false)
+    try {
+      const params = { ...filtros }
+      if (!isAdmin) params.id_cajero = user?.id_usuario
+      // Eliminar claves vacías para no enviar parámetros vacíos al backend
+      Object.keys(params).forEach(k => { if (params[k] === '') delete params[k] })
+      const res = await pedidosApi.getAll(params)
+      if (res.ok) { setPedidos(res.data); setPagina(1) }
+      else setError(`Error: ${res.message || 'respuesta inválida del servidor'}`)
+    } catch (err) {
+      setError(`Error de conexión: ${err?.message || String(err)}`)
+    } finally {
+      setLoading(false)
+    }
   }, [filtros, isAdmin, user])
 
   useEffect(() => { cargar() }, [cargar])
@@ -248,7 +257,9 @@ export default function Historial() {
                   className={`grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.8fr_auto] gap-1 sm:gap-4 px-5 py-3.5 cursor-pointer hover:bg-crema-50 dark:hover:bg-cafe-700/50 transition-colors
                     ${i < pagActual.length - 1 ? 'border-b border-cafe-100 dark:border-cafe-700' : ''}`}>
                   <span className="font-mono text-xs text-cafe-500 dark:text-cafe-400">#{p.id_pedido}</span>
-                  <span className="text-sm text-cafe-700 dark:text-crema-200">{formatFechaHora(p.fecha_hora)}</span>
+                  <span className="text-sm text-cafe-700 dark:text-crema-200">
+                    {p.fecha_hora && p.fecha_hora !== '' ? formatFecha(p.fecha_hora) : '—'}
+                  </span>
                   <span><span className={canal.cls}>{canal.label}</span></span>
                   <span className="text-sm text-cafe-600 dark:text-cafe-300 truncate">{p.nombre_cliente || <span className="text-cafe-300 dark:text-cafe-600">—</span>}</span>
                   <span className="text-sm text-cafe-600 dark:text-cafe-300 truncate">{p.nombre_cajero}</span>

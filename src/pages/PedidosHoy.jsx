@@ -50,7 +50,9 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
       <div className="px-4 pb-3 flex items-center justify-between">
         <div>
           <p className="text-base font-bold text-cafe-800 dark:text-crema-100">{formatMXN(pedido.total)}</p>
-          <p className="text-xs text-cafe-400">{formatFecha(pedido.fecha_hora)}</p>
+          <p className="text-xs text-cafe-400">
+            {pedido.fecha_hora && pedido.fecha_hora !== '' ? formatFecha(pedido.fecha_hora) : '—'}
+          </p>
         </div>
 
         {/* Cambio de estado */}
