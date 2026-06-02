@@ -36,12 +36,18 @@ function ThSort({ children, campo, sortState, onSort, className = '' }) {
   )
 }
 
+function extraerNumero(id) {
+  if (!id) return 0
+  const solo = String(id).replace(/\D/g, '')
+  return solo ? parseInt(solo, 10) : 0
+}
+
 function aplicarOrden(lista, { campo, dir }) {
   return [...lista].sort((a, b) => {
     let va, vb
     if (campo === 'id_pedido') {
-      va = parseInt(a.id_pedido) || 0
-      vb = parseInt(b.id_pedido) || 0
+      va = extraerNumero(a.id_pedido)
+      vb = extraerNumero(b.id_pedido)
     } else if (campo === 'fecha_hora') {
       va = a.fecha_hora ? new Date(a.fecha_hora).getTime() : 0
       vb = b.fecha_hora ? new Date(b.fecha_hora).getTime() : 0
