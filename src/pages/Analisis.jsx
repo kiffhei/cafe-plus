@@ -7,22 +7,23 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge } from '../api/api'
+// getAllDetalle incluye campo items para calcular producto top
 import { useAuth } from '../context/AuthContext'
 
-const CHART_COLORS = ['#8B4513', '#C1440E', '#6B7C3D', '#d4a96a', '#3b82f6']
+const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
 
-// Estilo compartido para todos los tooltips de recharts
+// Estilo compartido para todos los tooltips de recharts — paleta Fresh Matcha
 const TOOLTIP_STYLE = {
-  backgroundColor: '#3d1e08',
-  border: '1px solid #7a3d11',
+  backgroundColor: '#0d2d1f',
+  border: '1px solid #1a4a34',
   borderRadius: '8px',
-  color: '#f5e6d3',
+  color: '#e8f5f0',
   fontSize: '12px',
 }
-const TOOLTIP_ITEM_STYLE  = { color: '#f5e6d3' }
-const TOOLTIP_LABEL_STYLE = { color: '#d4a96a', fontWeight: '600' }
+const TOOLTIP_ITEM_STYLE  = { color: '#e8f5f0' }
+const TOOLTIP_LABEL_STYLE = { color: '#84cba8', fontWeight: '600' }
 
 // ── Helpers de fecha ─────────────────────────────────────────────
 
@@ -77,18 +78,31 @@ function calcularTop(pedidos, campo) {
   return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null
 }
 
+function parseItems(raw) {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw) } catch { return [] }
+  }
+  return []
+}
+
 function calcularProductoTop(pedidos) {
+  // Log de diagnóstico — ver estructura real del campo items
+  if (pedidos.length > 0) {
+    console.log('[Analisis] items sample:', pedidos[0]?.items, '| type:', typeof pedidos[0]?.items)
+  }
   const mapa = {}
   pedidos.forEach(p => {
-    const items = typeof p.items === 'string'
-      ? (() => { try { return JSON.parse(p.items) } catch { return [] } })()
-      : (p.items || [])
+    const items = parseItems(p.items)
     items.forEach(it => {
-      const nombre = it.nombre_producto
-      if (nombre) mapa[nombre] = (mapa[nombre] || 0) + (it.cantidad || 1)
+      // Soportar nombre_producto o nombre (distintas keys según versión GAS)
+      const nombre = it.nombre_producto ?? it.nombre ?? it.product_name
+      if (nombre) mapa[nombre] = (mapa[nombre] || 0) + (Number(it.cantidad) || 1)
     })
   })
-  return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null
+  if (Object.keys(mapa).length === 0) return null
+  return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0][0]
 }
 
 // ── Chips de preguntas rápidas ───────────────────────────────────
@@ -129,7 +143,7 @@ export default function Analisis() {
   const cargar = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      const res = await pedidosApi.getAll({ fecha_desde: fechaDesde, fecha_hasta: fechaHasta })
+      const res = await pedidosApi.getAllDetalle({ fecha_desde: fechaDesde, fecha_hasta: fechaHasta })
       if (!res.ok) { setError(`Error: ${res.message || 'sin datos'}`); return }
 
       const todos = Array.isArray(res.data) ? res.data : []

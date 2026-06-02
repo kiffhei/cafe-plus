@@ -80,12 +80,14 @@ export const clientes = {
 }
 
 export const pedidos = {
-  // sin_detalle=true → GAS omite el join con DetallePedidos (mucho más rápido para listas)
-  getAll:       (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'true' }),
-  getHoy:       (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'true' }),
-  getById:      (id)          => apiGet('getPedidoById', { id }),
-  create:       (data)        => apiPost('createPedido', data),
-  updateEstado: (id, estado)  => apiPost('updateEstado', { id_pedido: id, estado }),
+  // sin_detalle=true → GAS omite el join con DetallePedidos (más rápido para listas)
+  getAll:        (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'true' }),
+  getHoy:        (params = {}) => apiGet('getPedidos', { ...params, sin_detalle: 'true' }),
+  // Con detalle → incluye campo items (necesario para calcular producto top)
+  getAllDetalle:  (params = {}) => apiGet('getPedidos', { ...params }),
+  getById:       (id)          => apiGet('getPedidoById', { id }),
+  create:        (data)        => apiPost('createPedido', data),
+  updateEstado:  (id, estado)  => apiPost('updateEstado', { id_pedido: id, estado }),
 }
 
 export const analytics = {
