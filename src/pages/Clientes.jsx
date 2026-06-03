@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
-import { clientes as clientesApi } from '../api/api'
+import { clientes as clientesApi, pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, estadoBadge } from '../api/api'
+
+function esInactivo(c) {
+  if (!c.ultimo_pedido) return false
+  const d = new Date(c.ultimo_pedido)
+  if (isNaN(d.getTime())) return false
+  return (Date.now() - d.getTime()) > 30 * 24 * 60 * 60 * 1000
+}
 
 function BadgeCumple() {
   return (
@@ -28,6 +35,113 @@ function BarraVisitas({ visitas, proximo }) {
   )
 }
 
+function ModalPedidos({ cliente, onClose }) {
+  const [pedidos, setPedidos]   = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState('')
+
+  useEffect(() => {
+    async function cargar() {
+      setLoading(true)
+      try {
+        const res = await pedidosApi.getAll({ id_cliente: cliente.id_cliente, limit: 10 })
+        if (res.ok) {
+          // Si la API no filtra por id_cliente, filtrar en frontend por nombre/teléfono
+          const todos = res.data || []
+          const filtrados = todos.filter(p =>
+            p.id_cliente === cliente.id_cliente ||
+            p.nombre_cliente === `${cliente.nombre} ${cliente.apellidos}` ||
+            p.telefono_cliente === cliente.telefono
+          )
+          setPedidos(filtrados.length > 0 ? filtrados : todos.slice(0, 10))
+        } else {
+          setError(res.message || 'Error al cargar pedidos')
+        }
+      } catch {
+        setError('Error de conexión')
+      } finally {
+        setLoading(false)
+      }
+    }
+    cargar()
+  }, [cliente.id_cliente])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+         style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+      <div className="bg-white dark:bg-cafe-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 dark:border-cafe-700">
+          <div>
+            <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
+              Pedidos de {cliente.nombre} {cliente.apellidos}
+            </h2>
+            <p className="text-xs text-cafe-400 mt-0.5">Últimos pedidos registrados</p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-crema-100 dark:hover:bg-cafe-700 text-cafe-400 hover:text-cafe-700 dark:hover:text-crema-100 transition-colors text-xl">
+            ×
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-auto px-6 py-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-10 text-cafe-400">
+              <span className="w-5 h-5 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-2" />
+              Cargando pedidos...
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 text-sm rounded-lg px-4 py-3">
+              {error}
+            </div>
+          ) : pedidos.length === 0 ? (
+            <div className="text-center py-10 text-cafe-400">
+              Este cliente aún no tiene pedidos registrados
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
+                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Fecha</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Canal</th>
+                  <th className="text-right px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Total</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pedidos.map((p) => {
+                  const canal  = canalBadge(p.canal)
+                  const estado = estadoBadge(p.estado)
+                  return (
+                    <tr key={p.id_pedido}
+                      className="border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors">
+                      <td className="px-3 py-3 text-cafe-700 dark:text-crema-200">{formatFecha(p.fecha_hora)}</td>
+                      <td className="px-3 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${canal.cls}`}>
+                          {canal.label}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono text-cafe-800 dark:text-crema-100">{formatMXN(p.total)}</td>
+                      <td className="px-3 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${estado.cls}`}>
+                          {estado.label}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="px-6 py-4 border-t border-crema-200 dark:border-cafe-700 flex justify-end">
+          <button onClick={onClose} className="btn-secondary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
   const esNuevo = !cliente?.id_cliente
   const [form, setForm] = useState({
@@ -36,6 +150,7 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
     fecha_nacimiento: cliente?.fecha_nacimiento || '',
     telefono:         cliente?.telefono         || '',
     email:            cliente?.email            || '',
+    notas:            cliente?.notas            || '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -64,8 +179,8 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200">
+      <div className="bg-white dark:bg-cafe-800 rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 dark:border-cafe-700">
           <div>
             <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
               {esNuevo ? 'Nuevo cliente Plus' : 'Editar cliente'}
@@ -75,45 +190,45 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
             )}
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-crema-100 text-cafe-400 hover:text-cafe-700 transition-colors text-xl">
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-crema-100 dark:hover:bg-cafe-700 text-cafe-400 hover:text-cafe-700 dark:hover:text-crema-100 transition-colors text-xl">
             ×
           </button>
         </div>
 
         <div className="px-6 py-5 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 text-sm rounded-lg px-4 py-3">
               {error}
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Nombre *</label>
+              <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">Nombre *</label>
               <input value={form.nombre} onChange={e => set('nombre', e.target.value)}
                 className="input-cafe w-full" placeholder="María" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Apellidos *</label>
+              <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">Apellidos *</label>
               <input value={form.apellidos} onChange={e => set('apellidos', e.target.value)}
                 className="input-cafe w-full" placeholder="López García" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">Teléfono *</label>
+            <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">Teléfono *</label>
             <input value={form.telefono} onChange={e => set('telefono', e.target.value)}
               className="input-cafe w-full" placeholder="55 1234 5678" type="tel" />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">Email</label>
+            <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">Email</label>
             <input value={form.email} onChange={e => set('email', e.target.value)}
               className="input-cafe w-full" placeholder="correo@ejemplo.com" type="email" />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">
+            <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">
               Fecha de nacimiento
               <span className="text-cafe-400 font-normal ml-1">(para descuento de cumpleaños 🎂)</span>
             </label>
@@ -121,9 +236,19 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
               onChange={e => set('fecha_nacimiento', e.target.value)}
               className="input-cafe w-full" />
           </div>
+
+          <div>
+            <label className="block text-xs font-medium text-cafe-600 dark:text-cafe-400 mb-1">
+              Notas y preferencias
+              <span className="text-cafe-400 font-normal ml-1">(alergias, preferencias, etc.)</span>
+            </label>
+            <textarea value={form.notas} onChange={e => set('notas', e.target.value)}
+              className="input-cafe w-full resize-none dark:bg-cafe-900 dark:text-crema-100 dark:border-cafe-600" rows={2}
+              placeholder="Ej: sin azúcar, alérgico a gluten, prefiere leche de avena..." />
+          </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-crema-200 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-crema-200 dark:border-cafe-700 flex justify-end gap-3">
           <button onClick={onClose} className="btn-secondary">Cancelar</button>
           <button onClick={handleSubmit} disabled={loading}
             className="btn-primary flex items-center gap-2">
@@ -137,12 +262,13 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
 }
 
 export default function Clientes() {
-  const [lista, setLista]       = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [buscar, setBuscar]     = useState('')
-  const [modal, setModal]       = useState(null)
-  const [toggling, setToggling] = useState(null)
-  const [error, setError]       = useState('')
+  const [lista, setLista]             = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [buscar, setBuscar]           = useState('')
+  const [modal, setModal]             = useState(null)
+  const [modalPedidos, setModalPedidos] = useState(null)
+  const [toggling, setToggling]       = useState(null)
+  const [error, setError]             = useState('')
 
   const userStr = localStorage.getItem('cafe_user')
   const user    = userStr ? JSON.parse(userStr) : {}
@@ -259,9 +385,17 @@ export default function Clientes() {
                         {c.nombre?.[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-medium text-cafe-800 text-sm flex items-center gap-2">
+                        <div className="font-medium text-cafe-800 dark:text-crema-100 text-sm flex items-center gap-2 flex-wrap">
                           {c.nombre} {c.apellidos}
                           {c.es_cumpleanos && <BadgeCumple />}
+                          {c.notas && (
+                            <span title={c.notas} className="cursor-help text-cafe-400 hover:text-cafe-600 dark:hover:text-cafe-300">📝</span>
+                          )}
+                          {c.visitas_acumuladas > 0 && esInactivo(c) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-cafe-100 dark:bg-cafe-700 text-cafe-500 dark:text-cafe-300">
+                              💤 Inactivo
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-cafe-400">desde {c.fecha_registro || '—'}</div>
                       </div>
@@ -297,10 +431,18 @@ export default function Clientes() {
                     </td>
                   )}
                   <td className="px-5 py-4">
-                    <button onClick={() => setModal(c)}
-                      className="text-xs text-cafe-500 hover:text-cafe-800 font-medium hover:underline transition-colors">
-                      Editar
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => setModal(c)}
+                        className="text-xs text-cafe-500 hover:text-cafe-800 dark:hover:text-crema-100 font-medium hover:underline transition-colors">
+                        Editar
+                      </button>
+                      {c.visitas_acumuladas > 0 && (
+                        <button onClick={() => setModalPedidos(c)}
+                          className="text-xs text-cafe-500 hover:text-cafe-800 dark:hover:text-crema-100 font-medium hover:underline transition-colors">
+                          Ver pedidos
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -315,6 +457,13 @@ export default function Clientes() {
           onClose={() => setModal(null)}
           onSaved={() => { setModal(null); cargar() }}
           esAdmin={esAdmin}
+        />
+      )}
+
+      {modalPedidos && (
+        <ModalPedidos
+          cliente={modalPedidos}
+          onClose={() => setModalPedidos(null)}
         />
       )}
     </div>

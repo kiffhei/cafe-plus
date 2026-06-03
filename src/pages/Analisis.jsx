@@ -107,6 +107,23 @@ function calcularProductoTop(pedidos) {
   return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0][0]
 }
 
+function calcularHoraPico(pedidos) {
+  const conteo = Array(24).fill(0)
+  pedidos.forEach(p => {
+    if (!p.fecha_hora) return
+    const d = new Date(p.fecha_hora)
+    if (!isNaN(d.getTime())) {
+      conteo[d.getHours()]++
+    }
+  })
+  const maxVal = Math.max(...conteo)
+  return conteo.map((count, hora) => ({
+    hora: `${String(hora).padStart(2, '0')}:00`,
+    pedidos: count,
+    esPico: count === maxVal && maxVal > 0,
+  }))
+}
+
 // ── Chips de preguntas rápidas ───────────────────────────────────
 
 const PREGUNTAS_RAPIDAS = [
@@ -131,6 +148,7 @@ export default function Analisis() {
   const [ventasDia, setVentasDia] = useState([])
   const [porCanal, setPorCanal]   = useState([])
   const [tendencia, setTendencia] = useState([])
+  const [pedidos, setPedidos]     = useState([])
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState('')
 
@@ -149,6 +167,7 @@ export default function Analisis() {
       if (!res.ok) { setError(`Error: ${res.message || 'sin datos'}`); return }
 
       const todos = Array.isArray(res.data) ? res.data : []
+      setPedidos(todos)
       const entregados = todos.filter(p => p.estado === 'entregado')
 
       // ── KPIs ──
@@ -424,6 +443,33 @@ export default function Analisis() {
           <p className="text-cafe-500 dark:text-cafe-400 font-medium">
             Sin datos de ventas en este periodo
           </p>
+        </div>
+      )}
+
+      {/* ── Sección D: Hora pico ── */}
+      {!loading && pedidos.length > 0 && (
+        <div className="bg-white dark:bg-cafe-800 rounded-xl p-5 border border-cafe-100 dark:border-cafe-700 shadow-card">
+          <h3 className="text-sm font-semibold text-cafe-700 dark:text-cafe-300 uppercase tracking-wide mb-4">
+            Pedidos por hora del día
+          </h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={calcularHoraPico(pedidos)} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#52b78820" />
+              <XAxis dataKey="hora" tick={{ fontSize: 10, fill: '#84cba8' }}
+                tickFormatter={v => v.replace(':00', 'h')} interval={3} />
+              <YAxis tick={{ fontSize: 10, fill: '#84cba8' }} allowDecimals={false} />
+              <Tooltip
+                formatter={(value) => [value + ' pedidos', 'Hora']}
+                contentStyle={{ backgroundColor: '#0d2d1f', border: '1px solid #2d6a4f', borderRadius: '8px', fontSize: '12px' }}
+                labelStyle={{ color: '#84cba8' }}
+              />
+              <Bar dataKey="pedidos" radius={[3, 3, 0, 0]}>
+                {calcularHoraPico(pedidos).map((entry, i) => (
+                  <Cell key={i} fill={entry.esPico ? '#1e6091' : '#52b788'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
 
