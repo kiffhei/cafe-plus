@@ -125,9 +125,11 @@ export default function Login() {
           {tarjetas.map(t => (
             <div key={t.label} className="bg-cafe-800/60 backdrop-blur-sm rounded-xl p-4 border border-cafe-700">
               <p className="text-cafe-400 text-xs font-medium mb-1">{t.label}</p>
-              <p className={`font-semibold text-lg ${t.value === '—' ? 'text-cafe-600' : 'text-crema-200'}`}>
-                {t.value}
-              </p>
+              {t.value === '—' ? (
+                <div className="h-6 w-16 rounded-md bg-cafe-700/60 animate-pulse mt-1" />
+              ) : (
+                <p className="font-semibold text-lg text-crema-200">{t.value}</p>
+              )}
             </div>
           ))}
         </div>
