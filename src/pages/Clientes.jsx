@@ -67,7 +67,7 @@ function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200">
           <div>
-            <h2 className="text-lg font-semibold text-cafe-800">
+            <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
               {esNuevo ? 'Nuevo cliente Plus' : 'Editar cliente'}
             </h2>
             {esNuevo && (
@@ -180,7 +180,7 @@ export default function Clientes() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-cafe-800">Clientes Plus</h1>
+          <h1 className="text-2xl font-bold text-cafe-800 dark:text-crema-100">Clientes Plus</h1>
           <p className="text-sm text-cafe-500 mt-0.5">
             {lista.filter(c => c.activo).length} activos
             {cumpleHoy > 0 && (

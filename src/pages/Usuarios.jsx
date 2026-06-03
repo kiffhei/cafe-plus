@@ -46,7 +46,7 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200">
-          <h2 className="text-lg font-semibold text-cafe-800">
+          <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
             {esNuevo ? 'Nuevo usuario' : 'Editar usuario'}
           </h2>
           <button onClick={onClose}
@@ -167,7 +167,7 @@ export default function Usuarios() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-cafe-800">Usuarios del sistema</h1>
+          <h1 className="text-2xl font-bold text-cafe-800 dark:text-crema-100">Usuarios del sistema</h1>
           <p className="text-sm text-cafe-500 mt-0.5">
             {lista.length} usuario{lista.length !== 1 ? 's' : ''} registrado{lista.length !== 1 ? 's' : ''}
           </p>

@@ -53,7 +53,7 @@ function ModalProducto({ producto, onClose, onSaved }) {
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 sticky top-0 bg-white z-10">
-          <h2 className="text-lg font-semibold text-cafe-800">
+          <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
             {esNuevo ? 'Nuevo producto' : 'Editar producto'}
           </h2>
           <button onClick={onClose}
@@ -224,7 +224,7 @@ export default function Productos() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-cafe-800">Productos</h1>
+          <h1 className="text-2xl font-bold text-cafe-800 dark:text-crema-100">Productos</h1>
           <p className="text-sm text-cafe-500 mt-0.5">
             {lista.filter(p => p.activo).length} activos · {lista.length} total
           </p>
