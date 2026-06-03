@@ -377,7 +377,17 @@ export default function Analisis() {
                   itemStyle={TOOLTIP_ITEM_STYLE}
                   labelStyle={TOOLTIP_LABEL_STYLE}
                 />
-                <Bar dataKey="Ventas" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="Ventas" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                  {ventasDia.map((entry, i) => {
+                    const max = Math.max(...ventasDia.map(d => d.Ventas))
+                    return (
+                      <Cell key={i} fill={
+                        entry.Ventas > max * 0.66 ? '#1e6091' :
+                        entry.Ventas > max * 0.33 ? '#2d6a4f' : '#84cba8'
+                      } />
+                    )
+                  })}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -393,7 +403,6 @@ export default function Analisis() {
               <Pie data={porCanal} cx="50%" cy="50%"
                 innerRadius={45} outerRadius={70}
                 dataKey="value" paddingAngle={3}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}>
                 {porCanal.map((_, i) => (
                   <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
@@ -407,6 +416,21 @@ export default function Analisis() {
               />
             </PieChart>
           </ResponsiveContainer>
+          {/* Leyenda manual — grid 2col mobile, 4col desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+            {porCanal.map((entry, i) => {
+              const total = porCanal.reduce((s, d) => s + d.value, 0)
+              const pct = total > 0 ? Math.round((entry.value / total) * 100) : 0
+              return (
+                <div key={i} className="flex items-center gap-1.5 text-xs text-cafe-600 dark:text-cafe-300">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                  <span className="truncate">{entry.name}</span>
+                  <span className="font-semibold text-cafe-700 dark:text-crema-200 ml-auto">{pct}%</span>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
