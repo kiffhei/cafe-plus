@@ -517,3 +517,19 @@ El CLAUDE.md y el `/compact` son suficientes.
 Admin:  admin / admin123
 Cajero: cajero1 / cajero123
 ```
+
+---
+
+## GSTACK — Skills para Cafe+ (Sesión 5)
+
+Instalado en `.claude/skills/gstack/` (project-local). Telemetría OFF. Sin sync a Supabase.
+
+| Skill | Cuándo usarlo en Cafe+ |
+|-------|----------------------|
+| `/office-hours` | Brainstorming de nuevas features antes de planificar |
+| `/plan-eng-review` | Validar arquitectura antes de escribir código |
+| `/design-review` | QA de componentes React + accesibilidad |
+| `/qa` | Testing en navegador real (dark mode, mobile) |
+| `/review` | Code review de PRs o diffs |
+
+Verificar config: `./.claude/skills/gstack/bin/gstack-config list`
