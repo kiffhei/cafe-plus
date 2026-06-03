@@ -196,7 +196,7 @@ export default function NuevoPedido() {
               <div className="flex gap-2 flex-wrap">
                 {CANALES.map(c => (
                   <button key={c} onClick={() => setCanal(c)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                    className={`px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all
                       ${canal === c
                         ? 'bg-cafe-700 text-crema-100'
                         : 'bg-crema-100 dark:bg-cafe-700 text-cafe-600 dark:text-cafe-300 hover:bg-crema-200 dark:hover:bg-cafe-600'}`}>

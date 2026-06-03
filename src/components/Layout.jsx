@@ -20,7 +20,7 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       title={dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+      className="flex items-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium
                  transition-all duration-200 border
                  bg-cafe-800 text-crema-200 border-cafe-600 hover:bg-cafe-700
                  dark:bg-crema-200 dark:text-cafe-800 dark:border-crema-300 dark:hover:bg-crema-100"
