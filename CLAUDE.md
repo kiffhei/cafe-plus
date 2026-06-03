@@ -425,6 +425,47 @@ Siempre trabajar desde `~/proyectos/cafe-plus/`.
 
 ---
 
+## SKILLS GSTACK (garrytan/gstack)
+
+Instaladas en `.claude/skills/gstack/` — disponibles como comandos slash en Claude Code.
+Telemetría OFF, auto_upgrade OFF, skill_prefix OFF (configurado en instalación).
+
+### Mapa de uso para Café+
+
+| Skill | Qué hace | Cuándo usar en este proyecto |
+|-------|----------|------------------------------|
+| `/plan-eng-review` | Revisa un plan técnico antes de implementar | Antes de Clerk, módulos nuevos o cambios de arquitectura |
+| `/design-review` | Evalúa UI/UX con criterio profesional | Antes de publicar el portafolio o mostrar al cliente |
+| `/review` | Code review general del código | Al terminar Clientes CRM y Analisis completos |
+| `/qa` | Genera casos de prueba y revisa calidad | Antes de cada deploy importante |
+| `/office-hours` | Consulta técnica abierta con contexto | Decisiones de arquitectura (Clerk vs 2FA, Graphify, etc.) |
+
+### Flujo recomendado por sesión
+
+```
+1. /plan-eng-review  → validar el plan antes de codear
+2. Implementar       → tareas normales con /batch si son paralelas
+3. /review           → code review del resultado
+4. /qa               → verificar calidad antes del push
+5. /design-review    → antes de mostrar al cliente o publicar portafolio
+```
+
+### Prompt de inicio de sesión 5 con gstack
+
+```
+Lee el CLAUDE.md.
+Ejecuta /design-review sobre el estado visual actual de la app
+para identificar qué mejorar antes de publicar el portafolio.
+Luego usa /batch para Tarea 2 (Clientes CRM) y Tarea 3 (hora pico) en paralelo.
+```
+
+### Cuándo NO usarlas
+- Bug fixes simples → ir directo, no necesitan review previo
+- Cambios de una línea → overhead innecesario
+- Tareas de lógica pura sin impacto en arquitectura o UI
+
+---
+
 ## SUBAGENTES — PARALELIZACIÓN DE TAREAS
 
 Claude Code soporta subagentes desde v2.1.139+. Permiten correr tareas independientes
@@ -517,19 +558,3 @@ El CLAUDE.md y el `/compact` son suficientes.
 Admin:  admin / admin123
 Cajero: cajero1 / cajero123
 ```
-
----
-
-## GSTACK — Skills para Cafe+ (Sesión 5)
-
-Instalado en `.claude/skills/gstack/` (project-local). Telemetría OFF. Sin sync a Supabase.
-
-| Skill | Cuándo usarlo en Cafe+ |
-|-------|----------------------|
-| `/office-hours` | Brainstorming de nuevas features antes de planificar |
-| `/plan-eng-review` | Validar arquitectura antes de escribir código |
-| `/design-review` | QA de componentes React + accesibilidad |
-| `/qa` | Testing en navegador real (dark mode, mobile) |
-| `/review` | Code review de PRs o diffs |
-
-Verificar config: `./.claude/skills/gstack/bin/gstack-config list`
