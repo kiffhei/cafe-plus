@@ -116,8 +116,8 @@ Cambiar a: `['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']`
 ## TAREAS DE SESIÓN 5 (orden de ejecución)
 
 ### TAREA 1 — CORS en n8n para chat IA (fix en n8n, no en código)
-### TAREA 2 — Mejoras CRM en Clientes.jsx
-### TAREA 3 — Gráfica hora pico en Analisis.jsx
+### ~~TAREA 2~~ — Mejoras CRM en Clientes.jsx ✅ COMPLETADA
+### ~~TAREA 3~~ — Gráfica hora pico en Analisis.jsx ✅ COMPLETADA
 ### TAREA 4 — Auth con Clerk (rama separada feat/clerk-auth)
 ### TAREA 5 — README.md técnico
 
@@ -549,6 +549,65 @@ graphify build   # genera el grafo una vez
 
 **Para el tamaño actual de Café+ (~15 archivos JSX) no es necesario.**
 El CLAUDE.md y el `/compact` son suficientes.
+
+---
+
+## ESTADO AL CIERRE DE SESIÓN 5
+
+### Módulos actualizados en esta sesión
+
+| Archivo | Cambios aplicados |
+|---------|------------------|
+| Analisis.jsx | Treemap canales, gradiente BarChart, gráfica hora pico, selector de mes, colores Fresh Matcha en recharts |
+| Historial.jsx | Selector de mes + opción "Todos los registros" |
+| api.js | `generarMeses()` exportado, `getAllDetalle` para items completos |
+| tailwind.config.js | Paleta Fresh Matcha completa (verdes/azules) |
+| index.css | Glassmorphism, microanimaciones, stagger, header-glass |
+| Layout.jsx | Mobile responsive, mobileOpen, botón hamburguesa |
+
+### Workflow n8n — Cafe_Plus (ID: chpLlo3iR6CM2Ja5)
+
+Flujo actual confirmado:
+```
+Webhook (POST) → AI Agent → Code in JavaScript → Respond to Webhook
+```
+
+El agente procesa correctamente y genera respuestas reales desde Sheets.
+El nodo Respond to Webhook devuelve `{ "respuesta": "..." }` con status success.
+
+**BUG PENDIENTE — CORS bloqueado en browser:**
+El header `Access-Control-Allow-Origin` no llega al browser desde n8n.
+El workflow funciona internamente pero el fetch desde la app es bloqueado.
+
+**Opción A — Recomendada (nodo Respond to Webhook en n8n):**
+Options → Response Headers → agregar:
+```
+Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
+Access-Control-Allow-Methods: POST, OPTIONS
+```
+
+**Opción B — Variable en EasyPanel → servicio n8n → Entorno:**
+```
+N8N_WEBHOOK_CORS_ALLOWED_ORIGINS=https://clawdbot-cafe-plus.u555aa.easypanel.host
+```
+
+### Tareas pendientes sesión 6 (en orden)
+
+1. CORS chat IA → Opción A en nodo Respond to Webhook (5 min)
+2. Clerk auth → rama feat/clerk-auth
+3. README.md técnico del proyecto
+4. FINDING-003 → Mobile sidebar overlay a 375px
+5. Clientes.jsx → campo notas/preferencias + badge inactivo
+6. Analisis.jsx → remover console.log de diagnóstico de items
+
+### Incidencias nuevas de sesión 5
+
+| # | Problema | Regla |
+|---|---------|-------|
+| INC-S5-A | N8N_CORS_ORIGIN en cafe-plus no tiene efecto | La variable va en el servicio n8n, no en cafe-plus |
+| INC-S5-B | N8N_CORS_ORIGIN no aplica a webhooks de n8n | Usar headers directamente en nodo Respond to Webhook |
+| INC-S5-C | Treemap content prop rompe en prod | Usar función SVG primitiva sin componentes React |
+| INC-S5-D | VITE_N8N_WEBHOOK duplicada en entorno | Dejar solo una entrada con la URL correcta |
 
 ---
 
