@@ -2,15 +2,26 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   BarChart, Bar,
   LineChart, Line,
-  PieChart, Pie, Cell,
+  Treemap,
+  Cell,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge } from '../api/api'
+import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, generarMeses } from '../api/api'
 // getAllDetalle incluye campo items para calcular producto top
 import { useAuth } from '../context/AuthContext'
 
 const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
+
+const CANAL_COLORS = {
+  'Local':     '#2d6a4f',
+  'Rappi':     '#1e6091',
+  'Uber Eats': '#40916c',
+  'DiDi Food': '#48cae4',
+}
+function canalColor(name) {
+  return CANAL_COLORS[name] ?? '#84cba8'
+}
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
 
@@ -126,6 +137,8 @@ function calcularHoraPico(pedidos) {
 
 // ── Chips de preguntas rápidas ───────────────────────────────────
 
+const MESES = generarMeses()
+
 const PREGUNTAS_RAPIDAS = [
   '¿Cuál fue el producto más vendido?',
   '¿En qué canal vendemos más?',
@@ -142,6 +155,7 @@ export default function Analisis() {
   const [periodo, setPeriodo]       = useState('semana')
   const [fechaDesde, setFechaDesde] = useState(PERIODOS.semana.desde)
   const [fechaHasta, setFechaHasta] = useState(PERIODOS.semana.hasta)
+  const [mesSel, setMesSel]         = useState('')
 
   // Datos
   const [kpis, setKpis]           = useState(null)
@@ -232,10 +246,21 @@ export default function Analisis() {
 
   function seleccionarPeriodo(p) {
     setPeriodo(p)
+    setMesSel('')
     if (p !== 'custom') {
       setFechaDesde(PERIODOS[p].desde)
       setFechaHasta(PERIODOS[p].hasta)
     }
+  }
+
+  function seleccionarMes(desde) {
+    if (!desde) { setMesSel(''); return }
+    const mes = MESES.find(m => m.desde === desde)
+    if (!mes) return
+    setMesSel(desde)
+    setPeriodo('custom')
+    setFechaDesde(mes.desde)
+    setFechaHasta(mes.hasta)
   }
 
   // ── Chat IA ────────────────────────────────────────────────────
@@ -294,6 +319,17 @@ export default function Analisis() {
 
       {/* Selector de periodo */}
       <div className="flex items-center gap-2 flex-wrap">
+        <select
+          value={mesSel}
+          onChange={e => seleccionarMes(e.target.value)}
+          className="input-cafe text-sm"
+          style={{ minWidth: '180px' }}
+        >
+          <option value="">Mes rápido...</option>
+          {MESES.map(m => (
+            <option key={m.desde} value={m.desde}>{m.label}</option>
+          ))}
+        </select>
         {Object.entries(PERIODOS).map(([key, { label }]) => (
           <button key={key} onClick={() => seleccionarPeriodo(key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
@@ -394,43 +430,56 @@ export default function Analisis() {
         </div>
       )}
 
-      {/* GRAFICA_2_PIE */}
+      {/* GRAFICA_2_TREEMAP */}
       {!loading && porCanal.length > 0 && (
         <div className="card flex flex-col">
           <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Por canal</h3>
-          <ResponsiveContainer width="100%" height={160}>
-            <PieChart>
-              <Pie data={porCanal} cx="50%" cy="50%"
-                innerRadius={45} outerRadius={70}
-                dataKey="value" paddingAngle={3}
-                labelLine={false}>
-                {porCanal.map((_, i) => (
-                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                ))}
-              </Pie>
+          <ResponsiveContainer width="100%" height={200} className="sm:h-[240px]">
+            <Treemap
+              data={porCanal.map(d => ({ ...d, fill: canalColor(d.name) }))}
+              dataKey="value"
+              aspectRatio={4 / 3}
+              content={(props) => {
+                const { x, y, width, height, name, value, fill } = props
+                const total = porCanal.reduce((s, d) => s + d.value, 0)
+                const pct = total > 0 ? Math.round((value / total) * 100) : 0
+                const showText = width > 48 && height > 32
+                return (
+                  <g>
+                    <rect x={x} y={y} width={width} height={height}
+                      fill={fill} rx={4} ry={4} stroke="#0d1b2a" strokeWidth={2} />
+                    {showText && (
+                      <>
+                        <text x={x + width / 2} y={y + height / 2 - 6}
+                          textAnchor="middle" dominantBaseline="middle"
+                          fill="#ffffff" fontSize={11} fontWeight={600}
+                          style={{ pointerEvents: 'none' }}>
+                          {name}
+                        </text>
+                        <text x={x + width / 2} y={y + height / 2 + 9}
+                          textAnchor="middle" dominantBaseline="middle"
+                          fill="rgba(255,255,255,0.8)" fontSize={10}
+                          style={{ pointerEvents: 'none' }}>
+                          {pct}%
+                        </text>
+                      </>
+                    )}
+                  </g>
+                )
+              }}
+            >
               <Tooltip
-                formatter={(value, name) => [`${value} pedidos`, name]}
-                contentStyle={TOOLTIP_STYLE}
-                itemStyle={TOOLTIP_ITEM_STYLE}
-                labelStyle={TOOLTIP_LABEL_STYLE}
+                formatter={(value, name) => {
+                  const total = porCanal.reduce((s, d) => s + d.value, 0)
+                  const pct = total > 0 ? Math.round((value / total) * 100) : 0
+                  return [`${value} pedidos (${pct}%)`, name]
+                }}
+                contentStyle={{ backgroundColor: '#0d2d1f', border: '1px solid #1a4a34', borderRadius: '8px', color: '#e8f5f0', fontSize: '12px' }}
+                itemStyle={{ color: '#e8f5f0' }}
+                labelStyle={{ color: '#84cba8', fontWeight: '600' }}
               />
-            </PieChart>
+            </Treemap>
           </ResponsiveContainer>
-          {/* Leyenda manual — grid 2col mobile, 4col desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-            {porCanal.map((entry, i) => {
-              const total = porCanal.reduce((s, d) => s + d.value, 0)
-              const pct = total > 0 ? Math.round((entry.value / total) * 100) : 0
-              return (
-                <div key={i} className="flex items-center gap-1.5 text-xs text-cafe-600 dark:text-cafe-300">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                  <span className="truncate">{entry.name}</span>
-                  <span className="font-semibold text-cafe-700 dark:text-crema-200 ml-auto">{pct}%</span>
-                </div>
-              )
-            })}
-          </div>
         </div>
       )}
 

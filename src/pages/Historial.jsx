@@ -7,8 +7,11 @@ import {
   formatFecha,
   canalBadge,
   estadoBadge,
+  generarMeses,
 } from '../api/api'
 import { useAuth } from '../context/AuthContext'
+
+const MESES = generarMeses()
 
 const CANALES   = ['local', 'didi', 'rappi', 'ubereats']
 const ESTADOS   = ['pendiente', 'preparacion', 'entregado', 'cancelado']
@@ -281,6 +284,7 @@ export default function Historial() {
   const [detalle, setDetalle]   = useState(null)
   const [pagina, setPagina]     = useState(1)
   const [orden, setOrden]       = useState({ campo: 'id_pedido', dir: 'desc' })
+  const [mesSel, setMesSel]     = useState('')
 
   function toggleOrden(campo) {
     setOrden(o => ({
@@ -335,6 +339,15 @@ export default function Historial() {
 
   function setFiltro(key, val) {
     setFiltros(f => ({ ...f, [key]: val }))
+    if (key === 'fecha_desde' || key === 'fecha_hasta') setMesSel('')
+  }
+
+  function seleccionarMes(desde) {
+    if (!desde) { setMesSel(''); return }
+    const mes = MESES.find(m => m.desde === desde)
+    if (!mes) return
+    setMesSel(desde)
+    setFiltros(f => ({ ...f, fecha_desde: mes.desde, fecha_hasta: mes.hasta }))
   }
 
   // Filtro local por búsqueda de texto
@@ -383,6 +396,19 @@ export default function Historial() {
 
       {/* Filtros */}
       <div className="card mb-4">
+        {/* Selector de mes rápido */}
+        <div className="mb-3">
+          <select
+            value={mesSel}
+            onChange={e => seleccionarMes(e.target.value)}
+            className="input-cafe text-sm w-full sm:w-64"
+          >
+            <option value="">Todos los meses / Personalizado</option>
+            {MESES.map(m => (
+              <option key={m.desde} value={m.desde}>{m.label}</option>
+            ))}
+          </select>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
           <div>
             <label className="block text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">Desde</label>

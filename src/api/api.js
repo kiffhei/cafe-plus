@@ -167,3 +167,19 @@ export function estadoBadge(estado) {
   }
   return map[estado] || { label: estado, cls: '' }
 }
+
+export function generarMeses() {
+  const meses = []
+  const ahora = new Date()
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1)
+    const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })
+    const labelCapital = label.charAt(0).toUpperCase() + label.slice(1)
+    meses.push({
+      label: labelCapital,
+      desde: d.toISOString().split('T')[0],
+      hasta: new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0],
+    })
+  }
+  return meses
+}
