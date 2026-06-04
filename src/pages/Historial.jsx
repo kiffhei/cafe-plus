@@ -343,7 +343,11 @@ export default function Historial() {
   }
 
   function seleccionarMes(desde) {
-    if (!desde) { setMesSel(''); return }
+    if (!desde) {
+      setMesSel('')
+      setFiltros(f => ({ ...f, fecha_desde: '', fecha_hasta: '' }))
+      return
+    }
     const mes = MESES.find(m => m.desde === desde)
     if (!mes) return
     setMesSel(desde)
@@ -403,7 +407,7 @@ export default function Historial() {
             onChange={e => seleccionarMes(e.target.value)}
             className="input-cafe text-sm w-full sm:w-64"
           >
-            <option value="">Todos los meses / Personalizado</option>
+            <option value="">Todos los registros</option>
             {MESES.map(m => (
               <option key={m.desde} value={m.desde}>{m.label}</option>
             ))}

@@ -254,7 +254,13 @@ export default function Analisis() {
   }
 
   function seleccionarMes(desde) {
-    if (!desde) { setMesSel(''); return }
+    if (!desde) {
+      setMesSel('')
+      setPeriodo('custom')
+      setFechaDesde('')
+      setFechaHasta('')
+      return
+    }
     const mes = MESES.find(m => m.desde === desde)
     if (!mes) return
     setMesSel(desde)
@@ -325,7 +331,7 @@ export default function Analisis() {
           className="input-cafe text-sm"
           style={{ minWidth: '180px' }}
         >
-          <option value="">Mes rápido...</option>
+          <option value="">Todos los registros</option>
           {MESES.map(m => (
             <option key={m.desde} value={m.desde}>{m.label}</option>
           ))}
