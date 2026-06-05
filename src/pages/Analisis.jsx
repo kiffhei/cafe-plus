@@ -299,7 +299,15 @@ export default function Analisis() {
           contexto: 'analisis_ventas',
         }),
       })
-      const data = await res.json()
+      // [DX-LOG] diagnóstico temporal — remover en TAREA 3
+      console.log('[IA] status:', res.status)
+      console.log('[IA] content-type:', res.headers.get('content-type'))
+      const raw = await res.text()
+      console.log('[IA] raw response:', raw)
+      let data = null
+      try { data = JSON.parse(raw) } catch(e) { console.error('[IA] parse error:', e) }
+      console.log('[IA] parsed data:', data)
+      // [/DX-LOG]
       const respuesta = data?.respuesta ?? data?.output ?? data?.text
         ?? 'No pude obtener una respuesta. Intenta de nuevo.'
       setMensajes(m => [...m, { role: 'agent', texto: respuesta, ts: Date.now() }])
