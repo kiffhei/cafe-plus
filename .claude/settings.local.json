@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__0a132713-0a44-4905-b92e-a3796b4ad0f3__get_workflow_details"
+    ]
+  }
+}

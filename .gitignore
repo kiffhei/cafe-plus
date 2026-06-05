@@ -25,3 +25,4 @@ dist-ssr
 
 # gstack project-local — NO commitear estado
 .claude/skills/gstack/
+.gstack/

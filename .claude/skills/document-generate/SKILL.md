@@ -1,0 +1,1 @@
+/Users/brianear/proyectos/cafe-plus/.claude/skills/gstack/document-generate/SKILL.md
