@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+
+const DEBUG_IA = import.meta.env.VITE_DEBUG_IA === 'true'
 import {
   BarChart, Bar,
   LineChart, Line,
@@ -299,15 +301,13 @@ export default function Analisis() {
           contexto: 'analisis_ventas',
         }),
       })
-      // [DX-LOG] diagnóstico temporal — remover en TAREA 3
-      console.log('[IA] status:', res.status)
-      console.log('[IA] content-type:', res.headers.get('content-type'))
+      if (DEBUG_IA) console.log('[IA] status:', res.status)
+      if (DEBUG_IA) console.log('[IA] content-type:', res.headers.get('content-type'))
       const raw = await res.text()
-      console.log('[IA] raw response:', raw)
+      if (DEBUG_IA) console.log('[IA] raw response:', raw)
       let data = null
-      try { data = JSON.parse(raw) } catch(e) { console.error('[IA] parse error:', e) }
-      console.log('[IA] parsed data:', data)
-      // [/DX-LOG]
+      try { data = JSON.parse(raw) } catch(e) { if (DEBUG_IA) console.error('[IA] parse error:', e) }
+      if (DEBUG_IA) console.log('[IA] parsed data:', data)
       const respuesta = data?.respuesta ?? data?.output ?? data?.text
         ?? 'No pude obtener una respuesta. Intenta de nuevo.'
       setMensajes(m => [...m, { role: 'agent', texto: respuesta, ts: Date.now() }])
@@ -608,7 +608,7 @@ export default function Analisis() {
               <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
                 ${m.role === 'user'
                   ? 'bg-cafe-700 text-crema-100 rounded-br-sm'
-                  : 'bg-crema-100 dark:bg-cafe-700 text-cafe-800 dark:text-crema-100 rounded-bl-sm'}`}>
+                  : 'bg-crema-100 dark:bg-cafe-700 text-cafe-800 dark:text-crema-100 rounded-bl-sm whitespace-pre-line'}`}>
                 {m.texto}
               </div>
             </div>
