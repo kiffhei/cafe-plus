@@ -1,386 +1,260 @@
-# CLAUDE.md — Café Plus | Sesión 5
-> Contexto para Claude Code. Actualizado: 2026-06-02
-> Skills a aplicar: frontend-design, theme-factory (/mnt/skills/public/ y /mnt/skills/examples/)
+# CLAUDE.md — Café Plus | Master
+> Archivo consolidado. Actualizado: 2026-06-04
+> Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
+> Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
 
 ---
 
 ## INSTRUCCIÓN DE SKILLS — LEER ANTES DE CADA TAREA
 
-Antes de ejecutar cualquier tarea, identifica qué skills aplican y léelas.
-**No leas todas — consume tokens innecesariamente.**
-
-```
-Skills disponibles:
-/mnt/skills/public/frontend-design/SKILL.md   → diseño visual, componentes React, UI
-/mnt/skills/public/pdf/SKILL.md               → generación de PDFs con jsPDF
-/mnt/skills/examples/theme-factory/SKILL.md   → paletas de color y tipografía
-/mnt/skills/examples/mcp-builder/SKILL.md     → integraciones con APIs externas
-```
-
-**Mapa tarea → skill (leer SOLO la que aplica):**
+**Leer SOLO la skill relevante — no todas.**
 
 | Tipo de tarea | Skill a leer |
 |---------------|-------------|
-| Nuevo componente visual / mejora UI | `frontend-design` |
-| Cambio de paleta o tipografía | `theme-factory` |
-| Generación o modificación de PDF | `pdf` |
-| Nueva integración con n8n o GAS | `mcp-builder` |
+| Nuevo componente visual / mejora UI | `/mnt/skills/public/frontend-design/SKILL.md` |
+| Cambio de paleta o tipografía | `/mnt/skills/examples/theme-factory/SKILL.md` |
+| Generación o modificación de PDF | `/mnt/skills/public/pdf/SKILL.md` |
+| Nueva integración con n8n o GAS | `/mnt/skills/examples/mcp-builder/SKILL.md` |
 | Bug fix, lógica, cálculos puros | Ninguna |
-| Documentación (README, CLAUDE.md) | Ninguna |
+| Documentación | Ninguna |
 
 ---
 
 ## IDENTIDAD DEL PROYECTO
 
 **Café+** — sistema de gestión operativa + CRM para cafetería en Cuautitlán, EdoMex.
-Dev: Brian Anaya (kiffhei) | **Portafolio público → cada pantalla debe verse premium.**
+Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse premium.**
 
-- **Repo:** https://github.com/kiffhei/cafe-plus
-- **Prod:** https://clawdbot-cafe-plus.u555aa.easypanel.host
-- **Backend GAS:** https://script.google.com/macros/s/AKfycbwtDGwTv2T8MiyWZOS3bXfOOWutNgFPGbZZeqaed7yHhd4OnFXuW5LYAXl27ao4QJ3w/exec
-- **Spreadsheet ID:** 1GdeZReoLbIhZc9kRGK7IjhsgaNds8O26uEGQVvY1dq4
-- **n8n base:** https://appn8n-n8n.u555aa.easypanel.host
-- **n8n webhook chat IA:** https://appn8n-n8n.u555aa.easypanel.host/webhook/df19bf86-8f1a-46af-af4f-71a7a253fd24
-
----
-
-## ESTADO DE MÓDULOS AL CIERRE DE SESIÓN 4
-
-| Archivo | Estado | Notas |
-|---------|--------|-------|
-| Login.jsx | ✅ Completo | — |
-| Layout.jsx | ✅ Mobile responsive + header-glass | mobileOpen implementado |
-| ThemeContext.jsx | ✅ | — |
-| **App.jsx** | ✅ **BLOQUEADO** | No tocar rutas ni guards |
-| **Sidebar.jsx** | ✅ **BLOQUEADO** | No tocar nav items ni rutas |
-| Usuarios.jsx | ✅ CRUD + table-wrapper mobile | — |
-| Productos.jsx | ✅ CRUD + toggle + mobile | — |
-| Clientes.jsx | ✅ CRUD + badges + mobile | Pendiente: campo notas, historial pedidos |
-| NuevoPedido.jsx | ✅ Carrito + descuentos + mobile | — |
-| PedidosHoy.jsx | ✅ Kanban + autorefresh + ordenamiento | — |
-| Historial.jsx | ✅ Tabla paginada + filtros + PDF | Ordenamiento por columna implementado |
-| Analisis.jsx | ✅ KPIs + recharts + chat n8n | Bugs pendientes (ver abajo) |
-| tailwind.config.js | ✅ Paleta Fresh Matcha + tipografía premium | Plus Jakarta Sans + Outfit |
-| index.css | ✅ Glassmorphism + microanimaciones + stagger | header-glass, kpi-card, accent-strip |
+| Recurso | URL |
+|---------|-----|
+| Repo GitHub | https://github.com/kiffhei/cafe-plus |
+| App producción | https://clawdbot-cafe-plus.u555aa.easypanel.host |
+| Backend GAS | https://script.google.com/macros/s/AKfycbwtDGwTv2T8MiyWZOS3bXfOOWutNgFPGbZZeqaed7yHhd4OnFXuW5LYAXl27ao4QJ3w/exec |
+| Spreadsheet ID | 1GdeZReoLbIhZc9kRGK7IjhsgaNds8O26uEGQVvY1dq4 |
+| n8n base | https://appn8n-n8n.u555aa.easypanel.host |
+| n8n webhook chat IA | https://appn8n-n8n.u555aa.easypanel.host/webhook/df19bf86-8f1a-46af-af4f-71a7a253fd24 |
+| n8n workflow ID | chpLlo3iR6CM2Ja5 (Cafe_Plus) |
+| EasyPanel VPS | http://89.116.167.180:3000 |
 
 ---
 
-## PALETA ACTUAL — "FRESH MATCHA"
+## STACK TÉCNICO
+
+| Capa | Tecnología | Notas |
+|------|-----------|-------|
+| Frontend | React 18 + Vite + Tailwind CSS v3 | v4 evitado por CLI |
+| Estilos | Paleta Fresh Matcha + Plus Jakarta Sans + Outfit | Ver tokens abajo |
+| Backend | Google Apps Script REST API | fetch nativo obligatorio — sin axios |
+| Base de datos | Google Sheets (5 hojas) | Ver estructura abajo |
+| Auth | Token en localStorage (`cafe_token`, `cafe_user`) | Clerk pendiente en rama separada |
+| Dark mode | ThemeContext.jsx + clase `dark` en `<html>` | Todos los componentes requieren dark: |
+| Deploy | Docker multistage en EasyPanel | Autodeploy en push a `main` |
+| IA | n8n + OpenAI via MCP Client | Workflow Cafe_Plus |
+| PDF | jsPDF | |
+| Gráficas | recharts@2.15.3 | v3 incompatible con rolldown/Vite 8 |
+
+---
+
+## ESTRUCTURA DE GOOGLE SHEETS
+
+| Hoja | Columnas principales |
+|------|---------------------|
+| `bd_usuarios` | id_usuario, nombre, apellidos, categoria (admin/cajero), usuario, password_hash, activo |
+| `bd_productos` | id_producto, nombre, categoria, precio_venta, costo, cantidad_stock, activo |
+| `bd_clientes` | id_cliente, nombre, apellidos, telefono, email, visitas_acumuladas, descuento_fijo, activo, notas (pendiente agregar) |
+| `bd_ventas` | id_pedido, fecha_hora, id_cajero, nombre_cajero, id_cliente, canal, subtotal, descuento, total, estado |
+| `bd_detalle_pedidos` | id_pedido, id_producto, nombre_producto, cantidad, precio_unitario, subtotal_linea |
+
+---
+
+## RUTA REAL DEL PROYECTO EN DISCO
+
+```
+~/proyectos/cafe-plus/          <- repo Git REAL — siempre trabajar aqui
+~/Desktop/Claude/Cafe-Plus/     <- carpeta iCloud — NO es el repo
+```
+
+---
+
+## PALETA — "FRESH MATCHA"
 
 ```js
-// Tokens Tailwind actuales (NO cambiar sin instrucción explícita)
+// Tokens Tailwind (NO cambiar sin instruccion explicita)
 cafe-500:      '#2d6a4f'   // verde primario
+cafe-800:      '#0d2d1f'   // verde oscuro (dark mode surfaces)
 terracota-500: '#1e6091'   // azul acento
 olivo-500:     '#40916c'   // verde positivo
 crema-bg:      '#f8fffe'   // fondo light
 dark-bg:       '#0d1b2a'   // fondo dark
 
-// Colores para recharts (USAR ESTOS — no los anteriores café/marrón)
+// Colores recharts — SIEMPRE ESTOS
 CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
+
+// Colores por canal (Treemap y leyendas)
+// Local: #2d6a4f | Rappi: #1e6091 | Uber Eats: #40916c | DiDi Food: #48cae4
 ```
 
----
-
-## TIPOGRAFÍA ACTUAL
+## TIPOGRAFIA
 
 ```css
-display: 'Plus Jakarta Sans'  /* headers h1-h4, títulos de sección */
-body:    'Outfit'             /* texto general, labels, botones */
-mono:    'JetBrains Mono'     /* IDs, códigos, valores numéricos */
+display: 'Plus Jakarta Sans'  /* headers h1-h4 */
+body:    'Outfit'             /* texto general */
+mono:    'JetBrains Mono'     /* IDs, codigos */
 ```
 
 ---
 
-## BUGS PENDIENTES DE SESIÓN 4
+## ESTADO DE MODULOS — CIERRE SESION 5
 
-### BUG A — Producto Top muestra "—" en Analisis.jsx
-La función `calcularProductoTop` no parsea correctamente el campo `items`.
-Fix requerido:
+| Archivo | Estado | Sesion |
+|---------|--------|--------|
+| Login.jsx | OK completo | S1 |
+| App.jsx | OK — BLOQUEADO no tocar rutas | S2 |
+| Sidebar.jsx | OK — BLOQUEADO no tocar nav items | S2 |
+| ThemeContext.jsx | OK dark mode completo | S2 |
+| Layout.jsx | OK mobile responsive + header-glass + hamburguesa | S4 |
+| index.css | OK glassmorphism + microanimaciones + stagger | S4 |
+| tailwind.config.js | OK paleta Fresh Matcha + tipografia premium | S4 |
+| api.js | OK formatFecha, formatMXN, getAllDetalle, generarMeses | S5 |
+| Usuarios.jsx | OK CRUD + table-wrapper mobile | S4 |
+| Productos.jsx | OK CRUD + toggle + mobile | S4 |
+| Clientes.jsx | OK CRUD + badges + historial pedidos | S5 — campo notas pendiente |
+| NuevoPedido.jsx | OK carrito + descuentos + mobile | S4 |
+| PedidosHoy.jsx | OK kanban + autorefresh + ordenamiento | S4 |
+| Historial.jsx | OK tabla paginada + filtros + PDF + sort + selector mes | S5 |
+| Analisis.jsx | OK KPIs + BarChart + Treemap + LineChart + hora pico + chat IA | S5 — CORS pendiente |
+
+---
+
+## WORKFLOW N8N — Cafe_Plus
+
+### Flujo actual (confirmado sesion 5)
+
+```
+Webhook (POST)
+  -> IF ($request.method === 'OPTIONS')
+      -> true:  Respond to Webhook [preflight — headers CORS + 200]
+      -> false: BA_Envelope (Code — parsea body, detecta intent, sugiere tablas)
+                  -> AI Agent (OpenAI + MCP tools Sheets)
+                      -> Code in JavaScript (limpia output del agente)
+                          -> Respond to Webhook [respuesta al frontend]
+```
+
+### BA_Envelope — logica del nodo Code
+Extrae `pregunta`, detecta `intent` (ventas_por_canal, producto_top, etc.),
+sugiere `tablas_sugeridas`, estructura `fecha_desde/hasta`.
+Reduce tokens del AI Agent al darle solo lo esencial.
+
+### Prompt del AI Agent — reglas clave
+- Consultar al menos una tool antes de responder
+- Prohibido responder con plantillas genericas ("Ya tengo la informacion...")
+- Si no hay datos: "No tengo ese dato en la base de datos actual."
+- Formato: MXN $0.00, espanol mexicano, maximo 4 parrafos
+- Enrutamiento de tablas:
+  - ventas/canal/ticket/cajero -> bd_ventas
+  - producto top/cantidades -> bd_detalle_pedidos
+  - stock/precios/catalogo -> bd_productos
+  - visitas/descuentos/clientes -> bd_clientes
+  - roles/usuarios -> bd_usuarios (nunca contrasenas)
+
+### Contrato de respuesta esperado por el frontend
+```json
+{ "respuesta": "texto de la respuesta del agente" }
+```
+El frontend busca: `data?.respuesta ?? data?.output ?? data?.text`
+
+### BUG ACTIVO — CORS bloqueado en browser
+El workflow procesa correctamente (confirmado via MCP n8n).
+El browser bloquea la respuesta por falta de header Access-Control-Allow-Origin.
+
+Fix pendiente en nodo Respond to Webhook -> Options -> Response Headers:
+```
+Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
+Access-Control-Allow-Methods: POST, OPTIONS
+Content-Type: application/json
+```
+
+### Logging diagnostico para Analisis.jsx (agregar temporalmente)
 ```js
-// Agregar console.log para ver estructura real antes de corregir:
-console.log('items sample:', pedidos[0]?.items, typeof pedidos[0]?.items)
-
-// El campo items puede venir como:
-// a) string JSON: '[{"nombre_producto":"Café","cantidad":2}]'
-// b) objeto ya parseado: [{nombre_producto:"Café", cantidad:2}]
-// c) string con escape: "{\"nombre_producto\":\"Café\"}"
-// Manejar los tres casos con try/catch
+console.log('[IA] status:', res.status)
+console.log('[IA] content-type:', res.headers.get('content-type'))
+const raw = await res.text()
+console.log('[IA] raw response:', raw)
+let data = null
+try { data = JSON.parse(raw) } catch(e) { console.error('[IA] parse error:', e) }
+console.log('[IA] parsed data:', data)
 ```
-
-### BUG B — Colores de gráficas no actualizados
-`CHART_COLORS` en Analisis.jsx sigue con paleta café/marrón anterior.
-Cambiar a: `['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']`
 
 ---
 
-## TAREAS DE SESIÓN 5 (orden de ejecución)
+## TAREAS PENDIENTES — SESION 6
 
-### TAREA 1 — CORS en n8n para chat IA (fix en n8n, no en código)
-### ~~TAREA 2~~ — Mejoras CRM en Clientes.jsx ✅ COMPLETADA
-### ~~TAREA 3~~ — Gráfica hora pico en Analisis.jsx ✅ COMPLETADA
-### TAREA 4 — Auth con Clerk (rama separada feat/clerk-auth)
-### TAREA 5 — README.md técnico
-
----
-
-## TAREA 1 — CORS EN N8N (no requiere cambios de código)
-
-**Síntoma:** `Access-Control-Allow-Origin` bloqueado al hacer POST al webhook de n8n.
-**Causa:** n8n no agrega headers CORS por defecto en respuestas del nodo Webhook.
-
-**Fix opción A — Variable de entorno en EasyPanel (más rápido):**
-En EasyPanel → servicio n8n → Entorno, agregar:
-```
-N8N_CORS_ORIGIN=https://clawdbot-cafe-plus.u555aa.easypanel.host
-```
-Reiniciar el contenedor de n8n.
-
-**Fix opción B — En el workflow de n8n:**
-1. Abrir workflow `Cafe_Plus` en n8n
-2. Nodo Webhook → activar "Respond to Webhook" → "Using Respond to Webhook Node"
-3. En el nodo de respuesta final agregar headers:
-   ```
-   Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
-   Access-Control-Allow-Methods: POST, OPTIONS
-   ```
-4. Agregar nodo IF al inicio para manejar preflight OPTIONS:
-   - Condición: `{{ $request.method }} === 'OPTIONS'`
-   - Branch true → Respond con status 200 y headers CORS
-   - Branch false → flujo normal del agente del proyecto
-
----
-
-## TAREA 2 — MEJORAS CRM EN CLIENTES.JSX
-
-El módulo de Clientes Plus ya tiene CRUD y badges. Agregar funcionalidades CRM:
-
-### 2A — Campo "Notas / Preferencias" por cliente
-Agregar campo `notas` en el modal de edición de cliente:
-```jsx
-// En el form del modal:
-<div>
-  <label className="block text-xs font-medium text-cafe-600 mb-1">
-    Notas y preferencias
-    <span className="text-cafe-400 font-normal ml-1">(alergias, preferencias, etc.)</span>
-  </label>
-  <textarea value={form.notas} onChange={e => set('notas', e.target.value)}
-    className="input-cafe w-full resize-none" rows={2}
-    placeholder="Ej: sin azúcar, alérgico a gluten, prefiere leche de avena..." />
-</div>
-```
-
-En la tabla, mostrar un ícono 📝 si el cliente tiene notas (tooltip al hover con el texto).
-
-**Requiere agregar columna `notas` en `bd_clientes` en Google Sheets.**
-
-### 2B — Historial de pedidos por cliente (modal)
-En cada fila de cliente, agregar botón "Ver pedidos" que abre un modal con:
-- Últimos 10 pedidos del cliente
-- Columnas: fecha, canal, productos (resumen), total, estado
-- Llamada a API: `pedidos.getAll({ id_cliente: cliente.id_cliente, limit: 10 })`
-- Si no hay pedidos: mensaje "Este cliente aún no tiene pedidos registrados"
-- Solo visible si `visitas_acumuladas > 0`
-
-```jsx
-// Botón en la fila de la tabla:
-{c.visitas_acumuladas > 0 && (
-  <button onClick={() => setModalPedidos(c)}
-    className="text-xs text-cafe-500 hover:text-cafe-800 font-medium hover:underline">
-    Ver pedidos
-  </button>
-)}
-```
-
-### 2C — Indicador "Cliente inactivo"
-Si un cliente tiene `visitas_acumuladas > 0` pero su último pedido fue hace más de 30 días,
-mostrar badge 💤 "Inactivo" en su fila.
-
-El dato `ultimo_pedido` debe venir del backend GAS o calcularse desde los pedidos.
-Si no está disponible en la API actual, omitir y documentar como pendiente de backend.
-
----
-
-## TAREA 3 — GRÁFICA DE HORA PICO EN ANALISIS.JSX
-
-Agregar una cuarta gráfica debajo de las existentes:
-
-### Especificación
-- **Título:** "Pedidos por hora del día"
-- **Tipo:** BarChart horizontal o vertical con 24 barras (horas 0-23)
-- **Datos:** contar pedidos por hora extraída de `fecha_hora` de cada pedido
-- **Highlight:** la barra de la hora con más pedidos en color `terracota-500` (#1e6091),
-  las demás en `cafe-400` (#52b788)
-- **Eje X:** mostrar solo horas con formato "HH:00" (ej: "08:00", "14:00")
-- **Tooltip:** "N pedidos a las HH:00"
-
-### Función de cálculo (frontend, sobre los pedidos ya cargados)
-```js
-function calcularHoraPico(pedidos) {
-  const conteo = Array(24).fill(0)
-  pedidos.forEach(p => {
-    if (!p.fecha_hora) return
-    const d = new Date(p.fecha_hora)
-    if (!isNaN(d.getTime())) {
-      conteo[d.getHours()]++
-    }
-  })
-  return conteo.map((count, hora) => ({
-    hora: `${String(hora).padStart(2, '0')}:00`,
-    pedidos: count,
-    esPico: count === Math.max(...conteo)
-  }))
-}
-```
-
-### Render
-```jsx
-<BarChart data={calcularHoraPico(pedidos)} ...>
-  <Bar dataKey="pedidos">
-    {calcularHoraPico(pedidos).map((entry, i) => (
-      <Cell key={i} fill={entry.esPico ? '#1e6091' : '#52b788'} />
-    ))}
-  </Bar>
-</BarChart>
-```
-
-**Nota:** No usar componentes custom como props de recharts (ver INC-recharts abajo).
-
----
-
-## TAREA 4 — AUTH CON CLERK
-
-Implementar en rama separada `feat/clerk-auth`. No mergear a main hasta validar.
-
-```bash
-git checkout -b feat/clerk-auth
-```
-
-### Instalación
-```bash
-npm install @clerk/clerk-react
-# Versión compatible con React 18+: ^5.61.3
-```
-
-### Variable de entorno (agregar en .env Y en EasyPanel cuando se mergee)
-```env
-VITE_CLERK_PUBLISHABLE_KEY=pk_live_xxxx
-# Obtener en: clerk.com → Dashboard → API Keys
-```
-
-### Qué aporta al portafolio
-- 2FA real: email OTP + TOTP (Google Authenticator)
-- JWT industry-standard
-- Dashboard de usuarios en clerk.com
-- Mucho más impresionante que SHA256 en Sheets
-
-### Archivos a modificar (SOLO en rama feat/clerk-auth)
-1. `main.jsx` — envolver con `<ClerkProvider>`
-2. `src/context/AuthContext.jsx` — leer `useUser()` de Clerk
-3. `src/lib/clerkTheme.js` — nuevo archivo con paleta Fresh Matcha
-
-### Appearance Clerk — paleta Fresh Matcha
-```js
-// src/lib/clerkTheme.js
-export const clerkTheme = {
-  variables: {
-    colorPrimary:         '#2d6a4f',
-    colorBackground:      '#f8fffe',
-    colorText:            '#1a2e2a',
-    colorInputBackground: '#ffffff',
-    colorInputText:       '#1a2e2a',
-    borderRadius:         '0.5rem',
-    fontFamily:           '"Outfit", system-ui, sans-serif',
-  }
-}
-```
-
-### Estrategia de integración sin romper GAS
-- Clerk maneja sesión + 2FA
-- GAS sigue siendo la BD de datos (sin cambios en backend)
-- `AuthContext.jsx` se adapta: `useUser()` de Clerk en lugar de localStorage
-- `user.publicMetadata.categoria` = `'admin'` | `'cajero'`
-  (configurar en dashboard de Clerk por usuario)
-
----
-
-## TAREA 5 — README.md TÉCNICO
-
-Crear `README.md` en la raíz del repo con:
-
-```markdown
-# Café+ — Sistema de Gestión para Cafetería
-
-## Stack
-- Frontend: React 18 + Vite + Tailwind CSS
-- Backend: Google Apps Script (REST API)
-- Base de datos: Google Sheets
-- IA: n8n + OpenAI/Claude via MCP
-- Deploy: Docker + EasyPanel (autodeploy en main)
-
-## Módulos
-[tabla de módulos con descripción breve]
-
-## Variables de entorno
-VITE_API_URL=
-VITE_N8N_WEBHOOK=
-VITE_CLERK_PUBLISHABLE_KEY= (opcional)
-
-## Deploy local
-npm install
-npm run dev
-
-## Notas técnicas
-- Apps Script + CORS: solo fetch nativo sin headers en POST
-- recharts: usar recharts@2.15.3 (v3 incompatible con rolldown/Vite 8)
-- Dark mode: clase `dark` en <html>, manejado por ThemeContext
-```
+| # | Tarea | Donde | Prioridad |
+|---|-------|-------|-----------|
+| 1 | CORS chat IA — headers en Respond to Webhook | n8n (no codigo) | ALTA |
+| 2 | Logging diagnostico en Analisis.jsx | Analisis.jsx | ALTA |
+| 3 | Remover console.log de items diagnostico | Analisis.jsx | MEDIA |
+| 4 | Campo notas/preferencias en Clientes | Clientes.jsx + bd_clientes | MEDIA |
+| 5 | FINDING-003 — Mobile sidebar overlay a 375px | Layout.jsx + Sidebar.jsx | MEDIA |
+| 6 | Clerk auth | rama feat/clerk-auth | BAJA |
+| 7 | README.md tecnico del proyecto | README.md | BAJA |
+| 8 | Memoria corta del agente (BA_MemoryEnvelope) | n8n workflow | BAJA |
+| 9 | Alertas WhatsApp/email cuando falle flujo IA | n8n + Evolution API | BAJA |
 
 ---
 
 ## CONVENCIONES OBLIGATORIAS
 
-### Naming crítico
+### Naming critico — errores conocidos
 ```js
-formatFecha(str)        // ✅ existe en api.js
-formatFechaHora(str)    // ❌ NO EXISTE — build error garantizado
+formatFecha(str)            // OK — existe en api.js
+formatFechaHora(str)        // NO EXISTE — build error garantizado
 
-className="input-cafe"  // ✅
-className="input-field" // ✅ alias
-className="input-cafeteria" // ❌ NO EXISTE
+className="input-cafe"      // OK
+className="input-field"     // OK alias
+className="input-cafeteria" // NO EXISTE
 ```
 
 ### Imports de api.js
 ```js
 import { usuarios, productos, clientes, pedidos } from '../api/api'
-import { formatMXN, formatFecha, canalBadge, estadoBadge } from '../api/api'
+import { formatMXN, formatFecha, canalBadge, estadoBadge, generarMeses } from '../api/api'
+// Solo para Analisis:
+import { pedidosDetalle } from '../api/api'  // getAllDetalle — incluye items de detalle
 ```
 
-### Dark mode (aplicar en TODOS los elementos nuevos)
+### Leer rol del usuario
+```js
+const user    = JSON.parse(localStorage.getItem('cafe_user') || '{}')
+const esAdmin = user.categoria === 'admin'
+```
+
+### Dark mode — en TODOS los elementos nuevos
 ```jsx
 className="bg-white dark:bg-cafe-800 text-cafe-800 dark:text-crema-100 border-cafe-100 dark:border-cafe-700"
 ```
 
-### CORS — Apps Script y n8n
+### CORS — regla critica
 ```js
-// ✅ fetch nativo SIN headers
+// OK — fetch nativo SIN headers
 fetch(URL, { method: 'POST', body: JSON.stringify(data) })
-// ❌ Nunca axios, nunca Content-Type explícito
+// MAL — nunca axios, nunca Content-Type explicito en el cliente
 ```
 
-### recharts — regla crítica aprendida en sesión 4
+### recharts — regla critica (aprendida S4)
 ```jsx
-// ❌ NUNCA pasar componentes React como props de recharts
-<Tooltip content={<MiTooltip />} />           // rompe en producción
-<Tooltip content={(props) => <MiTooltip />} /> // también rompe
+// MAL — rompe en produccion con rolldown/Vite 8
+<Tooltip content={<MiTooltip />} />
 
-// ✅ SIEMPRE usar props primitivos de recharts
+// OK — props primitivos siempre
 <Tooltip
   formatter={(value) => [formatMXN(value), 'Ventas']}
   contentStyle={{ backgroundColor: '#0d2d1f', borderRadius: '8px' }}
+  labelStyle={{ color: '#d4a96a' }}
 />
 
-// ❌ NUNCA usar recharts v3 con Vite 8 / rolldown
-// ✅ SIEMPRE usar recharts@2.15.3
+// recharts@2.15.3 — NUNCA actualizar a v3
+// v3 exporta como objetos memo que rolldown tree-shakes -> TypeError en prod
 ```
 
 ---
@@ -388,226 +262,121 @@ fetch(URL, { method: 'POST', body: JSON.stringify(data) })
 ## WORKFLOW DE DEPLOY
 
 ```bash
-cd ~/proyectos/cafe-plus   # ← ruta real del repo
+cd ~/proyectos/cafe-plus   # ruta REAL del repo
 
 npm run build              # OBLIGATORIO antes de push
 git add -A
-git commit -m "feat: descripción del cambio"
+git commit -m "tipo: descripcion concisa"
 git push
 # EasyPanel autodespliega en ~5-18 segundos
 ```
 
----
-
-## INCIDENCIAS CONOCIDAS — NO REPETIR
-
-| # | Problema | Regla |
-|---|---------|-------|
-| INC-001 | CORS axios | Solo fetch nativo en POST a GAS o n8n |
-| INC-002 | Build falla en Docker | `npm run build` antes de CADA push |
-| INC-003 | EasyPanel no actualiza | `git commit --allow-empty -m "chore: force redeploy"` |
-| INC-005 | Autodeploy desactivado | Verificar antes de iniciar trabajo |
-| INC-S4-A | formatFechaHora | No existe → usar formatFecha |
-| INC-S4-B | recharts v3 + rolldown | Usar recharts@2.15.3 |
-| INC-S4-C | Tooltip como componente React | Usar formatter/contentStyle primitivos |
-| INC-S4-D | git status "nothing to commit" | Claude Code mostró código pero no editó disco → pedir que use herramientas Edit/Write |
+Si EasyPanel no actualiza:
+```bash
+git commit --allow-empty -m "chore: force redeploy"
+git push
+```
 
 ---
 
-## RUTA REAL DEL PROYECTO EN DISCO
+## HISTORIAL COMPLETO DE INCIDENCIAS
 
-```
-~/proyectos/cafe-plus/          ← repo Git real
-~/Desktop/Claude/Cafe-Plus/     ← carpeta iCloud (NO es el repo)
+| # | Sesion | Problema | Regla |
+|---|--------|---------|-------|
+| INC-001 | S1 | CORS con axios | Solo fetch nativo en POST a GAS. Nunca axios. |
+| INC-002 | S1 | Build falla en Docker | npm run build antes de CADA push |
+| INC-003 | S2 | EasyPanel no actualiza | git commit --allow-empty -m "chore: force redeploy" |
+| INC-005 | S2 | Autodeploy desactivado silenciosamente | Verificar en EasyPanel antes de iniciar trabajo |
+| INC-S4-A | S4 | formatFechaHora no existe | Usar formatFecha |
+| INC-S4-B | S4 | recharts v3 + rolldown | Usar recharts@2.15.3 |
+| INC-S4-C | S4 | Tooltip como componente React | Usar formatter/contentStyle primitivos |
+| INC-S4-D | S4 | Claude Code no edito disco | Pedir que use herramientas Edit/Write explicitamente |
+| INC-S4-E | S4 | getPedidos sin items | Usar getAllDetalle en Analisis |
+| INC-S5-A | S5 | N8N_CORS_ORIGIN en cafe-plus | La variable va en el servicio n8n, no en cafe-plus |
+| INC-S5-B | S5 | N8N_CORS_ORIGIN no aplica a webhooks n8n | Usar headers en nodo Respond to Webhook |
+| INC-S5-C | S5 | Treemap content prop rompe en prod | Funcion SVG primitiva (props) => retorna g element |
+| INC-S5-D | S5 | VITE_N8N_WEBHOOK duplicada en entorno | Dejar solo una entrada con la URL correcta |
+| INC-S5-E | S5 | Repo confundido con carpeta iCloud | Siempre trabajar desde ~/proyectos/cafe-plus/ |
+
+---
+
+## OPTIMIZACION DE TOKENS
+
+### Reglas activas
+- Skills routing — leer solo la skill relevante (mapa al inicio)
+- /compact — cuando la sesion llegue al 40-50% de contexto
+- Conversacion nueva — al cambiar de tema o despues de 2h de trabajo
+- Desconectar MCPs no usados en la sesion (Stripe, Indeed, Twilio, HubSpot, Splice, Canva, Supabase)
+
+### Repo ahorra-tokens-claude (AIMAX — cuando sea necesario)
+```bash
+git clone https://github.com/david-ai-pro/ahorra-tokens-claude.git
+cd ahorra-tokens-claude && bash install.sh
 ```
 
-Siempre trabajar desde `~/proyectos/cafe-plus/`.
+### Graphify — cuando el proyecto supere 50 archivos
+```bash
+pip install graphify
+cd ~/proyectos/cafe-plus && graphify build
+```
 
 ---
 
 ## SKILLS GSTACK (garrytan/gstack)
 
-Instaladas en `.claude/skills/gstack/` — disponibles como comandos slash en Claude Code.
-Telemetría OFF, auto_upgrade OFF, skill_prefix OFF (configurado en instalación).
+Instaladas en .claude/skills/gstack/. Telemetria OFF.
 
-### Mapa de uso para Café+
+| Skill | Cuando usar |
+|-------|------------|
+| /plan-eng-review | Antes de Clerk, modulos nuevos, cambios de arquitectura |
+| /design-review | Antes de publicar portafolio o mostrar al cliente |
+| /review | Al terminar un modulo completo |
+| /qa | Antes de cada deploy importante |
+| /office-hours | Decisiones de arquitectura |
 
-| Skill | Qué hace | Cuándo usar en este proyecto |
-|-------|----------|------------------------------|
-| `/plan-eng-review` | Revisa un plan técnico antes de implementar | Antes de Clerk, módulos nuevos o cambios de arquitectura |
-| `/design-review` | Evalúa UI/UX con criterio profesional | Antes de publicar el portafolio o mostrar al cliente |
-| `/review` | Code review general del código | Al terminar Clientes CRM y Analisis completos |
-| `/qa` | Genera casos de prueba y revisa calidad | Antes de cada deploy importante |
-| `/office-hours` | Consulta técnica abierta con contexto | Decisiones de arquitectura (Clerk vs 2FA, Graphify, etc.) |
-
-### Flujo recomendado por sesión
-
-```
-1. /plan-eng-review  → validar el plan antes de codear
-2. Implementar       → tareas normales con /batch si son paralelas
-3. /review           → code review del resultado
-4. /qa               → verificar calidad antes del push
-5. /design-review    → antes de mostrar al cliente o publicar portafolio
-```
-
-### Prompt de inicio de sesión 5 con gstack
-
-```
-Lee el CLAUDE.md.
-Ejecuta /design-review sobre el estado visual actual de la app
-para identificar qué mejorar antes de publicar el portafolio.
-Luego usa /batch para Tarea 2 (Clientes CRM) y Tarea 3 (hora pico) en paralelo.
-```
-
-### Cuándo NO usarlas
-- Bug fixes simples → ir directo, no necesitan review previo
-- Cambios de una línea → overhead innecesario
-- Tareas de lógica pura sin impacto en arquitectura o UI
+Flujo recomendado: /plan-eng-review -> implementar -> /review -> /qa -> push
 
 ---
 
-## SUBAGENTES — PARALELIZACIÓN DE TAREAS
+## SUBAGENTE ESPECIALIZADO
 
-Claude Code soporta subagentes desde v2.1.139+. Permiten correr tareas independientes
-en paralelo, cada una con su propio contexto limpio. Para Café+, usar con criterio:
-2-3 agentes en tareas independientes tiene sentido. Más de eso en un proyecto de este
-tamaño consume tokens sin beneficio proporcional.
-
-### Cuándo paralelizar (tareas de sesión 5)
-
-| Tareas | ¿Paralelizar? | Razón |
-|--------|--------------|-------|
-| Tarea 2 (Clientes CRM) + Tarea 3 (hora pico) | ✅ Sí | Archivos distintos, independientes |
-| Tarea 4 (Clerk) + cualquier otra | ✅ Sí | Rama separada, no toca main |
-| Tarea 5 (README) + cualquier otra | ✅ Sí | Solo documentación |
-| Bug fix que depende de ver el error | ❌ No | Requiere diagnóstico secuencial |
-
-### Forma rápida — comando /batch
-
-```
-/batch Ejecuta estas dos tareas en paralelo:
-1. Agrega campo notas, historial de pedidos y badge inactivo en Clientes.jsx
-2. Agrega gráfica de hora pico en Analisis.jsx
-Son independientes. Al terminar reporta los cambios de cada una.
-```
-
-### Forma avanzada — subagente especializado en YAML
-
-Crear archivo `.claude/agents/frontend-cafe.yaml` en la raíz del repo:
-
+Crear .claude/agents/frontend-cafe.yaml:
 ```yaml
 name: frontend-cafe
-description: Especialista en componentes React + Tailwind para Café+
+description: Especialista en React + Tailwind para Cafe+
 model: claude-sonnet-4-6
 tools: [read, write, bash]
 prompt: |
-  Eres un especialista en React 18 + Vite + Tailwind CSS para el proyecto Café+.
-  Paleta activa: Fresh Matcha (cafe-500=#2d6a4f, terracota-500=#1e6091).
-  Tipografía: Plus Jakarta Sans (display) + Outfit (body).
-  Reglas obligatorias:
-  - Nunca usar formatFechaHora (no existe) → usar formatFecha
-  - Nunca usar input-cafeteria → usar input-cafe o input-field
-  - Dark mode en todos los elementos nuevos
-  - fetch nativo sin headers en POST a GAS y n8n
-  - recharts@2.15.3 — no actualizar a v3
-  - npm run build antes de cualquier push
-  Lee /mnt/skills/public/frontend-design/SKILL.md antes de crear UI nueva.
-```
-
-Invocar con `@frontend-cafe` en el chat de Claude Code.
-
-### Prompt de inicio de sesión con paralelización
-
-```
-Lee el CLAUDE.md. Usa /batch para Tarea 2 y Tarea 3 en paralelo.
-Son independientes — Clientes.jsx y Analisis.jsx no se tocan entre sí.
-Tarea 4 (Clerk) después, en rama feat/clerk-auth como sesión individual.
+  Especialista en React 18 + Vite + Tailwind CSS para Cafe+.
+  Paleta Fresh Matcha: cafe-500=#2d6a4f, terracota-500=#1e6091.
+  Tipografia: Plus Jakarta Sans (display) + Outfit (body).
+  Reglas: formatFecha (no formatFechaHora), input-cafe (no input-cafeteria),
+  dark mode en todo, fetch nativo sin headers, recharts@2.15.3.
+  Leer /mnt/skills/public/frontend-design/SKILL.md antes de crear UI.
 ```
 
 ---
 
-## OPTIMIZACIÓN DE TOKENS EN CLAUDE CODE
+## PROMPT DE INICIO SESION 6
 
-### Estrategias actuales (ya aplicadas)
-- **CLAUDE.md** en la raíz → evita que Claude redescubra el proyecto cada sesión
-- **Skills routing** → leer solo la skill relevante por tarea, no todas
-- **`/compact`** → ejecutar manualmente cuando la sesión lleve 40-50% de contexto usado.
-  Claude resume la conversación y reinicia la ventana sin perder el estado del trabajo.
-
-### Graphify — alternativa si el proyecto crece significativamente
-Si el proyecto supera ~50 archivos o las sesiones se vuelven lentas y costosas,
-evaluar **Graphify**: pre-compila el codebase en un grafo de conocimiento que
-Claude Code consulta en lugar de leer archivos uno por uno.
-
-Instalación cuando se requiera:
-```bash
-pip install graphify
-cd ~/proyectos/cafe-plus
-graphify build   # genera el grafo una vez
-# Claude Code lo usa automáticamente en sesiones siguientes
 ```
+Lee el CLAUDE.md en la raiz del proyecto.
+Confirma estado de modulos y lista de tareas pendientes.
 
-**Para el tamaño actual de Café+ (~15 archivos JSX) no es necesario.**
-El CLAUDE.md y el `/compact` son suficientes.
+TAREA 1 — resolver CORS del chat IA:
+En n8n, nodo Respond to Webhook -> Options -> Response Headers, agregar:
+  Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
+  Access-Control-Allow-Methods: POST, OPTIONS
+  Content-Type: application/json
 
----
+TAREA 2 — logging diagnostico en Analisis.jsx:
+Agregar los console.log documentados en CLAUDE.md seccion workflow n8n
+para confirmar que la respuesta del agente llega correctamente.
 
-## ESTADO AL CIERRE DE SESIÓN 5
-
-### Módulos actualizados en esta sesión
-
-| Archivo | Cambios aplicados |
-|---------|------------------|
-| Analisis.jsx | Treemap canales, gradiente BarChart, gráfica hora pico, selector de mes, colores Fresh Matcha en recharts |
-| Historial.jsx | Selector de mes + opción "Todos los registros" |
-| api.js | `generarMeses()` exportado, `getAllDetalle` para items completos |
-| tailwind.config.js | Paleta Fresh Matcha completa (verdes/azules) |
-| index.css | Glassmorphism, microanimaciones, stagger, header-glass |
-| Layout.jsx | Mobile responsive, mobileOpen, botón hamburguesa |
-
-### Workflow n8n — Cafe_Plus (ID: chpLlo3iR6CM2Ja5)
-
-Flujo actual confirmado:
+No tocar App.jsx ni Sidebar.jsx.
+npm run build antes de cualquier push.
+/compact si el contexto llega al 40%.
 ```
-Webhook (POST) → AI Agent → Code in JavaScript → Respond to Webhook
-```
-
-El agente procesa correctamente y genera respuestas reales desde Sheets.
-El nodo Respond to Webhook devuelve `{ "respuesta": "..." }` con status success.
-
-**BUG PENDIENTE — CORS bloqueado en browser:**
-El header `Access-Control-Allow-Origin` no llega al browser desde n8n.
-El workflow funciona internamente pero el fetch desde la app es bloqueado.
-
-**Opción A — Recomendada (nodo Respond to Webhook en n8n):**
-Options → Response Headers → agregar:
-```
-Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
-Access-Control-Allow-Methods: POST, OPTIONS
-```
-
-**Opción B — Variable en EasyPanel → servicio n8n → Entorno:**
-```
-N8N_WEBHOOK_CORS_ALLOWED_ORIGINS=https://clawdbot-cafe-plus.u555aa.easypanel.host
-```
-
-### Tareas pendientes sesión 6 (en orden)
-
-1. CORS chat IA → Opción A en nodo Respond to Webhook (5 min)
-2. Clerk auth → rama feat/clerk-auth
-3. README.md técnico del proyecto
-4. FINDING-003 → Mobile sidebar overlay a 375px
-5. Clientes.jsx → campo notas/preferencias + badge inactivo
-6. Analisis.jsx → remover console.log de diagnóstico de items
-
-### Incidencias nuevas de sesión 5
-
-| # | Problema | Regla |
-|---|---------|-------|
-| INC-S5-A | N8N_CORS_ORIGIN en cafe-plus no tiene efecto | La variable va en el servicio n8n, no en cafe-plus |
-| INC-S5-B | N8N_CORS_ORIGIN no aplica a webhooks de n8n | Usar headers directamente en nodo Respond to Webhook |
-| INC-S5-C | Treemap content prop rompe en prod | Usar función SVG primitiva sin componentes React |
-| INC-S5-D | VITE_N8N_WEBHOOK duplicada en entorno | Dejar solo una entrada con la URL correcta |
 
 ---
 
