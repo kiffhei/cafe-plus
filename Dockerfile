@@ -3,6 +3,17 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+# Build-time args para Vite (deben pasarse en docker build --build-arg)
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_API_URL
+ARG VITE_N8N_WEBHOOK
+
+# Exponer como ENV para que Vite los incruste en el bundle
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_N8N_WEBHOOK=$VITE_N8N_WEBHOOK
+
 RUN npm run build
 
 FROM node:20-alpine
