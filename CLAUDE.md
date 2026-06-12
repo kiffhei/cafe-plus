@@ -1,7 +1,8 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-12
+> Archivo consolidado. Actualizado: 2026-06-12 (S7 — fix Dockerfile VITE_* build-time vars)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
+> **Estado actual (S8):** Bug de Dockerfile resuelto. Clerk funcional en producción. Autenticación operativa. Próximo: continuar tareas pendientes S7.
 
 ---
 
@@ -325,6 +326,18 @@ git push
 | INC-S6-B | S6 | Productos muestra 0 items aunque GAS responde ok:true | params.categoria en apiGet colisiona con filtro de producto en GAS — usar userCategoria |
 | INC-S6-C | S6 | .env no estaba en .gitignore — riesgo de exponer secretos | Agregar .env y .env.* a .gitignore en todo proyecto nuevo |
 | INC-S6-D | S6 | fetch sin redirect:follow — GAS redirecciones no seguidas | Agregar redirect:'follow' a fetchWithTimeout |
+| INC-S7-A | S7 | VITE_CLERK_PUBLISHABLE_KEY undefined en producción — Clerk no cargaba | Dockerfile multi-stage sin ARG/ENV para vars VITE_*: Vite no las incrusta en bundle. Siempre declarar ARG + ENV antes de RUN npm run build. Cambiar CACHE_BUST al modificar cualquier VITE_* en EasyPanel. |
+
+---
+
+## HISTORIAL DE CAMBIOS POR SESIÓN
+
+### Sesión 7 — Fix Dockerfile (2026-06-12)
+- **Root cause identificado:** multi-stage build sin `ARG`/`ENV` para variables `VITE_*` — Vite no podía incrustarlas en el bundle durante el build en EasyPanel.
+- **Dockerfile corregido:** bloque `ARG → ENV → RUN npm run build` para `VITE_CLERK_PUBLISHABLE_KEY`, `VITE_API_URL`, `VITE_N8N_WEBHOOK`.
+- **`ARG CACHE_BUST=20260612_3`** agregado para forzar invalidación de caché Docker.
+- **App restaurada:** Clerk carga correctamente en producción.
+- **Regla para futuros deploys:** si se cambia un valor `VITE_*` en EasyPanel, cambiar también el valor de `CACHE_BUST` para forzar rebuild completo.
 
 ---
 
@@ -405,6 +418,32 @@ ANTES DE CODIFICAR — verificar en Clerk dashboard:
 1. Usuarios creados con email+password
 2. publicMetadata.categoria asignado ('admin' o 'cajero')
 Sin esto, todos los usuarios tendrán rol 'cajero' y no podrán acceder a Productos/Usuarios.
+
+No tocar App.jsx ni Sidebar.jsx.
+npm run build antes de cualquier push.
+/compact si el contexto llega al 40%.
+```
+
+---
+
+## PROMPT DE INICIO SESION 8
+
+```
+Lee el CLAUDE.md en la raiz del proyecto.
+Confirma estado de modulos y lista de tareas pendientes.
+
+CONTEXTO S7: Bug crítico de Dockerfile resuelto (INC-S7-A).
+Clerk funcional en producción — VITE_* variables ahora se incrustan correctamente en el bundle.
+ARG CACHE_BUST=20260612_3 activo en Dockerfile.
+
+TAREAS PENDIENTES (heredadas de S7, en orden de prioridad):
+1. CORS chat IA — headers en nodo Respond to Webhook (n8n, no código)
+2. Remover console.log diagnóstico de Analisis.jsx
+3. FINDING-003 — Mobile sidebar overlay a 375px (Layout.jsx + Sidebar.jsx)
+4. Crear usuarios en Clerk dashboard (admin + cajero) con email+password
+5. Configurar publicMetadata.categoria en Clerk
+
+REGLA DOCKERFILE: si se cambia un valor VITE_* en EasyPanel, actualizar CACHE_BUST en Dockerfile.
 
 No tocar App.jsx ni Sidebar.jsx.
 npm run build antes de cualquier push.
