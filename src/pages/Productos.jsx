@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { productos as productosApi } from '../api/api'
+import { useAuth } from '../context/AuthContext'
 
 const CATEGORIAS = ['café', 'bebida', 'pan', 'sándwich', 'otro']
 
@@ -182,10 +183,7 @@ export default function Productos() {
   const [toggling, setToggling]     = useState(null)
   const [error, setError]           = useState('')
 
-  // Leer rol del usuario desde localStorage
-  const userStr  = localStorage.getItem('cafe_user')
-  const user     = userStr ? JSON.parse(userStr) : {}
-  const esAdmin  = user.categoria === 'admin'
+  const { isAdmin: esAdmin } = useAuth()
 
   async function cargar() {
     setLoading(true)
