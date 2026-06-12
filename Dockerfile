@@ -4,7 +4,10 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Build-time args para Vite (deben pasarse en docker build --build-arg)
+# Cache bust - cambiar valor para forzar rebuild sin cache
+ARG CACHE_BUST=20260612_3
+
+# Build-time args para Vite
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_API_URL
 ARG VITE_N8N_WEBHOOK
