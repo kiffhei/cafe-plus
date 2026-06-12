@@ -1,5 +1,5 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-04
+> Archivo consolidado. Actualizado: 2026-06-12
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
 
@@ -29,7 +29,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 |---------|-----|
 | Repo GitHub | https://github.com/kiffhei/cafe-plus |
 | App producción | https://clawdbot-cafe-plus.u555aa.easypanel.host |
-| Backend GAS | https://script.google.com/macros/s/AKfycbwtDGwTv2T8MiyWZOS3bXfOOWutNgFPGbZZeqaed7yHhd4OnFXuW5LYAXl27ao4QJ3w/exec |
+| Backend GAS | https://script.google.com/macros/s/AKfycbw8sF-F3T0ftXO6BBqUwXB1yI6SZnAd0U7HAdw7fs5gI541jl6L4C37AJhjxMZMkyRt/exec |
 | Spreadsheet ID | 1GdeZReoLbIhZc9kRGK7IjhsgaNds8O26uEGQVvY1dq4 |
 | n8n base | https://appn8n-n8n.u555aa.easypanel.host |
 | n8n webhook chat IA | https://appn8n-n8n.u555aa.easypanel.host/webhook/df19bf86-8f1a-46af-af4f-71a7a253fd24 |
@@ -46,7 +46,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 | Estilos | Paleta Fresh Matcha + Plus Jakarta Sans + Outfit | Ver tokens abajo |
 | Backend | Google Apps Script REST API | fetch nativo obligatorio — sin axios |
 | Base de datos | Google Sheets (5 hojas) | Ver estructura abajo |
-| Auth | Token en localStorage (`cafe_token`, `cafe_user`) | Clerk pendiente en rama separada |
+| Auth | Clerk (ClerkProvider + useUser + publicMetadata.categoria) | cafe_user en localStorage para compatibilidad |
 | Dark mode | ThemeContext.jsx + clase `dark` en `<html>` | Todos los componentes requieren dark: |
 | Deploy | Docker multistage en EasyPanel | Autodeploy en push a `main` |
 | IA | n8n + OpenAI via MCP Client | Workflow Cafe_Plus |
@@ -61,7 +61,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 |------|---------------------|
 | `bd_usuarios` | id_usuario, nombre, apellidos, categoria (admin/cajero), usuario, password_hash, activo |
 | `bd_productos` | id_producto, nombre, categoria, precio_venta, costo, cantidad_stock, activo |
-| `bd_clientes` | id_cliente, nombre, apellidos, telefono, email, visitas_acumuladas, descuento_fijo, activo, notas (pendiente agregar) |
+| `bd_clientes` | id_cliente, nombre, apellidos, telefono, email, visitas_acumuladas, descuento_fijo, activo, notas |
 | `bd_ventas` | id_pedido, fecha_hora, id_cajero, nombre_cajero, id_cliente, canal, subtotal, descuento, total, estado |
 | `bd_detalle_pedidos` | id_pedido, id_producto, nombre_producto, cantidad, precio_unitario, subtotal_linea |
 
@@ -104,25 +104,27 @@ mono:    'JetBrains Mono'     /* IDs, codigos */
 
 ---
 
-## ESTADO DE MODULOS — CIERRE SESION 5
+## ESTADO DE MODULOS — CIERRE SESION 6
 
 | Archivo | Estado | Sesion |
 |---------|--------|--------|
-| Login.jsx | OK completo | S1 |
+| Login.jsx | OK — Clerk SignIn + Fresh Matcha theme + dark mode | S6 |
 | App.jsx | OK — BLOQUEADO no tocar rutas | S2 |
 | Sidebar.jsx | OK — BLOQUEADO no tocar nav items | S2 |
 | ThemeContext.jsx | OK dark mode completo | S2 |
 | Layout.jsx | OK mobile responsive + header-glass + hamburguesa | S4 |
 | index.css | OK glassmorphism + microanimaciones + stagger | S4 |
 | tailwind.config.js | OK paleta Fresh Matcha + tipografia premium | S4 |
-| api.js | OK formatFecha, formatMXN, getAllDetalle, generarMeses | S5 |
+| api.js | OK Clerk auth + userCategoria + redirect:follow | S6 |
+| AuthContext.jsx | OK Clerk useUser + cafe_user localStorage compat | S6 |
+| src/lib/clerkTheme.js | OK tema Clerk con paleta Fresh Matcha | S6 |
 | Usuarios.jsx | OK CRUD + table-wrapper mobile | S4 |
-| Productos.jsx | OK CRUD + toggle + mobile | S4 |
-| Clientes.jsx | OK CRUD + badges + historial pedidos | S5 — campo notas pendiente |
+| Productos.jsx | OK CRUD + toggle + mobile + useAuth | S6 |
+| Clientes.jsx | OK CRUD + badges + historial pedidos + notas | S5 |
 | NuevoPedido.jsx | OK carrito + descuentos + mobile | S4 |
 | PedidosHoy.jsx | OK kanban + autorefresh + ordenamiento | S4 |
 | Historial.jsx | OK tabla paginada + filtros + PDF + sort + selector mes | S5 |
-| Analisis.jsx | OK KPIs + BarChart + Treemap + LineChart + hora pico + chat IA | S5 — CORS pendiente |
+| Analisis.jsx | OK KPIs + BarChart + Treemap + LineChart + hora pico + chat IA | S5 — CORS n8n pendiente |
 
 ---
 
@@ -187,19 +189,17 @@ console.log('[IA] parsed data:', data)
 
 ---
 
-## TAREAS PENDIENTES — SESION 6
+## TAREAS PENDIENTES — SESION 7
 
 | # | Tarea | Donde | Prioridad |
 |---|-------|-------|-----------|
 | 1 | CORS chat IA — headers en Respond to Webhook | n8n (no codigo) | ALTA |
-| 2 | Logging diagnostico en Analisis.jsx | Analisis.jsx | ALTA |
-| 3 | Remover console.log de items diagnostico | Analisis.jsx | MEDIA |
-| 4 | Campo notas/preferencias en Clientes | Clientes.jsx + bd_clientes | MEDIA |
-| 5 | FINDING-003 — Mobile sidebar overlay a 375px | Layout.jsx + Sidebar.jsx | MEDIA |
-| 6 | Clerk auth | rama feat/clerk-auth | BAJA |
-| 7 | README.md tecnico del proyecto | README.md | BAJA |
-| 8 | Memoria corta del agente (BA_MemoryEnvelope) | n8n workflow | BAJA |
-| 9 | Alertas WhatsApp/email cuando falle flujo IA | n8n + Evolution API | BAJA |
+| 2 | Remover console.log diagnóstico de Analisis.jsx | Analisis.jsx | MEDIA |
+| 3 | FINDING-003 — Mobile sidebar overlay a 375px | Layout.jsx + Sidebar.jsx | MEDIA |
+| 4 | Crear usuarios en Clerk dashboard (admin + cajero) | dashboard.clerk.com | ALTA |
+| 5 | Configurar publicMetadata.categoria en Clerk | dashboard.clerk.com | ALTA |
+| 6 | Memoria corta del agente (BA_MemoryEnvelope) | n8n workflow | BAJA |
+| 7 | Alertas WhatsApp/email cuando falle flujo IA | n8n + Evolution API | BAJA |
 
 ---
 
@@ -225,8 +225,13 @@ import { pedidosDetalle } from '../api/api'  // getAllDetalle — incluye items 
 
 ### Leer rol del usuario
 ```js
+// CORRECTO — via hook (componentes React)
+const { isAdmin, isCajero, user } = useAuth()
+
+// CORRECTO — fuera de componente React (si es necesario)
 const user    = JSON.parse(localStorage.getItem('cafe_user') || '{}')
 const esAdmin = user.categoria === 'admin'
+// cafe_user lo escribe AuthContext.jsx al cargar Clerk — siempre sincronizado
 ```
 
 ### Dark mode — en TODOS los elementos nuevos
@@ -239,6 +244,25 @@ className="bg-white dark:bg-cafe-800 text-cafe-800 dark:text-crema-100 border-ca
 // OK — fetch nativo SIN headers
 fetch(URL, { method: 'POST', body: JSON.stringify(data) })
 // MAL — nunca axios, nunca Content-Type explicito en el cliente
+```
+
+### GAS deploy — regla critica (aprendida S6)
+```
+NUNCA editar una implementación existente de GAS web app.
+SIEMPRE crear "Nueva implementación" → tipo Web app → Execute as: Me → Anyone.
+Cada nueva implementación genera una URL nueva.
+Actualizar VITE_API_URL en .env (dev) y en EasyPanel (prod) después de cada deploy.
+La URL del editor NO es la URL del web app — son contextos distintos.
+```
+
+### userCategoria — regla critica (aprendida S6)
+```js
+// MAL — 'categoria' colisiona con el filtro de producto en GAS getProductos
+url.searchParams.set('categoria', meta.categoria)
+
+// OK — usar 'userCategoria' para el rol del usuario en apiGet/apiPost
+url.searchParams.set('userCategoria', meta.categoria)
+// GAS lee: params.userCategoria || body.userCategoria || 'cajero'
 ```
 
 ### recharts — regla critica (aprendida S4)
@@ -297,6 +321,10 @@ git push
 | INC-S5-C | S5 | Treemap content prop rompe en prod | Funcion SVG primitiva (props) => retorna g element |
 | INC-S5-D | S5 | VITE_N8N_WEBHOOK duplicada en entorno | Dejar solo una entrada con la URL correcta |
 | INC-S5-E | S5 | Repo confundido con carpeta iCloud | Siempre trabajar desde ~/proyectos/cafe-plus/ |
+| INC-S6-A | S6 | GAS web app retorna data:[] aunque editor devuelve datos | Deployment desactualizado — siempre "Nueva implementación", nunca editar la existente |
+| INC-S6-B | S6 | Productos muestra 0 items aunque GAS responde ok:true | params.categoria en apiGet colisiona con filtro de producto en GAS — usar userCategoria |
+| INC-S6-C | S6 | .env no estaba en .gitignore — riesgo de exponer secretos | Agregar .env y .env.* a .gitignore en todo proyecto nuevo |
+| INC-S6-D | S6 | fetch sin redirect:follow — GAS redirecciones no seguidas | Agregar redirect:'follow' a fetchWithTimeout |
 
 ---
 
@@ -357,21 +385,26 @@ prompt: |
 
 ---
 
-## PROMPT DE INICIO SESION 6
+## PROMPT DE INICIO SESION 7
 
 ```
 Lee el CLAUDE.md en la raiz del proyecto.
 Confirma estado de modulos y lista de tareas pendientes.
 
-TAREA 1 — resolver CORS del chat IA:
+CONTEXTO S6: Clerk auth implementado y mergeado a main.
+GAS v1.5 desplegado con getSS() y userCategoria.
+Todos los módulos funcionales.
+
+TAREA PRIORITARIA — CORS chat IA (sigue pendiente):
 En n8n, nodo Respond to Webhook -> Options -> Response Headers, agregar:
   Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
   Access-Control-Allow-Methods: POST, OPTIONS
   Content-Type: application/json
 
-TAREA 2 — logging diagnostico en Analisis.jsx:
-Agregar los console.log documentados en CLAUDE.md seccion workflow n8n
-para confirmar que la respuesta del agente llega correctamente.
+ANTES DE CODIFICAR — verificar en Clerk dashboard:
+1. Usuarios creados con email+password
+2. publicMetadata.categoria asignado ('admin' o 'cajero')
+Sin esto, todos los usuarios tendrán rol 'cajero' y no podrán acceder a Productos/Usuarios.
 
 No tocar App.jsx ni Sidebar.jsx.
 npm run build antes de cualquier push.
