@@ -6,8 +6,13 @@
 const BASE = import.meta.env.VITE_API_URL
 const N8N  = import.meta.env.VITE_N8N_WEBHOOK
 
-function getToken() {
-  return localStorage.getItem('cafe_token') || ''
+function getUserMeta() {
+  try {
+    const raw = localStorage.getItem('clerk_user_meta')
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
 }
 
 // Fetch con timeout configurable (default 25s — Apps Script puede tardar)
@@ -15,7 +20,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal })
+    const res = await fetch(url, { ...options, signal: controller.signal, redirect: 'follow' })
     clearTimeout(id)
     return res
   } catch (err) {
@@ -26,9 +31,14 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
 }
 
 async function apiGet(action, params = {}) {
+  const meta = getUserMeta()
   const url = new URL(BASE)
   url.searchParams.set('action', action)
-  url.searchParams.set('token', getToken())
+  url.searchParams.set('apiKey', 'CAFEPLUS_2026_SECURE')
+  url.searchParams.set('userId', meta.id_usuario || '')
+  url.searchParams.set('userCategoria', meta.categoria || 'cajero')
+  url.searchParams.set('usuario', meta.usuario || '')
+  url.searchParams.set('nombre', meta.nombre || '')
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v))
   })
@@ -37,10 +47,18 @@ async function apiGet(action, params = {}) {
 }
 
 async function apiPost(action, body = {}) {
-  const url = `${BASE}?action=${action}&token=${getToken()}`
+  const meta = getUserMeta()
+  const url = `${BASE}?action=${action}&apiKey=CAFEPLUS_2026_SECURE`
   const res = await fetchWithTimeout(url, {
     method: 'POST',
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      ...body,
+      apiKey:        'CAFEPLUS_2026_SECURE',
+      userId:        meta.id_usuario || '',
+      userCategoria: meta.categoria || 'cajero',
+      usuario:       meta.usuario   || '',
+      nombre:        meta.nombre    || '',
+    }),
   })
   return res.json()
 }
@@ -52,9 +70,7 @@ export const auth = {
       body: JSON.stringify({ usuario, password }),
     }, 20000).then(r => r.json()),
 
-  validateToken: (token) =>
-    fetchWithTimeout(`${BASE}?action=validateToken&token=${token}`, {}, 15000)
-      .then(r => r.json()),
+  // validateToken: no se usa con Clerk — auth manejada por ClerkProvider
 }
 
 export const usuarios = {

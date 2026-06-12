@@ -1,41 +1,54 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect } from 'react'
+import { useUser, useClerk } from '@clerk/clerk-react'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user,  setUser]  = useState(null)
-  const [token, setToken] = useState(null)
-  const [ready, setReady] = useState(false)
+  const { user: clerkUser, isLoaded } = useUser()
+  const { signOut } = useClerk()
+
+  const ready = isLoaded
+
+  const categoria = clerkUser?.publicMetadata?.categoria || 'cajero'
+
+  const user = clerkUser
+    ? {
+        id_usuario:  clerkUser.id,
+        nombre:      clerkUser.firstName ?? clerkUser.username ?? '',
+        apellidos:   clerkUser.lastName ?? '',
+        email:       clerkUser.primaryEmailAddress?.emailAddress ?? '',
+        usuario:     clerkUser.username ?? clerkUser.primaryEmailAddress?.emailAddress ?? '',
+        categoria,
+      }
+    : null
+
+  const isAdmin  = categoria === 'admin'
+  const isCajero = categoria === 'cajero'
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('cafe_token')
-    const savedUser  = localStorage.getItem('cafe_user')
-    if (savedToken && savedUser) {
-      setToken(savedToken)
-      setUser(JSON.parse(savedUser))
+    if (!isLoaded) return
+    if (clerkUser) {
+      const meta = {
+        id_usuario: clerkUser.id,
+        nombre:     clerkUser.fullName ||
+                    clerkUser.primaryEmailAddress?.emailAddress || '',
+        usuario:    clerkUser.primaryEmailAddress?.emailAddress || '',
+        categoria:  clerkUser.publicMetadata?.categoria || 'cajero',
+      }
+      localStorage.setItem('clerk_user_meta', JSON.stringify(meta))
+      localStorage.setItem('cafe_user', JSON.stringify(meta))
+    } else {
+      localStorage.removeItem('clerk_user_meta')
+      localStorage.removeItem('cafe_user')
     }
-    setReady(true)
-  }, [])
-
-  function login(userData, userToken) {
-    setUser(userData)
-    setToken(userToken)
-    localStorage.setItem('cafe_token', userToken)
-    localStorage.setItem('cafe_user',  JSON.stringify(userData))
-  }
+  }, [isLoaded, clerkUser])
 
   function logout() {
-    setUser(null)
-    setToken(null)
-    localStorage.removeItem('cafe_token')
-    localStorage.removeItem('cafe_user')
+    signOut()
   }
 
-  const isAdmin  = user?.categoria === 'admin'
-  const isCajero = user?.categoria === 'cajero'
-
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAdmin, isCajero, ready }}>
+    <AuthContext.Provider value={{ user, categoria, isAdmin, isCajero, logout, ready }}>
       {children}
     </AuthContext.Provider>
   )

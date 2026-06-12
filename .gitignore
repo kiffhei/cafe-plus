@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables — nunca commitear
+.env
+.env.*
+!.env.example
+
 # gstack project-local — NO commitear estado
 .claude/skills/gstack/
 .gstack/
