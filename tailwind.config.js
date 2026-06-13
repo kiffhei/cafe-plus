@@ -36,6 +36,12 @@ export default {
           500: '#40916c',
           600: '#2d6a4f',
         },
+        primary:          'var(--color-primary)',
+        'primary-dark':   'var(--color-primary-dark)',
+        accent:           'var(--color-accent)',
+        positive:         'var(--color-positive)',
+        'bg-light':       'var(--color-bg-light)',
+        'surface-theme':  'var(--color-surface)',
       },
       fontFamily: {
         display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],

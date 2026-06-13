@@ -9,6 +9,10 @@ export function ThemeProvider({ children }) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
 
+  const [tema, setTema] = useState(() =>
+    localStorage.getItem('cafe_tema') || 'matcha'
+  )
+
   useEffect(() => {
     const root = document.documentElement
     if (dark) {
@@ -20,8 +24,18 @@ export function ThemeProvider({ children }) {
     }
   }, [dark])
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = tema
+    localStorage.setItem('cafe_tema', tema)
+  }, [tema])
+
   return (
-    <ThemeContext.Provider value={{ dark, toggle: () => setDark(d => !d) }}>
+    <ThemeContext.Provider value={{
+      darkMode: dark,
+      toggleDark: () => setDark(d => !d),
+      tema,
+      setTema,
+    }}>
       {children}
     </ThemeContext.Provider>
   )

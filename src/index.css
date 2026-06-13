@@ -17,10 +17,92 @@
 }
 
 .dark {
-  --crema-bg:  #0d1b2a;
+  --crema-bg:  var(--color-bg-dark, #0d1b2a);
   --texto:     #e8f5f0;
   --texto-sub: #74c69d;
   --borde:     #2d4a3e;
+}
+
+/* ── Temas de color ── */
+
+[data-theme="matcha"] {
+  --color-primary:      #2d6a4f;
+  --color-primary-dark: #0d2d1f;
+  --color-accent:       #1e6091;
+  --color-positive:     #40916c;
+  --color-bg-light:     #f8fffe;
+  --color-bg-dark:      #0d1b2a;
+  --color-surface:      #e8f5e9;
+  --color-surface-dark: #1a3a2a;
+  --chart-1: #2d6a4f;
+  --chart-2: #1e6091;
+  --chart-3: #40916c;
+  --chart-4: #48cae4;
+  --chart-5: #84cba8;
+}
+
+[data-theme="cafe"] {
+  --color-primary:      #6f4e37;
+  --color-primary-dark: #2c1810;
+  --color-accent:       #c8922a;
+  --color-positive:     #8b6914;
+  --color-bg-light:     #fdf6ec;
+  --color-bg-dark:      #1a0f08;
+  --color-surface:      #f5e6d3;
+  --color-surface-dark: #2c1810;
+  --chart-1: #6f4e37;
+  --chart-2: #c8922a;
+  --chart-3: #8b6914;
+  --chart-4: #d4a96a;
+  --chart-5: #e8c99a;
+}
+
+[data-theme="medianoche"] {
+  --color-primary:      #6366f1;
+  --color-primary-dark: #1e1b4b;
+  --color-accent:       #06b6d4;
+  --color-positive:     #8b5cf6;
+  --color-bg-light:     #f0f0ff;
+  --color-bg-dark:      #0f0f1a;
+  --color-surface:      #e0e0ff;
+  --color-surface-dark: #1a1a2e;
+  --chart-1: #6366f1;
+  --chart-2: #06b6d4;
+  --chart-3: #8b5cf6;
+  --chart-4: #a78bfa;
+  --chart-5: #67e8f9;
+}
+
+[data-theme="terracota"] {
+  --color-primary:      #c0622a;
+  --color-primary-dark: #3d1505;
+  --color-accent:       #e8832a;
+  --color-positive:     #8b4513;
+  --color-bg-light:     #fdf3ec;
+  --color-bg-dark:      #1a0a05;
+  --color-surface:      #fce8d8;
+  --color-surface-dark: #2d1008;
+  --chart-1: #c0622a;
+  --chart-2: #e8832a;
+  --chart-3: #8b4513;
+  --chart-4: #f4a460;
+  --chart-5: #deb887;
+}
+
+[data-theme="pizarra"] {
+  --color-primary:      #475569;
+  --color-primary-dark: #0f172a;
+  --color-accent:       #84cc16;
+  --color-positive:     #64748b;
+  --color-bg-light:     #f8fafc;
+  --color-bg-dark:      #020617;
+  --color-surface:      #e2e8f0;
+  --color-surface-dark: #1e293b;
+  --chart-1: #475569;
+  --chart-2: #84cc16;
+  --chart-3: #64748b;
+  --chart-4: #a3e635;
+  --chart-5: #94a3b8;
 }
 
 * { box-sizing: border-box; }
