@@ -169,7 +169,8 @@ export default function NuevoPedido() {
 
   if (exito) return (
     <div className="max-w-md mx-auto text-center py-16 animate-fade-in">
-      <div className="w-16 h-16 bg-olivo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+           style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}>
         <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
         </svg>
@@ -198,7 +199,7 @@ export default function NuevoPedido() {
                   <button key={c} onClick={() => setCanal(c)}
                     className={`px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all
                       ${canal === c
-                        ? 'bg-cafe-700 text-crema-100'
+                        ? 'tab-active-theme'
                         : 'bg-crema-100 dark:bg-cafe-700 text-cafe-600 dark:text-cafe-300 hover:bg-crema-200 dark:hover:bg-cafe-600'}`}>
                     {ESTADOS_CANAL[c]}
                   </button>
@@ -234,7 +235,7 @@ export default function NuevoPedido() {
             <button key={cat} onClick={() => setFiltro(cat)}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all capitalize
                 ${filtroCategoria === cat
-                  ? 'bg-cafe-700 text-crema-100'
+                  ? 'tab-active-theme'
                   : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300'}`}>
               {cat}
             </button>
@@ -263,7 +264,7 @@ export default function NuevoPedido() {
                   )}
                   <p className="text-sm font-medium text-cafe-800 dark:text-crema-100 leading-tight mb-1 pr-6">{prod.nombre}</p>
                   <p className="text-xs text-cafe-400 capitalize mb-2">{prod.categoria}</p>
-                  <p className="text-sm font-bold text-terracota-500">{formatMXN(prod.precio_venta)}</p>
+                  <p className="text-sm font-bold text-accent-theme">{formatMXN(prod.precio_venta)}</p>
                 </button>
               )
             })}
@@ -332,7 +333,7 @@ export default function NuevoPedido() {
             )}
             <div className="flex justify-between font-bold text-base text-cafe-800 dark:text-crema-100 pt-1 border-t border-cafe-100 dark:border-cafe-700">
               <span>Total</span>
-              <span className="text-terracota-500">{formatMXN(total)}</span>
+              <span className="text-accent-theme">{formatMXN(total)}</span>
             </div>
           </div>
 

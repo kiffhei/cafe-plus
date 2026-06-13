@@ -70,7 +70,8 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
               <button
                 onClick={() => onCambiarEstado(pedido.id_pedido, 'entregado')}
                 disabled={cargando === pedido.id_pedido}
-                className="px-3 py-1.5 bg-olivo-500 hover:bg-olivo-600 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50">
+                className="px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50"
+                style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}>
                 Entregar ✓
               </button>
             )}
@@ -97,7 +98,7 @@ function SortBtn({ label, campo, sortState, onSort }) {
       onClick={() => onSort(campo)}
       className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
         ${activo
-          ? 'bg-cafe-700 text-crema-100'
+          ? 'tab-active-theme'
           : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}
     >
       {label}
@@ -207,7 +208,7 @@ export default function PedidosHoy() {
           { label: 'Pendientes',  value: pendientes,  color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' },
           { label: 'En prep.',    value: preparacion, color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' },
           { label: 'Entregados',  value: entregados,  color: 'text-olivo-600 dark:text-olivo-400', bg: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' },
-          { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-terracota-500', bg: 'bg-crema-100 dark:bg-cafe-800 border-cafe-200 dark:border-cafe-700' },
+          { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-accent-theme', bg: 'bg-crema-100 dark:bg-cafe-800 border-cafe-200 dark:border-cafe-700' },
         ].map(m => (
           <div key={m.label} className={`rounded-xl border p-4 ${m.bg}`}>
             <p className="text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">{m.label}</p>
@@ -223,7 +224,7 @@ export default function PedidosHoy() {
             <button key={e} onClick={() => setFiltro(e)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all
                 ${filtro === e
-                  ? 'bg-cafe-700 text-crema-100'
+                  ? 'tab-active-theme'
                   : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300'}`}>
               {e === 'todos' ? 'Todos' : estadoBadge(e).label}
               {e !== 'todos' && (

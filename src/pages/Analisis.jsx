@@ -12,8 +12,24 @@ import {
 import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, generarMeses } from '../api/api'
 // getAllDetalle incluye campo items para calcular producto top
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
+
+const TEMA_CHART_PRIMARY = {
+  'matcha':      '#52b788',
+  'cafe-oscuro': '#d4a96a',
+  'medianoche':  '#a78bfa',
+  'terracota':   '#f4a460',
+  'pizarra':     '#a3e635',
+}
+const TEMA_CHART_BTN = {
+  'matcha':      '#2d6a4f',
+  'cafe-oscuro': '#7a5230',
+  'medianoche':  '#5248c0',
+  'terracota':   '#b05520',
+  'pizarra':     '#3d5068',
+}
 
 const CANAL_COLORS = {
   'Local':     '#2d6a4f',
@@ -152,6 +168,9 @@ const PREGUNTAS_RAPIDAS = [
 
 export default function Analisis() {
   const { user } = useAuth()
+  const { tema } = useTheme()
+  const chartAccent = TEMA_CHART_PRIMARY[tema] || '#52b788'
+  const chartBtn    = TEMA_CHART_BTN[tema]    || '#2d6a4f'
 
   // Periodo
   const [periodo, setPeriodo]       = useState('semana')
@@ -348,7 +367,7 @@ export default function Analisis() {
           <button key={key} onClick={() => seleccionarPeriodo(key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
               ${periodo === key
-                ? 'bg-cafe-700 text-crema-100'
+                ? 'tab-active-theme'
                 : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
             {label}
           </button>
@@ -356,7 +375,7 @@ export default function Analisis() {
         <button onClick={() => seleccionarPeriodo('custom')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
             ${periodo === 'custom'
-              ? 'bg-cafe-700 text-crema-100'
+              ? 'tab-active-theme'
               : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
           Personalizado
         </button>
@@ -392,7 +411,7 @@ export default function Analisis() {
         <KpiCard icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" label="Total ventas"
           value={formatMXN(kpis?.totalVentas ?? 0)}
           sub="solo entregados"
-          color="text-terracota-500" />
+          color="text-accent-theme" />
         <KpiCard icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" label="Ticket promedio"
           value={formatMXN(kpis?.ticketPromedio ?? 0)}
           sub="por pedido" />
@@ -432,8 +451,8 @@ export default function Analisis() {
                     const max = Math.max(...ventasDia.map(d => d.Ventas))
                     return (
                       <Cell key={i} fill={
-                        entry.Ventas > max * 0.66 ? '#1e6091' :
-                        entry.Ventas > max * 0.33 ? '#2d6a4f' : '#84cba8'
+                        entry.Ventas > max * 0.66 ? chartBtn :
+                        entry.Ventas > max * 0.33 ? chartAccent : '#84cba8'
                       } />
                     )
                   })}
@@ -514,7 +533,7 @@ export default function Analisis() {
                 itemStyle={TOOLTIP_ITEM_STYLE}
                 labelStyle={TOOLTIP_LABEL_STYLE}
               />
-              <Line type="monotone" dataKey="Acumulado" stroke={CHART_COLORS[1]}
+              <Line type="monotone" dataKey="Acumulado" stroke={chartBtn}
                 strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -552,7 +571,7 @@ export default function Analisis() {
               />
               <Bar dataKey="pedidos" radius={[3, 3, 0, 0]}>
                 {calcularHoraPico(pedidos).map((entry, i) => (
-                  <Cell key={i} fill={entry.esPico ? '#1e6091' : '#52b788'} />
+                  <Cell key={i} fill={entry.esPico ? chartBtn : chartAccent} />
                 ))}
               </Bar>
             </BarChart>
@@ -565,7 +584,8 @@ export default function Analisis() {
 
         {/* Header */}
         <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-terracota-500 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+               style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}>
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"
               stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round"
@@ -605,10 +625,13 @@ export default function Analisis() {
           )}
           {mensajes.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
-                ${m.role === 'user'
-                  ? 'bg-cafe-700 text-crema-100 rounded-br-sm'
-                  : 'bg-crema-100 dark:bg-cafe-700 text-cafe-800 dark:text-crema-100 rounded-bl-sm whitespace-pre-line'}`}>
+              <div
+                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
+                  ${m.role === 'user'
+                    ? 'text-white rounded-br-sm'
+                    : 'bg-crema-100 dark:bg-cafe-700 text-cafe-800 dark:text-crema-100 rounded-bl-sm whitespace-pre-line'}`}
+                style={m.role === 'user' ? { background: 'var(--cafe-btn)', transition: 'background 0.8s ease' } : undefined}
+              >
                 {m.texto}
               </div>
             </div>

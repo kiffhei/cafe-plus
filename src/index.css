@@ -248,6 +248,16 @@ h1, h2, h3, h4 {
            dark:bg-yellow-900 dark:text-yellow-200
            badge-pulse;
   }
+
+  .tab-active-theme {
+    background: var(--cafe-btn) !important;
+    color: #fff !important;
+    transition: background 0.8s ease;
+  }
+  .text-accent-theme {
+    color: var(--cafe-accent) !important;
+    transition: color 0.8s ease;
+  }
 }
 
 /* ── Fondo animado — orbes por tema ── */

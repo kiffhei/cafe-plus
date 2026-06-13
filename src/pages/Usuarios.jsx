@@ -250,8 +250,9 @@ export default function Usuarios() {
                       disabled={toggling === u.id_usuario || u.id_usuario === 'USR-001'}
                       title={u.id_usuario === 'USR-001' ? 'El admin principal no puede desactivarse' : ''}
                       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none
-                        ${u.activo ? 'bg-olivo-500' : 'bg-gray-300'}
-                        ${u.id_usuario === 'USR-001' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                        ${u.activo ? '' : 'bg-gray-300'}
+                        ${u.id_usuario === 'USR-001' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      style={u.activo ? { background: 'var(--cafe-btn)', transition: 'background 0.8s ease' } : undefined}>
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
                         ${u.activo ? 'translate-x-4' : 'translate-x-1'}`} />
                     </button>

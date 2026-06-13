@@ -424,7 +424,8 @@ export default function Clientes() {
                       <button onClick={() => handleToggle(c)}
                         disabled={toggling === c.id_cliente}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer
-                          ${c.activo ? 'bg-olivo-500' : 'bg-gray-300'}`}>
+                          ${c.activo ? '' : 'bg-gray-300'}`}
+                        style={c.activo ? { background: 'var(--cafe-btn)', transition: 'background 0.8s ease' } : undefined}>
                         <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
                           ${c.activo ? 'translate-x-4' : 'translate-x-1'}`} />
                       </button>

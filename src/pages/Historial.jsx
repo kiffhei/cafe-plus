@@ -250,7 +250,7 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
           )}
           <div className="flex justify-between font-bold text-base text-cafe-800 dark:text-crema-100 pt-1 border-t border-cafe-100 dark:border-cafe-700">
             <span>Total</span>
-            <span className="text-terracota-500">{formatMXN(pedido.total)}</span>
+            <span className="text-accent-theme">{formatMXN(pedido.total)}</span>
           </div>
         </div>
 
@@ -387,7 +387,7 @@ export default function Historial() {
         {[
           { label: 'Total pedidos',   value: totalRegistros,           sub: 'en el rango',    color: 'text-cafe-700 dark:text-crema-200' },
           { label: 'Entregados',      value: entregados.length,        sub: 'completados',    color: 'text-olivo-600 dark:text-olivo-400' },
-          { label: 'Venta del rango', value: formatMXN(ventasTotal),   sub: 'solo entregados',color: 'text-terracota-500' },
+          { label: 'Venta del rango', value: formatMXN(ventasTotal),   sub: 'solo entregados',color: 'text-accent-theme' },
           { label: 'Ticket promedio', value: formatMXN(ticketPromedio),sub: 'por pedido',     color: 'text-cafe-700 dark:text-crema-200' },
         ].map(k => (
           <div key={k.label} className="card">
@@ -601,7 +601,7 @@ export default function Historial() {
                 <button key={num} onClick={() => setPagina(num)}
                   className={`w-8 h-8 rounded-lg text-xs font-medium transition-all
                     ${paginaSegura === num
-                      ? 'bg-cafe-700 text-crema-100'
+                      ? 'tab-active-theme'
                       : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
                   {num}
                 </button>
