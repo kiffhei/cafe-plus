@@ -44,7 +44,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
       flex flex-col text-crema-200 border-r
       transition-all duration-300 ease-in-out
-      min-h-screen shrink-0
+      h-screen overflow-hidden shrink-0
       ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       ${collapsed ? 'w-16' : 'w-60'}
     `}>
@@ -81,22 +81,44 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               to={item.path}
               title={collapsed ? item.label : undefined}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-150
-                ${isActive ? 'bg-cafe-600 text-crema-100' : 'text-cafe-300 hover:bg-cafe-700 hover:text-crema-200'}
+                `relative flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-150
+                ${isActive ? '' : 'text-cafe-300 hover:bg-white/[0.06] hover:text-crema-200'}
                 ${collapsed ? 'justify-center' : ''}`
               }
+              style={({ isActive }) => isActive ? { background: 'rgba(255,255,255,0.12)' } : undefined}
             >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-              </svg>
-              {!collapsed && <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>}
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span
+                      className="absolute left-0 top-[20%] h-[60%] w-[3px] rounded-r-sm"
+                      style={{ background: 'var(--cafe-accent)', transition: 'background 0.8s ease' }}
+                    />
+                  )}
+                  <svg
+                    className="w-5 h-5 shrink-0"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}
+                    style={isActive ? { color: 'var(--cafe-accent)', transition: 'color 0.8s ease' } : undefined}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                  </svg>
+                  {!collapsed && (
+                    <span
+                      className="text-sm font-medium whitespace-nowrap"
+                      style={isActive ? { color: 'var(--cafe-accent)', transition: 'color 0.8s ease' } : undefined}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+                </>
+              )}
             </NavLink>
           </div>
         ))}
       </nav>
 
       {/* Selector de temas */}
-      <div className="border-t cafe-border-theme pt-2">
+      <div className="border-t cafe-border-theme pt-2 flex-shrink-0">
         <button
           onClick={() => setTemaOpen(prev => !prev)}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors
@@ -132,7 +154,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         )}
       </div>
 
-      <div className="border-t border-cafe-700 p-3">
+      <div className="border-t border-cafe-700 p-3 flex-shrink-0">
         {!collapsed && (
           <div className="mb-2 px-1">
             <p className="text-crema-200 text-xs font-medium truncate">{user?.nombre}</p>
