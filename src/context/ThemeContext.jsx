@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const ThemeContext = createContext()
 
@@ -25,7 +25,7 @@ export function ThemeProvider({ children }) {
   }, [dark])
 
   useEffect(() => {
-    document.documentElement.dataset.theme = tema
+    document.documentElement.setAttribute('data-theme', tema)
     localStorage.setItem('cafe_tema', tema)
   }, [tema])
 
@@ -42,5 +42,7 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext)
+  const ctx = useContext(ThemeContext)
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider')
+  return ctx
 }

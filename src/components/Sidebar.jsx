@@ -4,11 +4,13 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
 const TEMAS = [
-  { id: 'matcha',      label: 'Fresh Matcha', accent: '#52b788' },
-  { id: 'cafe-oscuro', label: 'Café Oscuro',  accent: '#d4a96a' },
-  { id: 'medianoche',  label: 'Medianoche',   accent: '#a78bfa' },
-  { id: 'terracota',   label: 'Terracota',    accent: '#f4a460' },
-  { id: 'pizarra',     label: 'Pizarra',      accent: '#a3e635' },
+  { id: 'matcha',      label: 'Fresh Matcha', accent: '#52b788', icon: '🌱' },
+  { id: 'cafe-oscuro', label: 'Café Oscuro',  accent: '#d4a96a', icon: '☕' },
+  { id: 'medianoche',  label: 'Medianoche',   accent: '#a78bfa', icon: '🌙' },
+  { id: 'terracota',   label: 'Terracota',    accent: '#f4a460', icon: '🌅' },
+  { id: 'pizarra',     label: 'Pizarra',      accent: '#a3e635', icon: '📋' },
+  { id: 'vinyl-dark',  label: 'Dark Vinyl',   accent: '#d4a843', icon: '🎵' },
+  { id: 'vinyl-light', label: 'Record Shop',  accent: '#d45c28', icon: '🎙️' },
 ]
 
 const NAV_ITEMS = [
