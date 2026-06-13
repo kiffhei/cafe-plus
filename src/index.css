@@ -142,12 +142,18 @@ h1, h2, h3, h4 {
 
 @layer components {
   .btn-primary {
-    @apply bg-cafe-500 text-white font-medium px-4 py-2 rounded-lg
-           hover:bg-cafe-600 active:bg-cafe-700
-           hover:-translate-y-px hover:shadow-warm-lg
-           transition-all duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0
-           shadow-warm;
+    @apply font-medium px-4 py-2 rounded-lg shadow-warm
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--cafe-btn) !important;
+    color: white;
+    transition: background 0.8s ease, filter 0.15s ease, transform 0.15s ease;
+  }
+  .btn-primary:not(:disabled):hover {
+    filter: brightness(1.15);
+  }
+  .btn-primary:not(:disabled):active {
+    filter: brightness(0.92);
+    transform: scale(0.98);
   }
   .btn-secondary {
     @apply bg-crema-100 text-cafe-700 font-medium px-4 py-2 rounded-lg
@@ -164,10 +170,14 @@ h1, h2, h3, h4 {
   .input-cafe {
     @apply w-full bg-white border border-cafe-200 rounded-lg px-3 py-2
            text-sm text-cafe-900 placeholder-cafe-300
-           focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:border-transparent
+           focus:outline-none
            transition-all duration-150
            dark:bg-cafe-800 dark:border-cafe-600 dark:text-crema-100
-           dark:placeholder-cafe-500 dark:focus:ring-cafe-500;
+           dark:placeholder-cafe-500;
+  }
+  .input-cafe:focus {
+    border-color: var(--cafe-accent) !important;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cafe-accent) 20%, transparent) !important;
   }
   .input-field {
     @apply input-cafe;
@@ -194,11 +204,20 @@ h1, h2, h3, h4 {
     @apply w-full overflow-x-auto rounded-2xl border border-crema-200
            dark:border-cafe-700 shadow-sm;
   }
+  .table-wrapper thead tr {
+    background: var(--cafe-btn) !important;
+    transition: background 0.8s ease;
+  }
   .kpi-card {
-    @apply glass-card p-5 flex flex-col gap-1
-           transition-all duration-300
-           hover:shadow-warm-lg hover:-translate-y-1
-           animate-fade-up;
+    @apply p-5 flex flex-col gap-1 rounded-2xl backdrop-blur-sm animate-fade-up;
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid var(--cafe-border) !important;
+    transition: background 0.8s ease, border-color 0.8s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .kpi-card:hover {
+    background: rgba(255,255,255,0.08) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(45,106,79,0.22);
   }
   .divider-cafe {
     @apply h-px bg-gradient-to-r from-transparent via-cafe-200 to-transparent
