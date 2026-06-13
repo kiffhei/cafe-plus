@@ -1,5 +1,15 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
+
+const TEMAS = [
+  { id: 'matcha',      label: 'Fresh Matcha', accent: '#52b788' },
+  { id: 'cafe-oscuro', label: 'Café Oscuro',  accent: '#d4a96a' },
+  { id: 'medianoche',  label: 'Medianoche',   accent: '#a78bfa' },
+  { id: 'terracota',   label: 'Terracota',    accent: '#f4a460' },
+  { id: 'pizarra',     label: 'Pizarra',      accent: '#a3e635' },
+]
 
 const NAV_ITEMS = [
   { label: 'Nuevo Pedido',  path: '/pedido',      roles: ['admin','cajero'],
@@ -20,7 +30,9 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user, logout, isAdmin } = useAuth()
+  const { tema, setTema } = useTheme()
   const navigate = useNavigate()
+  const [temaOpen, setTemaOpen] = useState(false)
 
   function handleLogout() { logout(); navigate('/login') }
 
@@ -28,8 +40,9 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
   return (
     <aside className={`
+      cafe-sidebar-surface cafe-border-theme
       fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-      flex flex-col bg-cafe-800 text-crema-200
+      flex flex-col text-crema-200 border-r
       transition-all duration-300 ease-in-out
       min-h-screen shrink-0
       ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -81,6 +94,43 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           </div>
         ))}
       </nav>
+
+      {/* Selector de temas */}
+      <div className="border-t cafe-border-theme pt-2">
+        <button
+          onClick={() => setTemaOpen(prev => !prev)}
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors
+            ${collapsed ? 'justify-center' : ''}`}
+          title="Temas"
+        >
+          <span
+            className="w-3.5 h-3.5 rounded-full flex-shrink-0 border-2 border-white/20"
+            style={{ background: 'var(--cafe-accent)', transition: 'background 0.8s ease' }}
+          />
+          {!collapsed && (
+            <span className="text-xs text-white/55 whitespace-nowrap overflow-hidden">Temas</span>
+          )}
+        </button>
+
+        {!collapsed && temaOpen && (
+          <div className="flex flex-col gap-0.5 px-2 pb-1">
+            {TEMAS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => { setTema(t.id); setTemaOpen(false) }}
+                className={`flex items-center gap-2 w-full px-2 py-1.5 rounded-lg text-left transition-colors
+                  ${tema === t.id ? 'bg-white/10' : 'hover:bg-white/[0.06]'}`}
+              >
+                <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: t.accent }} />
+                <span className="text-xs text-white/65 whitespace-nowrap">{t.label}</span>
+                {tema === t.id && (
+                  <span className="ml-auto text-xs cafe-accent-text">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="border-t border-cafe-700 p-3">
         {!collapsed && (
