@@ -234,10 +234,15 @@ export default function Usuarios() {
                     {u.nombre} {u.apellidos}
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${u.categoria === 'admin'
-                        ? 'bg-terracota-100 text-terracota-700 dark:bg-terracota-900/40 dark:text-terracota-300'
-                        : 'bg-olivo-100 text-olivo-700 dark:bg-olivo-900/40 dark:text-olivo-300'}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        ${u.categoria === 'admin'
+                          ? 'bg-terracota-100 text-terracota-700 dark:bg-terracota-900/40 dark:text-terracota-300'
+                          : ''}`}
+                      style={u.categoria !== 'admin' ? {
+                        background: 'var(--status-ok-bg)',
+                        color: 'var(--status-ok-fg)',
+                      } : undefined}>
                       {u.categoria}
                     </span>
                   </td>

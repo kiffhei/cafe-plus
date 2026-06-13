@@ -412,10 +412,13 @@ export default function Clientes() {
                     />
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
-                      ${c.es_cumpleanos
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-olivo-100 text-olivo-700'}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
+                        ${c.es_cumpleanos ? 'bg-yellow-100 text-yellow-700' : ''}`}
+                      style={!c.es_cumpleanos ? {
+                        background: 'var(--status-ok-bg)',
+                        color: 'var(--status-ok-fg)',
+                      } : undefined}>
                       {c.es_cumpleanos ? '30%' : '5%'}
                     </span>
                   </td>

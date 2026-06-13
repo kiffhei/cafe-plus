@@ -244,7 +244,7 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
             <span>Subtotal</span><span>{formatMXN(pedido.subtotal)}</span>
           </div>
           {parseFloat(pedido.descuento) > 0 && (
-            <div className="flex justify-between text-sm text-olivo-600 dark:text-olivo-400">
+            <div className="flex justify-between text-sm text-accent-theme">
               <span>Descuento</span><span>−{formatMXN(pedido.descuento)}</span>
             </div>
           )}
@@ -386,7 +386,7 @@ export default function Historial() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Total pedidos',   value: totalRegistros,           sub: 'en el rango',    color: 'text-cafe-700 dark:text-crema-200' },
-          { label: 'Entregados',      value: entregados.length,        sub: 'completados',    color: 'text-olivo-600 dark:text-olivo-400' },
+          { label: 'Entregados',      value: entregados.length,        sub: 'completados',    color: 'text-accent-theme' },
           { label: 'Venta del rango', value: formatMXN(ventasTotal),   sub: 'solo entregados',color: 'text-accent-theme' },
           { label: 'Ticket promedio', value: formatMXN(ticketPromedio),sub: 'por pedido',     color: 'text-cafe-700 dark:text-crema-200' },
         ].map(k => (
@@ -544,7 +544,7 @@ export default function Historial() {
                     <td className="hidden md:table-cell px-4 py-3 text-center text-sm text-cafe-500 dark:text-cafe-400">
                       {nItems > 0 ? `${nItems} item${nItems !== 1 ? 's' : ''}` : '—'}
                     </td>
-                    <td className="hidden md:table-cell px-4 py-3 text-right text-sm text-olivo-600 dark:text-olivo-400">
+                    <td className="hidden md:table-cell px-4 py-3 text-right text-sm text-accent-theme">
                       {parseFloat(p.descuento) > 0 ? `−${formatMXN(p.descuento)}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-semibold text-cafe-800 dark:text-crema-100 whitespace-nowrap">

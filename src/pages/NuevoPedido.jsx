@@ -25,7 +25,7 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
   }
 
   if (clienteSeleccionado) return (
-    <div className="flex items-center justify-between bg-olivo-500/10 dark:bg-olivo-500/20 border border-olivo-500/30 rounded-lg px-3 py-2">
+    <div className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'var(--status-ok-bg)', border: '1px solid var(--cafe-accent)' }}>
       <div>
         <p className="text-sm font-medium text-cafe-800 dark:text-crema-100">
           {clienteSeleccionado.nombre} {clienteSeleccionado.apellidos}
@@ -33,7 +33,7 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
         </p>
         <p className="text-xs text-cafe-500 dark:text-cafe-400">
           {clienteSeleccionado.visitas_acumuladas} visitas ·{' '}
-          <span className="font-semibold text-olivo-600">
+          <span className="font-semibold text-accent-theme">
             {clienteSeleccionado.es_cumpleanos ? '30%' : '5%'} descuento
           </span>
         </p>
@@ -326,7 +326,7 @@ export default function NuevoPedido() {
               <span>{formatMXN(subtotal)}</span>
             </div>
             {descuento > 0 && (
-              <div className="flex justify-between text-sm text-olivo-600 dark:text-olivo-400">
+              <div className="flex justify-between text-sm text-accent-theme">
                 <span>Descuento {cliente?.es_cumpleanos ? '🎂 30%' : '5% Plus'}</span>
                 <span>−{formatMXN(descuento)}</span>
               </div>
