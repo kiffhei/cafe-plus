@@ -87,14 +87,27 @@
 }
 
 [data-theme="vinyl-dark"] {
-  --cafe-bg-base: #0e0b08; --cafe-orb1: #3d2f1a; --cafe-orb2: #7a5c2e; --cafe-orb3: #2a1f0f;
-  --cafe-accent: #d4a843; --cafe-btn: #8b7355; --cafe-sb-bg: rgba(14,11,8,.84);
-  --cafe-main-bg: rgba(8,6,4,.42); --cafe-border: rgba(212,168,67,.18); --cafe-kpi-val: #d4a843;
+  --cafe-bg-base:   #0e0b08;
+  --cafe-orb1:      #3d2f1a; --cafe-orb2: #7a5c2e; --cafe-orb3: #2a1f0f;
+  --cafe-accent:    #d4a843;
+  --cafe-btn:       #7a6349;
+  --cafe-sb-bg:     rgba(14,11,8,.84);
+  --cafe-main-bg:   rgba(8,6,4,.42);
+  --cafe-border:    rgba(212,168,67,.18);
+  --cafe-kpi-val:   #d4a843;
 }
+/* vinyl-light: sidebar nogal oscuro para que el texto claro sea legible;
+   fondo principal crema cálido; acento y btn calculados a ≥4.5:1 en ambas superficies */
 [data-theme="vinyl-light"] {
-  --cafe-bg-base: #faf6ee; --cafe-orb1: rgba(212,92,40,.15); --cafe-orb2: rgba(212,92,40,.12); --cafe-orb3: rgba(212,92,40,.08);
-  --cafe-accent: #d45c28; --cafe-btn: #b85d33; --cafe-sb-bg: rgba(250,246,238,.92);
-  --cafe-main-bg: rgba(245,237,227,.58); --cafe-border: rgba(212,92,40,.12); --cafe-kpi-val: #d45c28;
+  --crema-bg:       #f5ede0;
+  --cafe-bg-base:   #f5ede0;
+  --cafe-orb1:      #d4823a; --cafe-orb2: #e8a855; --cafe-orb3: #c46030;
+  --cafe-accent:    #b74416;
+  --cafe-btn:       #8b3010;
+  --cafe-sb-bg:     rgba(42,24,10,.92);
+  --cafe-main-bg:   rgba(245,237,225,.60);
+  --cafe-border:    rgba(183,68,22,.22);
+  --cafe-kpi-val:   #b74416;
 }
 
 * { box-sizing: border-box; }
@@ -119,6 +132,10 @@ h1, h2, h3, h4 {
 
 .dark ::-webkit-scrollbar-track { background: #0d2d1f; }
 .dark ::-webkit-scrollbar-thumb { background: #2d6a4f; }
+[data-theme="vinyl-dark"] ::-webkit-scrollbar-track { background: #1a1208; }
+[data-theme="vinyl-dark"] ::-webkit-scrollbar-thumb { background: #7a6349; border-radius: 3px; }
+[data-theme="vinyl-light"] ::-webkit-scrollbar-track { background: #f0e4d0; }
+[data-theme="vinyl-light"] ::-webkit-scrollbar-thumb { background: #b74416; border-radius: 3px; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -219,6 +236,9 @@ h1, h2, h3, h4 {
     background: var(--cafe-btn) !important;
     transition: background 0.8s ease;
   }
+  .table-wrapper thead th {
+    color: rgba(255,255,255,0.92) !important;
+  }
   .kpi-card {
     @apply p-5 flex flex-col gap-1 rounded-2xl backdrop-blur-sm animate-fade-up;
     background: rgba(255,255,255,0.05) !important;
@@ -229,6 +249,14 @@ h1, h2, h3, h4 {
     background: rgba(255,255,255,0.08) !important;
     transform: translateY(-2px);
     box-shadow: 0 8px 40px rgba(45,106,79,0.22);
+  }
+  /* vinyl-light: fondo claro hace rgba(255,255,255,.05) invisible — usar tinte oscuro sutil */
+  [data-theme="vinyl-light"] .kpi-card {
+    background: rgba(0,0,0,0.04) !important;
+    border: 1px solid rgba(183,68,22,.25) !important;
+  }
+  [data-theme="vinyl-light"] .kpi-card:hover {
+    background: rgba(0,0,0,0.07) !important;
   }
   .divider-cafe {
     @apply h-px bg-gradient-to-r from-transparent via-cafe-200 to-transparent

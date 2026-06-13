@@ -17,18 +17,22 @@ import { useTheme } from '../context/ThemeContext'
 const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
 
 const TEMA_CHART_PRIMARY = {
-  'matcha':      '#52b788',
-  'cafe-oscuro': '#d4a96a',
-  'medianoche':  '#a78bfa',
-  'terracota':   '#f4a460',
-  'pizarra':     '#a3e635',
+  'matcha':       '#52b788',
+  'cafe-oscuro':  '#d4a96a',
+  'medianoche':   '#a78bfa',
+  'terracota':    '#f4a460',
+  'pizarra':      '#a3e635',
+  'vinyl-dark':   '#d4a843',
+  'vinyl-light':  '#b74416',
 }
 const TEMA_CHART_BTN = {
-  'matcha':      '#2d6a4f',
-  'cafe-oscuro': '#7a5230',
-  'medianoche':  '#5248c0',
-  'terracota':   '#b05520',
-  'pizarra':     '#3d5068',
+  'matcha':       '#2d6a4f',
+  'cafe-oscuro':  '#7a5230',
+  'medianoche':   '#5248c0',
+  'terracota':    '#b05520',
+  'pizarra':      '#3d5068',
+  'vinyl-dark':   '#7a6349',
+  'vinyl-light':  '#8b3010',
 }
 
 const CANAL_COLORS = {
