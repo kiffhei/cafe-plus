@@ -1,8 +1,8 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-12 (S7 — fix Dockerfile VITE_* build-time vars)
+> Archivo consolidado. Actualizado: 2026-06-15 (S8 — contraste global + imágenes EXACT_MATCH + gráficas temáticas)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
-> **Estado actual (S8):** Bug de Dockerfile resuelto. Clerk funcional en producción. Autenticación operativa. Próximo: continuar tareas pendientes S7.
+> **Estado actual (S9):** 7 temas dinámicos. EXACT_MATCH en productImages. modal-surface/label-muted. Gráficas con gradientes y colores temáticos. Light mode pendiente de QA completo.
 
 ---
 
@@ -105,27 +105,76 @@ mono:    'JetBrains Mono'     /* IDs, codigos */
 
 ---
 
-## ESTADO DE MODULOS — CIERRE SESION 6
+## ESTADO DE MODULOS — CIERRE SESION 7
 
 | Archivo | Estado | Sesion |
 |---------|--------|--------|
 | Login.jsx | OK — Clerk SignIn + Fresh Matcha theme + dark mode | S6 |
 | App.jsx | OK — BLOQUEADO no tocar rutas | S2 |
-| Sidebar.jsx | OK — BLOQUEADO no tocar nav items | S2 |
-| ThemeContext.jsx | OK dark mode completo | S2 |
-| Layout.jsx | OK mobile responsive + header-glass + hamburguesa | S4 |
-| index.css | OK glassmorphism + microanimaciones + stagger | S4 |
-| tailwind.config.js | OK paleta Fresh Matcha + tipografia premium | S4 |
+| Sidebar.jsx | OK — tema selector + nav items BLOQUEADO | S7 |
+| ThemeContext.jsx | OK 5 temas + darkMode + localStorage | S7 |
+| Layout.jsx | OK orbes CSS + cafe-sidebar-surface + hamburguesa | S7 |
+| index.css | OK 5 temas CSS vars + tab-active-theme + text-accent-theme + btn-primary/kpi-card dinámicos | S7 |
+| tailwind.config.js | OK paleta Fresh Matcha + cafe-accent/cafe-btn/cafe-border vars | S7 |
 | api.js | OK Clerk auth + userCategoria + redirect:follow | S6 |
 | AuthContext.jsx | OK Clerk useUser + cafe_user localStorage compat | S6 |
 | src/lib/clerkTheme.js | OK tema Clerk con paleta Fresh Matcha | S6 |
-| Usuarios.jsx | OK CRUD + table-wrapper mobile | S4 |
-| Productos.jsx | OK CRUD + toggle + mobile + useAuth | S6 |
-| Clientes.jsx | OK CRUD + badges + historial pedidos + notas | S5 |
-| NuevoPedido.jsx | OK carrito + descuentos + mobile | S4 |
-| PedidosHoy.jsx | OK kanban + autorefresh + ordenamiento | S4 |
-| Historial.jsx | OK tabla paginada + filtros + PDF + sort + selector mes | S5 |
-| Analisis.jsx | OK KPIs + BarChart + Treemap + LineChart + hora pico + chat IA | S5 — CORS n8n pendiente |
+| Usuarios.jsx | OK CRUD + toggle theme-aware | S7 |
+| Productos.jsx | OK CRUD + filter tabs + toggle theme-aware | S7 |
+| Clientes.jsx | OK CRUD + badges + historial pedidos + toggle theme-aware | S7 |
+| NuevoPedido.jsx | OK carrito + tabs + precios theme-aware | S7 |
+| PedidosHoy.jsx | OK kanban + tabs + KPI + Entregar button theme-aware | S7 |
+| Historial.jsx | OK tabla paginada + filtros + PDF + KPI + modal total theme-aware | S7 |
+| Analisis.jsx | OK KPIs + charts + tabs + chat IA theme-aware | S7 — CORS n8n pendiente |
+
+---
+
+## SISTEMA DE TEMAS — S7
+
+5 temas implementados: `matcha`, `cafe-oscuro`, `medianoche`, `terracota`, `pizarra`
+
+### Variables CSS por tema (index.css bajo `[data-theme="X"]`)
+
+| Variable | Uso |
+|----------|-----|
+| `--cafe-accent` | color de acento — textos destacados, bordes activos, íconos activos |
+| `--cafe-btn` | fondo de botones primarios, tabs activos, toggles ON |
+| `--cafe-sb-bg` | fondo del sidebar (glassmorphism con backdrop-blur) |
+| `--cafe-main-bg` | fondo del área de contenido principal |
+| `--cafe-border` | bordes de superficies temáticas y kpi-card |
+| `--cafe-kpi-val` | valor numérico en KPI cards (= --cafe-accent) |
+| `--cafe-bg-base` | color base del fondo de página (orbes y dark mode bg) |
+| `--cafe-orb1/2/3` | colores de los tres orbes animados del fondo |
+
+### ThemeContext API
+
+```js
+const { darkMode, toggleDark, tema, setTema } = useTheme()
+// localStorage: cafe_tema → ID del tema activo | cafe_theme → 'dark'/'light'
+```
+
+### Clases utilitarias activas
+
+| Clase | Efecto |
+|-------|--------|
+| `cafe-sidebar-surface` | glassmorphism sidebar: var(--cafe-sb-bg) + backdrop-blur(24px) |
+| `cafe-main-surface` | superficie central: var(--cafe-main-bg) + backdrop-blur(12px) |
+| `cafe-border-theme` | border-color: var(--cafe-border) |
+| `cafe-accent-text` | color: var(--cafe-accent) |
+| `tab-active-theme` | bg: var(--cafe-btn) + color: #fff — tabs y filtros activos |
+| `text-accent-theme` | color: var(--cafe-accent) — valores KPI y precios destacados |
+| `btn-primary` | bg: var(--cafe-btn) + filter:brightness() para hover/active |
+| `kpi-card` | bg: rgba(255,255,255,0.05) + border: var(--cafe-border) |
+
+### Selector de temas (Sidebar.jsx)
+- Swatch circular con `var(--cafe-accent)` + label "Temas" colapsable con el sidebar
+- Panel con 5 opciones: swatch + nombre + check ✓ en activo
+- Persiste en `localStorage.cafe_tema`; ThemeContext aplica `document.documentElement.dataset.theme`
+
+### Fondo animado (Layout.jsx)
+- 3 orbes CSS: `.cafe-orb-1/2/3` — `filter: blur(80px)` + `@keyframes cafe-breathe`
+- `position: fixed; z-index: 0; pointer-events: none` — cero JS, animación pura CSS
+- Colores cambian vía `style={{ background: 'var(--cafe-orb1/2/3)' }}` — reaccionan al tema
 
 ---
 
@@ -190,17 +239,49 @@ console.log('[IA] parsed data:', data)
 
 ---
 
-## TAREAS PENDIENTES — SESION 7
+## TAREAS COMPLETADAS — SESION 8 ✓
 
-| # | Tarea | Donde | Prioridad |
-|---|-------|-------|-----------|
-| 1 | CORS chat IA — headers en Respond to Webhook | n8n (no codigo) | ALTA |
-| 2 | Remover console.log diagnóstico de Analisis.jsx | Analisis.jsx | MEDIA |
-| 3 | FINDING-003 — Mobile sidebar overlay a 375px | Layout.jsx + Sidebar.jsx | MEDIA |
-| 4 | Crear usuarios en Clerk dashboard (admin + cajero) | dashboard.clerk.com | ALTA |
-| 5 | Configurar publicMetadata.categoria en Clerk | dashboard.clerk.com | ALTA |
-| 6 | Memoria corta del agente (BA_MemoryEnvelope) | n8n workflow | BAJA |
-| 7 | Alertas WhatsApp/email cuando falle flujo IA | n8n + Evolution API | BAJA |
+| # | Tarea | Archivo | Estado |
+|---|-------|---------|--------|
+| 1 | ~~AISidebar.jsx — panel derecho colapsable~~ | AISidebar.jsx + Analisis.jsx + Historial.jsx | ✓ HECHO |
+| 2 | Imágenes EXACT_MATCH por nombre de producto — 18 productos mapeados | src/lib/productImages.js | ✓ HECHO |
+| 3 | Thead de tablas — contraste corregido (rgba + var(--cafe-accent)) | index.css + módulos | ✓ HECHO |
+| 4 | Contraste global: modal-surface, label-muted, btn-secondary, inputs dark | index.css | ✓ HECHO |
+| 5 | Treemap y gráficas temáticas (TEMA_CANAL_COLORS, gradientes BarChart) | Analisis.jsx | ✓ HECHO |
+| 6 | Categorías deduplicadas en NuevoPedido via normCat() | NuevoPedido.jsx | ✓ HECHO |
+| 7 | Sidebar user info contraste (inline styles con darkMode) | Sidebar.jsx | ✓ HECHO |
+| 8 | 7 temas: vinyl-dark + vinyl-light agregados (total 7 paletas) | index.css + Sidebar.jsx | ✓ HECHO |
+
+## TAREAS PENDIENTES — SESION 9
+
+| # | Tarea | Archivo | Prioridad |
+|---|-------|---------|-----------|
+| 1 | Light mode QA sistemático en los 7 temas — puede haber conflictos de contraste pendientes | index.css + todos los módulos | ALTA |
+| 2 | Badges de categoría en Productos e Historial — siguen hardcodeados en verde | Productos.jsx, Historial.jsx | MEDIA |
+| 3 | Skeleton loaders en lugar de spinners de carga | Componentes con fetch | MEDIA |
+| 4 | Empty states ilustrados por módulo (0 productos, 0 clientes, etc.) | Todos los módulos | BAJA |
+| 5 | CORS chat IA — headers en nodo Respond to Webhook en n8n (configuración del nodo — no es código) | n8n workflow | PENDIENTE (no código) |
+
+---
+
+## LECCIONES S8 — ERRORES CRITICOS
+
+- **`dark:bg-cafe-800` y `dark:text-crema-200` son verde fijo** — no reaccionan al tema activo. Usar `style={{ background: darkMode ? 'var(--cafe-sb-bg)' : 'white' }}` pasando `darkMode` de `useTheme()`
+- **`text-cafe-400` en Sidebar = verde #52b788 en TODOS los temas** — en terracota/medianoche no contrasta. Usar `rgba(255,255,255,0.45)` / `rgba(0,0,0,0.45)` con darkMode
+- **EXACT_MATCH en productImages es el patrón correcto** — keyword map es frágil cuando hay nombres similares (Muffin Chocolate vs Muffin Blueberry). El nombre normalizado (sin acentos, minúsculas) como key garantiza asignación determinista
+- **normCat() para categorías del backend** — GAS envía "Café", "cafe", "Sándwich", "sandwich" como strings distintos. Siempre normalizar antes de deduplicar con `Set()` y filtrar
+- **TEMA_CANAL_COLORS** — definir paleta por tema para Treemap y charts, no hardcodear colores globales. Pasar `tema` de `useTheme()` como argumento a la función de color
+- **`<defs><linearGradient>` en recharts v2** — funciona como hijo de `<BarChart>`. Sufijo `${tema}` en el id del gradiente evita colisiones entre renders de distintos temas
+- **`.modal-surface` y `.label-muted`** — clases CSS puras que usan CSS vars — las únicas que funcionan en todos los temas sin js extra. Usarlas en modals en lugar de `dark:bg-cafe-800`
+
+## LECCIONES S7 — ERRORES CRITICOS
+
+- **NUNCA migrar colores sin auditar TODOS los usos del token primero** — `btn-primary` afectó `thead` inesperadamente al usar `var(--cafe-btn)` como fondo de filas de encabezado
+- **SIEMPRE probar contraste en el tema más saturado (terracota)** antes de dar por bueno cualquier cambio de color — el tema de mayor contraste rompe primero
+- **Tailwind clases estáticas NO responden a CSS variables en runtime** — usar siempre `style={{ color: 'var(--cafe-accent)' }}` o clases utilitarias CSS puras (`.text-accent-theme`)
+- El sistema de temas usa `data-theme` en `document.documentElement` — las variables se definen bajo `[data-theme="X"]` en `index.css`; ThemeContext lo aplica en `useEffect([tema])`
+- **Cada prompt a Claude Code debe tener scope de UN archivo o UN concern** — mezclar 8 archivos en un prompt garantiza errores en cascada y pérdida de contexto
+- Antes de cualquier cambio visual: pedir `cat` del archivo objetivo, identificar las clases exactas, luego hacer el reemplazo quirúrgico línea a línea
 
 ---
 
@@ -327,6 +408,11 @@ git push
 | INC-S6-C | S6 | .env no estaba en .gitignore — riesgo de exponer secretos | Agregar .env y .env.* a .gitignore en todo proyecto nuevo |
 | INC-S6-D | S6 | fetch sin redirect:follow — GAS redirecciones no seguidas | Agregar redirect:'follow' a fetchWithTimeout |
 | INC-S7-A | S7 | VITE_CLERK_PUBLISHABLE_KEY undefined en producción — Clerk no cargaba | Dockerfile multi-stage sin ARG/ENV para vars VITE_*: Vite no las incrusta en bundle. Siempre declarar ARG + ENV antes de RUN npm run build. Cambiar CACHE_BUST al modificar cualquier VITE_* en EasyPanel. |
+| INC-S8-A | S8 | dark:bg-cafe-800 verde fijo en tema terracota/vinyl — no reacciona al tema | Tailwind dark: classes son estáticas. Usar style={{ background: darkMode ? 'var(--cafe-sb-bg)' : 'white' }} con darkMode de useTheme() |
+| INC-S8-B | S8 | text-cafe-400 = #52b788 verde en TODOS los temas — ilegible en terracota dark | Para user info sidebar y labels secundarios usar rgba(255,255,255,0.45) condicional al darkMode |
+| INC-S8-C | S8 | Muffin Blueberry obtenía imagen de Muffin Chocolate | keyword map 'muffin' matcheaba antes de 'blueberry' — solucionado con EXACT_MATCH prioritario por nombre normalizado |
+| INC-S8-D | S8 | Categorías duplicadas en NuevoPedido (Café/cafe/Sándwich/sandwich) | Backend GAS envía capitalización inconsistente. normCat() con NFD normalize + toLowerCase antes de Set() |
+| INC-S8-E | S8 | Treemap colores fijos (verde/azul) ignoraban el tema activo | TEMA_CANAL_COLORS map (7 temas × 4 canales). canalColor(name, tema) recibe tema de useTheme() |
 
 ---
 
@@ -338,6 +424,29 @@ git push
 - **`ARG CACHE_BUST=20260612_3`** agregado para forzar invalidación de caché Docker.
 - **App restaurada:** Clerk carga correctamente en producción.
 - **Regla para futuros deploys:** si se cambia un valor `VITE_*` en EasyPanel, cambiar también el valor de `CACHE_BUST` para forzar rebuild completo.
+
+### Sesión 8 — Contraste global + imágenes + gráficas temáticas (2026-06-15)
+- **Contraste global resuelto:** nuevas clases `.modal-surface` (var(--cafe-sb-bg) dark / rgba(255,255,255,0.96) light) y `.label-muted` (rgba con darkMode) en `index.css` — sustituyen `dark:bg-cafe-800` hardcodeado en modals.
+- **`btn-secondary` dark:** regla `.dark .btn-secondary` con CSS vars en lugar de Tailwind — funciona en todos los temas.
+- **EXACT_MATCH en productImages.js:** 18 productos del catálogo mapeados por nombre normalizado. Lookup directo O(1) con prioridad sobre keyword map. `normCat()` y `norm()` para normalización NFD.
+- **normCat() en NuevoPedido:** elimina duplicados de categorías del backend (Café/cafe/Sándwich) via NFD normalize + toLowerCase antes de `Set()`.
+- **TEMA_CANAL_COLORS en Analisis.jsx:** paleta de 4 colores × 7 temas para Treemap. `canalColor(name, tema)` usa el tema activo de `useTheme()`.
+- **Gradientes en BarChart:** `<defs><linearGradient>` dentro de `<BarChart>` en recharts v2. 3 niveles (high/mid/low) por valor relativo. IDs sufijados con `${tema}` para evitar colisiones.
+- **Sidebar user info:** `text-cafe-400` reemplazado por inline styles con `darkMode` — `rgba(255,255,255,0.85/0.45)` en dark, `var(--cafe-accent)/rgba(0,0,0,0.45)` en light.
+- **7 temas:** `vinyl-dark` y `vinyl-light` agregados al sistema (selector en Sidebar.jsx).
+- **Commits:** `d40a234`, `b3bc241`, `f317fa5`, `f154bf2`.
+
+### Sesión 7 — Sistema de temas dinámicos (2026-06-12)
+- **5 temas de color implementados:** `matcha`, `cafe-oscuro`, `medianoche`, `terracota`, `pizarra` — cada uno define `--cafe-bg-base`, `--cafe-orb1/2/3`, `--cafe-accent`, `--cafe-btn`, `--cafe-sb-bg`, `--cafe-main-bg`, `--cafe-border`, `--cafe-kpi-val` en `[data-theme="X"]` en `index.css`.
+- **Orbes animados con CSS puro:** 3 divs `.cafe-orb` con `@keyframes cafe-breathe` y `filter: blur(80px)` — sin JavaScript de animación.
+- **ThemeContext.jsx extendido:** `{ darkMode, toggleDark, tema, setTema }` — `tema` persiste en `localStorage.cafe_tema`; `setTema` aplica `document.documentElement.dataset.theme = tema`.
+- **Clases utilitarias temáticas:** `.tab-active-theme` (bg: `var(--cafe-btn)`) y `.text-accent-theme` (color: `var(--cafe-accent)`) en `@layer components` para usar en `className`.
+- **Migración `btn-primary`:** reemplazado `bg-cafe-500 hover:bg-cafe-600` por `var(--cafe-btn)` + `filter: brightness(1.15)` en hover — funciona en todos los temas sin colores adicionales.
+- **Migración `kpi-card`:** reemplazado `glass-card` (bg-white/80) por `rgba(255,255,255,0.05)` + `border: 1px solid var(--cafe-border)`.
+- **Migración `table-wrapper thead`:** descendant rule con `background: var(--cafe-btn)` — **deuda técnica:** contraste roto en tema terracota, pendiente fix S8.
+- **Migración `input-cafe:focus`:** `focus:ring-cafe-400` → `border-color: var(--cafe-accent)` + `box-shadow: color-mix(in srgb, var(--cafe-accent) 20%, transparent)`.
+- **Colores de gráficas temáticos:** tablas estáticas `TEMA_CHART_PRIMARY` / `TEMA_CHART_BTN` en `Analisis.jsx` para evitar timing issues de `getComputedStyle` vs `useEffect([tema])`.
+- **7 módulos migrados:** `Analisis.jsx`, `Productos.jsx`, `NuevoPedido.jsx`, `Historial.jsx`, `Clientes.jsx`, `Usuarios.jsx`, `PedidosHoy.jsx` — todos los `bg-cafe-700`, `bg-olivo-500`, `text-terracota-500` reemplazados.
 
 ---
 
@@ -432,18 +541,22 @@ npm run build antes de cualquier push.
 Lee el CLAUDE.md en la raiz del proyecto.
 Confirma estado de modulos y lista de tareas pendientes.
 
-CONTEXTO S7: Bug crítico de Dockerfile resuelto (INC-S7-A).
-Clerk funcional en producción — VITE_* variables ahora se incrustan correctamente en el bundle.
-ARG CACHE_BUST=20260612_3 activo en Dockerfile.
+CONTEXTO S7 (completado):
+- Bug Dockerfile (INC-S7-A) resuelto — Clerk funcional en producción.
+- Sistema de temas dinámicos implementado: 5 paletas (matcha/cafe-oscuro/medianoche/terracota/pizarra).
+- Todos los módulos migrados a CSS custom properties (var(--cafe-btn), var(--cafe-accent)).
+- btn-primary, kpi-card, input-cafe:focus, table-wrapper thead migrados en index.css.
+- DEUDA TÉCNICA ACTIVA: thead de tablas — contraste roto en tema terracota (tarea #3 abajo).
 
-TAREAS PENDIENTES (heredadas de S7, en orden de prioridad):
-1. CORS chat IA — headers en nodo Respond to Webhook (n8n, no código)
-2. Remover console.log diagnóstico de Analisis.jsx
-3. FINDING-003 — Mobile sidebar overlay a 375px (Layout.jsx + Sidebar.jsx)
-4. Crear usuarios en Clerk dashboard (admin + cajero) con email+password
-5. Configurar publicMetadata.categoria en Clerk
+TAREAS PENDIENTES S8 (en orden de prioridad):
+1. AISidebar.jsx — panel derecho colapsable para Análisis e Historial (ALTA)
+2. Imágenes automáticas por categoría en cards de NuevoPedido (ALTA)
+3. Thead de tablas — fix contraste en index.css: usar rgba(255,255,255,0.08) + color: var(--cafe-accent), NO var(--cafe-btn) como fondo (ALTA — deuda técnica S7)
+4. CORS chat IA — headers en nodo Respond to Webhook en n8n (no código, no Claude Code)
+5. Light mode — probar y corregir contraste con el nuevo sistema de temas (MEDIA)
 
 REGLA DOCKERFILE: si se cambia un valor VITE_* en EasyPanel, actualizar CACHE_BUST en Dockerfile.
+REGLA TEMAS: nunca usar bg-cafe-700, bg-olivo-500 ni text-terracota-500 — usar tab-active-theme, text-accent-theme, o style={{ background: 'var(--cafe-btn)' }}.
 
 No tocar App.jsx ni Sidebar.jsx.
 npm run build antes de cualquier push.

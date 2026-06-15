@@ -18,6 +18,7 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 | IA | n8n + OpenAI (workflow Cafe_Plus) |
 | PDF | jsPDF |
 | Gráficas | recharts 2.15.3 |
+| Temas | 7 paletas CSS variables | data-theme en html, ThemeContext.jsx, selector en Sidebar |
 | Deploy | Docker multistage en EasyPanel (autodeploy en push a `main`) |
 
 ---
@@ -27,7 +28,7 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 | Módulo | Descripción |
 |--------|-------------|
 | Login | Clerk SignIn con tema Fresh Matcha |
-| Nuevo Pedido | Carrito, búsqueda de productos, descuentos por cliente, canal delivery |
+| Nuevo Pedido | Carrito, búsqueda, imágenes Unsplash por producto (EXACT_MATCH), descuentos, canal delivery |
 | Pedidos Hoy | Kanban por estado, autorefresh cada 30s |
 | Historial | Tabla paginada, filtros, export PDF |
 | Clientes | CRUD, programa de lealtad, historial de visitas, notas |

@@ -1,6 +1,6 @@
 # DESIGNER.md — Café+ | Guía Visual
 
-Referencia de identidad visual para el proyecto. Actualizado: 2026-06-12.
+Referencia de identidad visual para el proyecto. Actualizado: 2026-06-15 (S8 — 7 temas, EXACT_MATCH, modal-surface, gradientes recharts).
 
 ---
 
@@ -150,14 +150,82 @@ Versión fija: `recharts@2.15.3` — no actualizar a v3.
 
 ---
 
+## Imágenes de producto — EXACT_MATCH (S8)
+
+Archivo: `src/lib/productImages.js`
+
+**Arquitectura EXACT_MATCH:** nombre normalizado (sin acentos, minúsculas) como key lookup O(1). Prioridad absoluta sobre keyword map.
+
+```js
+import { getProductImage } from '../lib/productImages'
+
+// En card de producto:
+<img src={getProductImage(producto.nombre, producto.categoria, 400)} alt={producto.nombre} />
+```
+
+- 18 productos del catálogo con foto exacta asignada
+- `keywordMatch()` como fallback para productos no listados
+- `CATEGORY_FALLBACK` como último recurso por categoría normalizada
+- Para agregar nuevo producto: una línea en `EXACT_MATCH` con `norm(nombre): 'photo-id-unsplash'`
+
+## recharts — gradientes S8
+
+Patrón para BarChart con gradientes verticales temáticos:
+
+```jsx
+<BarChart data={...}>
+  <defs>
+    <linearGradient id={`barHigh${tema}`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stopColor={chartBtn}    stopOpacity={1} />
+      <stop offset="100%" stopColor={chartAccent} stopOpacity={0.75} />
+    </linearGradient>
+  </defs>
+  <Bar ...>
+    {data.map((entry, i) => (
+      <Cell key={i} fill={`url(#barHigh${tema})`} />
+    ))}
+  </Bar>
+</BarChart>
+```
+
+- IDs sufijados con `${tema}` evitan colisiones entre renders
+- `chartAccent` / `chartBtn` vienen de tablas estáticas `TEMA_CHART_PRIMARY[tema]` — no `getComputedStyle`
+
 ## Pendientes visuales — próxima fase
 
-- Fotos de productos en cards de Productos y NuevoPedido
-- Theme switcher (selector de paleta de colores)
-- Microanimaciones y transiciones entre pantallas (React Router transitions)
-- Perfilamiento visual general más profesional (spacing audit, jerarquía tipográfica)
-- Skeleton loaders en lugar de spinners
-- Empty states ilustrados por módulo
+- Light mode QA en los 7 temas — puede haber conflictos de contraste pendientes
+- Skeleton loaders en lugar de spinners de carga
+- Empty states ilustrados por módulo (0 productos, 0 clientes, etc.)
+- Badges de categoría dinámicos (actualmente hardcodeados en verde)
+
+---
+
+## SISTEMA DE TEMAS — REGLAS
+
+7 paletas dinámicas (`matcha`, `cafe-oscuro`, `medianoche`, `terracota`, `pizarra`, `vinyl-dark`, `vinyl-light`) controladas por `data-theme` en `<html>` via `ThemeContext.jsx`. Las variables CSS se definen en `[data-theme="X"]` en `index.css`.
+
+### Clases de superficie S8 (nuevas — usar en lugar de dark:bg-cafe-800)
+
+```css
+.modal-surface   /* dark: var(--cafe-sb-bg) + blur / light: rgba(255,255,255,0.96) */
+.label-muted     /* dark: rgba(255,255,255,0.45) / light: rgba(0,0,0,0.45) — etiquetas secundarias */
+```
+
+Estas clases son las únicas que garantizan contraste correcto en los 7 temas.
+
+| Elemento | Clase/style correcto | NUNCA usar |
+|----------|---------------------|------------|
+| Botones primarios | `btn-primary` → `var(--cafe-btn)` | `bg-cafe-500` hardcodeado |
+| Valores KPI destacados | `text-accent-theme` → `var(--cafe-accent)` | `text-terracota-500` hardcodeado |
+| Tabs / filtros activos | `tab-active-theme` → `var(--cafe-btn)` | `bg-cafe-700` hardcodeado |
+| Encabezado de tabla (thead) | `rgba(255,255,255,0.08)` fondo + `color: var(--cafe-accent)` texto | `var(--cafe-btn)` como fondo — rompe contraste en tema terracota |
+| Sidebar y header | `.cafe-sidebar-surface` | `bg-cafe-800` hardcodeado |
+| Área central de contenido | `.cafe-main-surface` | `bg-cafe-800` hardcodeado |
+| Fondo animado | Orbes CSS puro (`.cafe-orb` + `@keyframes cafe-breathe`) en Layout.jsx | canvas, WebGL, JS animation loops |
+| Toggles activos | `style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}` | `bg-olivo-500` hardcodeado |
+| Colores de gráficas (recharts) | `TEMA_CHART_PRIMARY[tema]` / `TEMA_CHART_BTN[tema]` (tablas estáticas) | `getComputedStyle` — timing issue vs `useEffect` |
+
+**Transición:** todos los elementos temáticos usan `transition: background 0.8s ease` para animación suave al cambiar de paleta.
 
 ---
 
@@ -170,3 +238,4 @@ Versión fija: `recharts@2.15.3` — no actualizar a v3.
 | `formatFecha(str)` — no `formatFechaHora` | `formatFechaHora` no existe en api.js — build error |
 | Dark mode en todos los elementos nuevos | Modo oscuro es feature de primera clase |
 | No componentes React como `content` en recharts | Rompe en producción silenciosamente |
+| `tab-active-theme` / `text-accent-theme` — no colores Tailwind fijos | El sistema de temas requiere CSS custom properties en runtime |
