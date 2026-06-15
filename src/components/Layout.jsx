@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import ShaderBackground from './ui/ShaderBackground'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
@@ -55,16 +56,8 @@ export default function Layout() {
   return (
     <div className="relative flex min-h-screen">
 
-      {/* Fondo animado — orbes por tema */}
-      <div
-        className="cafe-bg-orbs"
-        aria-hidden="true"
-        style={{ backgroundColor: 'var(--cafe-bg-base)', transition: 'background-color 0.8s ease' }}
-      >
-        <div className="cafe-orb cafe-orb-1" style={{ background: 'var(--cafe-orb1)' }} />
-        <div className="cafe-orb cafe-orb-2" style={{ background: 'var(--cafe-orb2)' }} />
-        <div className="cafe-orb cafe-orb-3" style={{ background: 'var(--cafe-orb3)' }} />
-      </div>
+      {/* Fondo WebGL shader — temático y responsive */}
+      <ShaderBackground />
 
       {mobileOpen && (
         <div

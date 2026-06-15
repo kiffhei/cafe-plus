@@ -14,6 +14,11 @@
   --texto:     #1a2e2a;
   --texto-sub: #4a7c6a;
   --borde:     #c8e6c9;
+  /* Status colors — defaults match blue/green semántico original */
+  --status-prep-bg: rgba(219,234,254,.80);
+  --status-prep-fg: #1e40af;
+  --status-ok-bg:   rgba(220,252,231,.80);
+  --status-ok-fg:   #166534;
 }
 
 .dark {
@@ -26,64 +31,79 @@
 /* ── Temas de color ── */
 
 [data-theme="matcha"] {
-  --cafe-bg-base:   #091d15;
+  --cafe-bg-base:   #081910;
   --cafe-orb1:      #1a5436;
-  --cafe-orb2:      #2d7a55;
-  --cafe-orb3:      #1e5f80;
+  --cafe-orb2:      #0d6688;  /* tono cian-azul para contraste */
+  --cafe-orb3:      #2d7a55;
   --cafe-accent:    #52b788;
+  --cafe-accent2:   #48cae4;  /* tono secundario para badges/acentos complementarios */
   --cafe-btn:       #2d6a4f;
-  --cafe-sb-bg:     rgba(9, 29, 21, 0.84);
-  --cafe-main-bg:   rgba(5, 12, 9, 0.42);
-  --cafe-border:    rgba(82, 183, 136, 0.18);
+  --cafe-sb-bg:     rgba(8, 25, 16, 0.88);
+  --cafe-main-bg:   rgba(4, 12, 8, 0.45);
+  --cafe-border:    rgba(82, 183, 136, 0.20);
   --cafe-kpi-val:   #52b788;
+  --status-prep-bg: rgba(72,202,228,.15);  --status-prep-fg: #48cae4;
+  --status-ok-bg:   rgba(82,183,136,.22);  --status-ok-fg:   #74d4a2;
 }
 [data-theme="cafe-oscuro"] {
-  --cafe-bg-base:   #130a04;
-  --cafe-orb1:      #5a3420;
+  --cafe-bg-base:   #110900;
+  --cafe-orb1:      #6b3d1e;
   --cafe-orb2:      #a0711e;
-  --cafe-orb3:      #2e1500;
-  --cafe-accent:    #d4a96a;
-  --cafe-btn:       #7a5230;
-  --cafe-sb-bg:     rgba(19, 10, 4, 0.84);
-  --cafe-main-bg:   rgba(9, 5, 2, 0.42);
-  --cafe-border:    rgba(212, 169, 106, 0.18);
-  --cafe-kpi-val:   #d4a96a;
+  --cafe-orb3:      #8b2e00;  /* rojo-caoba para profundidad */
+  --cafe-accent:    #e8b87a;  /* ámbar más luminoso */
+  --cafe-accent2:   #c07848;  /* terracota cálido */
+  --cafe-btn:       #8a5e34;
+  --cafe-sb-bg:     rgba(17, 9, 0, 0.88);
+  --cafe-main-bg:   rgba(8, 4, 0, 0.45);
+  --cafe-border:    rgba(232, 184, 122, 0.20);
+  --cafe-kpi-val:   #e8b87a;
+  --status-prep-bg: rgba(192,120,72,.20);  --status-prep-fg: #f0c88a;
+  --status-ok-bg:   rgba(232,184,122,.22); --status-ok-fg:   #e8c488;
 }
 [data-theme="medianoche"] {
-  --cafe-bg-base:   #0a0a18;
-  --cafe-orb1:      #4040c0;
-  --cafe-orb2:      #0890a8;
-  --cafe-orb3:      #6040c8;
-  --cafe-accent:    #a78bfa;
-  --cafe-btn:       #5248c0;
-  --cafe-sb-bg:     rgba(10, 10, 24, 0.84);
-  --cafe-main-bg:   rgba(5, 5, 12, 0.42);
-  --cafe-border:    rgba(167, 139, 250, 0.18);
-  --cafe-kpi-val:   #a78bfa;
+  --cafe-bg-base:   #070714;
+  --cafe-orb1:      #3030a8;
+  --cafe-orb2:      #0e86a0;  /* cian frío para contraste */
+  --cafe-orb3:      #5838b8;
+  --cafe-accent:    #b8a0ff;  /* lila más brillante */
+  --cafe-accent2:   #38d4f0;  /* cian eléctrico */
+  --cafe-btn:       #5248c8;
+  --cafe-sb-bg:     rgba(7, 7, 20, 0.90);
+  --cafe-main-bg:   rgba(4, 4, 12, 0.48);
+  --cafe-border:    rgba(184, 160, 255, 0.20);
+  --cafe-kpi-val:   #b8a0ff;
+  --status-prep-bg: rgba(56,212,240,.15);  --status-prep-fg: #38d4f0;
+  --status-ok-bg:   rgba(184,160,255,.22); --status-ok-fg:   #c0b0ff;
 }
 [data-theme="terracota"] {
-  --cafe-bg-base:   #140804;
-  --cafe-orb1:      #9e4a1a;
-  --cafe-orb2:      #c86818;
-  --cafe-orb3:      #7a3010;
-  --cafe-accent:    #f4a460;
-  --cafe-btn:       #b05520;
-  --cafe-sb-bg:     rgba(20, 8, 4, 0.84);
-  --cafe-main-bg:   rgba(10, 4, 2, 0.42);
-  --cafe-border:    rgba(244, 164, 96, 0.18);
-  --cafe-kpi-val:   #f4a460;
+  --cafe-bg-base:   #120600;
+  --cafe-orb1:      #a84820;
+  --cafe-orb2:      #d87820;  /* ámbar-naranja cálido */
+  --cafe-orb3:      #682010;
+  --cafe-accent:    #ffb066;  /* naranja melocotón — más legible */
+  --cafe-accent2:   #ffd080;  /* amarillo dorado */
+  --cafe-btn:       #b85820;
+  --cafe-sb-bg:     rgba(18, 6, 0, 0.88);
+  --cafe-main-bg:   rgba(10, 4, 0, 0.45);
+  --cafe-border:    rgba(255, 176, 102, 0.20);
+  --cafe-kpi-val:   #ffb066;
+  --status-prep-bg: rgba(255,208,128,.18); --status-prep-fg: #ffd080;
+  --status-ok-bg:   rgba(255,176,102,.22); --status-ok-fg:   #ffb878;
 }
 [data-theme="pizarra"] {
-  --cafe-bg-base:   #020610;
-  --cafe-orb1:      #283550;
-  --cafe-orb2:      #608010;
-  --cafe-orb3:      #162040;
-  --cafe-accent:    #a3e635;
-  --cafe-btn:       #3d5068;
-  --cafe-sb-bg:     rgba(2, 6, 16, 0.84);
-  --cafe-main-bg:   rgba(1, 3, 8, 0.42);
-  --cafe-border:    rgba(163, 230, 53, 0.18);
-  --cafe-kpi-val:   #a3e635;
+  --cafe-bg-base:   #020510;
+  --cafe-orb1:      #2a3858;
+  --cafe-orb2:      #406000;   /* verde-lima para contraste con el azul */
+  --cafe-orb3:      #182848;
+  --cafe-accent:    #a8e835;  /* lima eléctrico */
+  --cafe-accent2:   #60a8f0;  /* azul hielo para balance */
+  --cafe-btn:       #3a5070;
+  --cafe-sb-bg:     rgba(2, 5, 16, 0.90);
+  --cafe-main-bg:   rgba(1, 3, 8, 0.45);
+  --cafe-border:    rgba(168, 232, 53, 0.20);
+  --cafe-kpi-val:   #a8e835;
+  --status-prep-bg: rgba(96,168,240,.18);  --status-prep-fg: #60a8f0;
+  --status-ok-bg:   rgba(168,232,53,.20);  --status-ok-fg:   #b0ec40;
 }
 
 [data-theme="vinyl-dark"] {
@@ -95,6 +115,8 @@
   --cafe-main-bg:   rgba(8,6,4,.42);
   --cafe-border:    rgba(212,168,67,.18);
   --cafe-kpi-val:   #d4a843;
+  --status-prep-bg: rgba(180,150,80,.18);  --status-prep-fg: #d4c070;
+  --status-ok-bg:   rgba(212,168,67,.22);  --status-ok-fg:   #d4a843;
 }
 /* vinyl-light: sidebar nogal oscuro para que el texto claro sea legible;
    fondo principal crema cálido; acento y btn calculados a ≥4.5:1 en ambas superficies */
@@ -108,6 +130,8 @@
   --cafe-main-bg:   rgba(245,237,225,.60);
   --cafe-border:    rgba(183,68,22,.22);
   --cafe-kpi-val:   #b74416;
+  --status-prep-bg: rgba(183,68,22,.12);   --status-prep-fg: #8b3010;
+  --status-ok-bg:   rgba(139,48,16,.15);   --status-ok-fg:   #6b2510;
 }
 
 * { box-sizing: border-box; }
@@ -219,8 +243,18 @@ h1, h2, h3, h4 {
   .badge-canal-rappi     { @apply bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-canal-ubereats  { @apply bg-gray-800 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   /* badge-estado-pendiente definido abajo con pulse */
-  .badge-estado-preparacion { @apply bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-blue-900 dark:text-blue-200; }
-  .badge-estado-entregado   { @apply bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-green-900 dark:text-green-200; }
+  .badge-estado-preparacion {
+    @apply text-xs px-2 py-0.5 rounded-full font-medium;
+    background-color: var(--status-prep-bg);
+    color: var(--status-prep-fg);
+    transition: background-color 0.8s ease, color 0.8s ease;
+  }
+  .badge-estado-entregado {
+    @apply text-xs px-2 py-0.5 rounded-full font-medium;
+    background-color: var(--status-ok-bg);
+    color: var(--status-ok-fg);
+    transition: background-color 0.8s ease, color 0.8s ease;
+  }
   .badge-estado-cancelado   { @apply bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-red-900 dark:text-red-200; }
 
   .glass-card {
@@ -233,11 +267,13 @@ h1, h2, h3, h4 {
            dark:border-cafe-700 shadow-sm;
   }
   .table-wrapper thead tr {
-    background: var(--cafe-btn) !important;
+    background: rgba(255,255,255,0.08) !important;
     transition: background 0.8s ease;
   }
   .table-wrapper thead th {
-    color: rgba(255,255,255,0.92) !important;
+    color: var(--cafe-accent) !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
   .kpi-card {
     @apply p-5 flex flex-col gap-1 rounded-2xl backdrop-blur-sm animate-fade-up;
@@ -248,14 +284,14 @@ h1, h2, h3, h4 {
   .kpi-card:hover {
     background: rgba(255,255,255,0.08) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 40px rgba(45,106,79,0.22);
+    box-shadow: 0 8px 40px color-mix(in srgb, var(--cafe-accent) 18%, transparent);
   }
-  /* vinyl-light: fondo claro hace rgba(255,255,255,.05) invisible — usar tinte oscuro sutil */
-  [data-theme="vinyl-light"] .kpi-card {
+  /* light mode: rgba(255,255,255,.05) invisible sobre fondo claro — usar tinte oscuro */
+  html:not(.dark) .kpi-card {
     background: rgba(0,0,0,0.04) !important;
-    border: 1px solid rgba(183,68,22,.25) !important;
+    border: 1px solid var(--cafe-border) !important;
   }
-  [data-theme="vinyl-light"] .kpi-card:hover {
+  html:not(.dark) .kpi-card:hover {
     background: rgba(0,0,0,0.07) !important;
   }
   .divider-cafe {
@@ -275,7 +311,8 @@ h1, h2, h3, h4 {
 
   /* Borde izquierdo de acento — para cards activas o secciones destacadas */
   .accent-strip {
-    @apply border-l-[3px] border-cafe-500 pl-4;
+    @apply border-l-[3px] pl-4;
+    border-color: var(--cafe-accent) !important;
   }
 
   /* Nav item con hover deslizante */
