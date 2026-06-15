@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { productos as productosApi, clientes as clientesApi, pedidos as pedidosApi,
          formatMXN, canalBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { getProductImage } from '../lib/productImages'
 
 const CANALES = ['local','didi','rappi','ubereats']
@@ -69,6 +70,7 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
 
 export default function NuevoPedido() {
   const { user } = useAuth()
+  const { darkMode } = useTheme()
   const navigate = useNavigate()
   const [canal, setCanal]         = useState('local')
   const [cliente, setCliente]     = useState(null)
@@ -256,12 +258,14 @@ export default function NuevoPedido() {
               return (
                 <button key={prod.id_producto} onClick={() => agregarProducto(prod)}
                   className={`relative text-left rounded-xl border transition-all overflow-hidden
-                    ${enCarrito
-                      ? 'border-2 shadow-lg'
-                      : 'border border-cafe-100 dark:border-cafe-700 bg-white dark:bg-cafe-800 hover:shadow-warm hover:-translate-y-0.5'}`}
-                  style={enCarrito ? { borderColor: 'var(--cafe-accent)' } : {}}>
+                    ${enCarrito ? 'border-2 shadow-lg' : 'hover:shadow-warm hover:-translate-y-0.5'}`}
+                  style={enCarrito
+                    ? { borderColor: 'var(--cafe-accent)' }
+                    : { borderColor: 'var(--cafe-border)', background: darkMode ? 'var(--cafe-sb-bg)' : 'white' }
+                  }>
                   {/* imagen */}
-                  <div className="relative h-28 w-full overflow-hidden">
+                  <div className="relative h-28 w-full overflow-hidden"
+                       style={{ background: 'linear-gradient(135deg, var(--cafe-btn), var(--cafe-accent))' }}>
                     <img
                       src={imgUrl}
                       alt={prod.nombre}
@@ -282,7 +286,8 @@ export default function NuevoPedido() {
                   </div>
                   {/* info */}
                   <div className="p-2.5">
-                    <p className="text-xs font-semibold text-cafe-800 dark:text-crema-100 leading-tight mb-1 line-clamp-2">{prod.nombre}</p>
+                    <p className="text-xs font-semibold leading-tight mb-1 line-clamp-2"
+                       style={{ color: darkMode ? 'rgba(255,255,255,0.92)' : '#1a4a34' }}>{prod.nombre}</p>
                     <p className="text-sm font-bold text-accent-theme">{formatMXN(prod.precio_venta)}</p>
                   </div>
                 </button>

@@ -35,14 +35,17 @@ const TEMA_CHART_BTN = {
   'vinyl-light':  '#8b3010',
 }
 
-const CANAL_COLORS = {
-  'Local':     '#2d6a4f',
-  'Rappi':     '#1e6091',
-  'Uber Eats': '#40916c',
-  'DiDi Food': '#48cae4',
+const TEMA_CANAL_COLORS = {
+  'matcha':      { Local: '#2d6a4f', Rappi: '#1e6091', 'Uber Eats': '#40916c', 'DiDi Food': '#48cae4' },
+  'cafe-oscuro': { Local: '#8a5e34', Rappi: '#c09050', 'Uber Eats': '#b07540', 'DiDi Food': '#d4a070' },
+  'medianoche':  { Local: '#5248c8', Rappi: '#38b8f0', 'Uber Eats': '#8068e8', 'DiDi Food': '#38d4f0' },
+  'terracota':   { Local: '#b85820', Rappi: '#d4903a', 'Uber Eats': '#e8a850', 'DiDi Food': '#ffb878' },
+  'pizarra':     { Local: '#3a5070', Rappi: '#70a0c0', 'Uber Eats': '#a8e835', 'DiDi Food': '#60a8f0' },
+  'vinyl-dark':  { Local: '#7a6349', Rappi: '#b89060', 'Uber Eats': '#d4a843', 'DiDi Food': '#c8b070' },
+  'vinyl-light': { Local: '#8b3010', Rappi: '#b74416', 'Uber Eats': '#d45c28', 'DiDi Food': '#e07840' },
 }
-function canalColor(name) {
-  return CANAL_COLORS[name] ?? '#84cba8'
+function canalColor(name, tema) {
+  return (TEMA_CANAL_COLORS[tema] ?? TEMA_CANAL_COLORS['matcha'])[name] ?? '#84cba8'
 }
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
@@ -515,12 +518,26 @@ export default function Analisis() {
       {!loading && ventasDia.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 card">
-            <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Ventas por día</h3>
+            <h3 className="text-sm font-semibold text-accent-theme mb-4">Ventas por día</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={ventasDia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e8c9a0" strokeOpacity={0.4} />
-                <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#7a5c4a' }} tickLine={false}
+                <defs>
+                  <linearGradient id={`barHigh${tema}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={chartBtn}    stopOpacity={1}   />
+                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.75} />
+                  </linearGradient>
+                  <linearGradient id={`barMid${tema}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={chartAccent} stopOpacity={0.85} />
+                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.45} />
+                  </linearGradient>
+                  <linearGradient id={`barLow${tema}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={chartAccent} stopOpacity={0.50} />
+                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.20} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.15} />
+                <XAxis dataKey="dia" tick={{ fontSize: 10, fill: chartAccent }} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: chartAccent }} tickLine={false}
                   tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
                 <Tooltip
                   formatter={(value) => [formatMXN(value), 'Ventas']}
@@ -529,13 +546,14 @@ export default function Analisis() {
                   itemStyle={TOOLTIP_ITEM_STYLE}
                   labelStyle={TOOLTIP_LABEL_STYLE}
                 />
-                <Bar dataKey="Ventas" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                <Bar dataKey="Ventas" radius={[6, 6, 0, 0]} maxBarSize={44}>
                   {ventasDia.map((entry, i) => {
                     const max = Math.max(...ventasDia.map(d => d.Ventas))
                     return (
                       <Cell key={i} fill={
-                        entry.Ventas > max * 0.66 ? chartBtn :
-                        entry.Ventas > max * 0.33 ? chartAccent : '#84cba8'
+                        entry.Ventas > max * 0.66 ? `url(#barHigh${tema})` :
+                        entry.Ventas > max * 0.33 ? `url(#barMid${tema})` :
+                        `url(#barLow${tema})`
                       } />
                     )
                   })}
@@ -549,10 +567,10 @@ export default function Analisis() {
       {/* GRAFICA_2_TREEMAP */}
       {!loading && porCanal.length > 0 && (
         <div className="card flex flex-col">
-          <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Por canal</h3>
+          <h3 className="text-sm font-semibold text-accent-theme mb-4">Por canal</h3>
           <ResponsiveContainer width="100%" height={200} className="sm:h-[240px]">
             <Treemap
-              data={porCanal.map(d => ({ ...d, fill: canalColor(d.name) }))}
+              data={porCanal.map(d => ({ ...d, fill: canalColor(d.name, tema) }))}
               dataKey="value"
               aspectRatio={4 / 3}
               content={(props) => {
@@ -602,7 +620,7 @@ export default function Analisis() {
       {/* GRAFICA_3_LINE */}
       {!loading && tendencia.length > 1 && (
         <div className="card">
-          <h3 className="text-sm font-semibold text-cafe-700 dark:text-crema-200 mb-4">Tendencia acumulada</h3>
+          <h3 className="text-sm font-semibold text-accent-theme mb-4">Tendencia acumulada</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={tendencia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e8c9a0" strokeOpacity={0.4} />

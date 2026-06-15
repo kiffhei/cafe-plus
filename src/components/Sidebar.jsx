@@ -32,7 +32,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user, logout, isAdmin } = useAuth()
-  const { tema, setTema } = useTheme()
+  const { tema, setTema, darkMode } = useTheme()
   const navigate = useNavigate()
   const [temaOpen, setTemaOpen] = useState(false)
 
@@ -159,8 +159,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       <div className="border-t border-cafe-700 p-3 flex-shrink-0">
         {!collapsed && (
           <div className="mb-2 px-1">
-            <p className="text-crema-200 text-xs font-medium truncate">{user?.nombre}</p>
-            <p className="text-cafe-400 text-xs truncate">{user?.usuario}</p>
+            <p className="text-xs font-medium truncate"
+               style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : 'var(--cafe-accent)' }}>
+              {user?.nombre}
+            </p>
+            <p className="text-xs truncate"
+               style={{ color: darkMode ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)' }}>
+              {user?.usuario}
+            </p>
           </div>
         )}
         <button onClick={handleLogout}
