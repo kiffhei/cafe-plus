@@ -19,6 +19,14 @@
   --status-prep-fg: #1e40af;
   --status-ok-bg:   rgba(220,252,231,.80);
   --status-ok-fg:   #166534;
+  /* Fallback light-mode values — overridden by [data-theme] */
+  --cafe-accent:  #2d6a4f;
+  --cafe-btn:     #2d6a4f;
+  --cafe-border:  rgba(45,106,79,0.20);
+  --cafe-sb-bg:   rgba(255,255,255,0.90);
+  --cafe-main-bg: rgba(248,255,254,0.60);
+  --cafe-kpi-val: #2d6a4f;
+  --cafe-bg-base: #f8fffe;
 }
 
 .dark {
@@ -388,6 +396,24 @@ h1, h2, h3, h4 {
   backdrop-filter: blur(24px);
   border-color: var(--cafe-border) !important;
   transition: background 0.8s ease, border-color 0.8s ease;
+}
+
+/* Light mode: textos del sidebar que son blancos en dark, necesitan color oscuro */
+html:not(.dark) .cafe-sidebar-surface .text-crema-100,
+html:not(.dark) .cafe-sidebar-surface .text-white\/90,
+html:not(.dark) .cafe-sidebar-surface .text-white\/80 {
+  color: var(--cafe-accent) !important;
+}
+html:not(.dark) .cafe-sidebar-surface .text-white\/40,
+html:not(.dark) .cafe-sidebar-surface .text-cafe-400 {
+  color: rgba(0,0,0,0.45) !important;
+}
+html:not(.dark) .cafe-sidebar-surface .text-crema-200 {
+  color: color-mix(in srgb, var(--cafe-accent) 80%, #000) !important;
+}
+/* Nav links activos en light mode */
+html:not(.dark) .cafe-sidebar-surface a[aria-current="page"] {
+  background: rgba(0,0,0,0.08) !important;
 }
 .cafe-main-surface {
   background: var(--cafe-main-bg) !important;

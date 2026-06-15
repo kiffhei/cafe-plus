@@ -4,7 +4,7 @@
 const KEYWORD_MAP = [
   // Espresso / café base
   [['espresso', 'shot', 'ristretto'],       'photo-1509042239860-f550ce710b93'],
-  [['americano'],                            'photo-1544716278-ca5e3f4abd8c'],
+  [['americano'],                            'photo-1485808191679-5f86510bd5b8'],
   [['latte', 'flat white'],                  'photo-1561882468-9110e03e0f78'],
   [['cappuccino', 'capuccino'],              'photo-1572442388796-11668a67e53d'],
   [['mocha', 'moka', 'mocca'],              'photo-1578374173705-969cbe6f2d6b'],

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import ShaderBackground from './ui/ShaderBackground'
+import AISidebar from './AISidebar'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
@@ -116,6 +117,9 @@ export default function Layout() {
           </div>
         </main>
       </div>
+
+      {/* Panel flotante IA — visible en /analisis y /historial */}
+      <AISidebar />
     </div>
   )
 }
