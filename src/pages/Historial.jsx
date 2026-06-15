@@ -160,13 +160,12 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
-        className="relative bg-white dark:bg-cafe-800 rounded-2xl shadow-warm-lg
-                   w-full max-w-md max-h-[90vh] overflow-y-auto
-                   border border-cafe-100 dark:border-cafe-700 animate-fade-in"
+        className="relative modal-surface rounded-2xl shadow-warm-lg
+                   w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-cafe-100 dark:border-cafe-700 flex items-center justify-between sticky top-0 bg-white dark:bg-cafe-800 z-10">
+        <div className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 modal-surface" style={{ borderBottom: '1px solid var(--cafe-border)' }}>
           <div>
             <h3 className="font-semibold text-cafe-800 dark:text-crema-100">
               Pedido <span className="font-mono">#{pedido.id_pedido}</span>

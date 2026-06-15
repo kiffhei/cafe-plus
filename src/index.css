@@ -162,8 +162,8 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-thumb { background: #84cba8; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--cafe); }
 
-.dark ::-webkit-scrollbar-track { background: #0d2d1f; }
-.dark ::-webkit-scrollbar-thumb { background: #2d6a4f; }
+.dark ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+.dark ::-webkit-scrollbar-thumb { background: var(--cafe-btn); }
 [data-theme="vinyl-dark"] ::-webkit-scrollbar-track { background: #1a1208; }
 [data-theme="vinyl-dark"] ::-webkit-scrollbar-thumb { background: #7a6349; border-radius: 3px; }
 [data-theme="vinyl-light"] ::-webkit-scrollbar-track { background: #f0e4d0; }
@@ -219,8 +219,15 @@ h1, h2, h3, h4 {
     @apply bg-crema-100 text-cafe-700 font-medium px-4 py-2 rounded-lg
            border border-cafe-200 hover:bg-crema-200
            hover:-translate-y-px hover:shadow-warm
-           transition-all duration-200
-           dark:bg-cafe-700 dark:text-crema-200 dark:border-cafe-600 dark:hover:bg-cafe-600;
+           transition-all duration-200;
+  }
+  .dark .btn-secondary {
+    background: rgba(255,255,255,0.08);
+    color: var(--cafe-accent);
+    border-color: var(--cafe-border);
+  }
+  .dark .btn-secondary:hover {
+    background: rgba(255,255,255,0.14);
   }
   .btn-danger {
     @apply bg-terracota-500 text-white font-medium px-4 py-2 rounded-lg
@@ -228,12 +235,19 @@ h1, h2, h3, h4 {
            transition-all duration-200;
   }
   .input-cafe {
-    @apply w-full bg-white border border-cafe-200 rounded-lg px-3 py-2
+    @apply w-full bg-white rounded-lg px-3 py-2
            text-sm text-cafe-900 placeholder-cafe-300
            focus:outline-none
-           transition-all duration-150
-           dark:bg-cafe-800 dark:border-cafe-600 dark:text-crema-100
-           dark:placeholder-cafe-500;
+           transition-all duration-150;
+    border: 1px solid var(--cafe-border);
+  }
+  .dark .input-cafe {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--cafe-border);
+    color: rgba(255,255,255,0.90);
+  }
+  .dark .input-cafe::placeholder {
+    color: rgba(255,255,255,0.30);
   }
   .input-cafe:focus {
     border-color: var(--cafe-accent) !important;
@@ -243,8 +257,12 @@ h1, h2, h3, h4 {
     @apply input-cafe;
   }
   .card {
-    @apply bg-white rounded-xl border border-cafe-100 shadow-card p-4
-           dark:bg-cafe-800 dark:border-cafe-700;
+    @apply bg-white rounded-xl border shadow-card p-4;
+    border-color: var(--cafe-border);
+  }
+  .dark .card {
+    background: var(--cafe-sb-bg);
+    border-color: var(--cafe-border);
   }
   .badge-canal-local     { @apply bg-olivo-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-canal-didi      { @apply bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
@@ -266,13 +284,17 @@ h1, h2, h3, h4 {
   .badge-estado-cancelado   { @apply bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium dark:bg-red-900 dark:text-red-200; }
 
   .glass-card {
-    @apply bg-white/80 dark:bg-cafe-800/80 backdrop-blur-sm
-           border border-white/40 dark:border-cafe-700/40
-           shadow-warm rounded-2xl;
+    @apply bg-white/80 backdrop-blur-sm border shadow-warm rounded-2xl;
+    border-color: rgba(255,255,255,0.40);
+  }
+  .dark .glass-card {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--cafe-border);
   }
   .table-wrapper {
-    @apply w-full overflow-x-auto rounded-2xl border border-crema-200
-           dark:border-cafe-700 shadow-sm;
+    @apply w-full overflow-x-auto rounded-2xl shadow-sm;
+    border: 1px solid var(--cafe-border);
+    transition: border-color 0.8s ease;
   }
   .table-wrapper thead tr {
     background: rgba(255,255,255,0.08) !important;
@@ -282,6 +304,9 @@ h1, h2, h3, h4 {
     color: var(--cafe-accent) !important;
     font-weight: 600;
     letter-spacing: 0.02em;
+  }
+  html:not(.dark) .table-wrapper thead tr {
+    background: rgba(0,0,0,0.04) !important;
   }
   .kpi-card {
     @apply p-5 flex flex-col gap-1 rounded-2xl backdrop-blur-sm animate-fade-up;
@@ -313,8 +338,8 @@ h1, h2, h3, h4 {
   .header-glass {
     @apply bg-white/80 dark:bg-[#0d1b2a]/80
            backdrop-blur-md
-           border-b border-cafe-100/60 dark:border-cafe-800/60
-           shadow-[0_1px_16px_rgba(45,106,79,0.06)];
+           border-b border-cafe-100/60 dark:border-cafe-800/60;
+    box-shadow: 0 1px 16px rgba(0,0,0,0.08);
   }
 
   /* Borde izquierdo de acento — para cards activas o secciones destacadas */
@@ -329,20 +354,26 @@ h1, h2, h3, h4 {
            hover:translate-x-0.5;
   }
 
-  /* Sidebar con gradiente vertical */
-  .sidebar-gradient {
-    background: linear-gradient(
-      180deg,
-      #0d2d1f 0%,
-      #071a12 100%
-    );
+  /* Modal/card surface — responde al tema sin hardcode */
+  .modal-surface {
+    background: var(--cafe-sb-bg) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--cafe-border);
+    transition: background 0.8s ease, border-color 0.8s ease;
   }
-  .sidebar-gradient-light {
-    background: linear-gradient(
-      180deg,
-      #f0faf4 0%,
-      #dcf2e6 100%
-    );
+  html:not(.dark) .modal-surface {
+    background: rgba(255,255,255,0.96) !important;
+    border-color: rgba(0,0,0,0.08);
+  }
+
+  /* Label secundario — muted y legible en todos los temas */
+  .label-muted {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.75rem;
+    transition: color 0.8s ease;
+  }
+  html:not(.dark) .label-muted {
+    color: rgba(0,0,0,0.45);
   }
 
   /* Badge pendiente con pulso */

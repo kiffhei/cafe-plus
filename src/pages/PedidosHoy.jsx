@@ -62,7 +62,8 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
               <button
                 onClick={() => onCambiarEstado(pedido.id_pedido, 'preparacion')}
                 disabled={cargando === pedido.id_pedido}
-                className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50">
+                className="px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50"
+                style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}>
                 En preparación →
               </button>
             )}
@@ -206,13 +207,13 @@ export default function PedidosHoy() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Pendientes',  value: pendientes,  color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' },
-          { label: 'En prep.',    value: preparacion, color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' },
-          { label: 'Entregados',  value: entregados,  color: 'text-olivo-600 dark:text-olivo-400', bg: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' },
-          { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-accent-theme', bg: 'bg-crema-100 dark:bg-cafe-800 border-cafe-200 dark:border-cafe-700' },
+          { label: 'En prep.',    value: preparacion, color: '', colorStyle: { color: 'var(--status-prep-fg)' }, bg: '',  bgStyle: { background: 'var(--status-prep-bg)', borderColor: 'var(--status-prep-fg)' } },
+          { label: 'Entregados',  value: entregados,  color: '', colorStyle: { color: 'var(--status-ok-fg)'   }, bg: '',  bgStyle: { background: 'var(--status-ok-bg)',   borderColor: 'var(--status-ok-fg)'   } },
+          { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-accent-theme', bg: '', bgStyle: { background: 'color-mix(in srgb, var(--cafe-accent) 12%, transparent)', borderColor: 'var(--cafe-border)' } },
         ].map(m => (
-          <div key={m.label} className={`rounded-xl border p-4 ${m.bg}`}>
+          <div key={m.label} className={`rounded-xl border p-4 ${m.bg}`} style={m.bgStyle}>
             <p className="text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">{m.label}</p>
-            <p className={`text-2xl font-bold ${m.color}`}>{m.value}</p>
+            <p className={`text-2xl font-bold ${m.color}`} style={m.colorStyle}>{m.value}</p>
           </div>
         ))}
       </div>

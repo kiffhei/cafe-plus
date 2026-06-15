@@ -27,9 +27,9 @@ function BarraVisitas({ visitas, proximo }) {
           <span className="text-xs text-cafe-400">faltan {proximo.faltan} → {proximo.premio}</span>
         )}
       </div>
-      <div className="h-1.5 bg-crema-200 rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-cafe-400 to-terracota-500 rounded-full transition-all duration-500"
-          style={{ width: `${pct}%` }} />
+      <div className="h-1.5 bg-crema-200 dark:bg-cafe-700 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: 'linear-gradient(to right, var(--cafe-accent), var(--cafe-btn))' }} />
       </div>
     </div>
   )
@@ -69,7 +69,7 @@ function ModalPedidos({ cliente, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-      <div className="bg-white dark:bg-cafe-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+      <div className="modal-surface rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 dark:border-cafe-700">
           <div>
             <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
@@ -100,11 +100,11 @@ function ModalPedidos({ cliente, onClose }) {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Fecha</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Canal</th>
-                  <th className="text-right px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Total</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>
+                <tr style={{ background: 'rgba(255,255,255,0.08)', borderBottom: '1px solid var(--cafe-border)' }}>
+                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--cafe-accent)' }}>Fecha</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--cafe-accent)' }}>Canal</th>
+                  <th className="text-right px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--cafe-accent)' }}>Total</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--cafe-accent)' }}>Estado</th>
                 </tr>
               </thead>
               <tbody>
