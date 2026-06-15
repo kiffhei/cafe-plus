@@ -163,10 +163,12 @@ export default function NuevoPedido() {
     finally { setLoading(false) }
   }
 
-  const categorias = [...new Set(catalogo.map(p => p.categoria))]
+  const normCat = (c = '') =>
+    c.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  const categorias = [...new Set(catalogo.map(p => normCat(p.categoria)))]
   const catalogoFiltrado = catalogo.filter(p => {
     const matchBuscar = p.nombre.toLowerCase().includes(buscarProd.toLowerCase())
-    const matchCat    = filtroCategoria === 'todas' || p.categoria === filtroCategoria
+    const matchCat    = filtroCategoria === 'todas' || normCat(p.categoria) === filtroCategoria
     return matchBuscar && matchCat
   })
 
@@ -240,7 +242,7 @@ export default function NuevoPedido() {
                 ${filtroCategoria === cat
                   ? 'tab-active-theme'
                   : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300'}`}>
-              {cat}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
         </div>
