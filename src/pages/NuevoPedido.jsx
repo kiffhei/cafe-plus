@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { productos as productosApi, clientes as clientesApi, pedidos as pedidosApi,
          formatMXN, canalBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
+import { getProductImage } from '../lib/productImages'
 
 const CANALES = ['local','didi','rappi','ubereats']
 const ESTADOS_CANAL = { local:'Local', didi:'DiDi Food', rappi:'Rappi', ubereats:'Uber Eats' }
@@ -251,20 +252,39 @@ export default function NuevoPedido() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {catalogoFiltrado.map(prod => {
               const enCarrito = carrito.find(i => i.producto.id_producto === prod.id_producto)
+              const imgUrl = getProductImage(prod.nombre, prod.categoria)
               return (
                 <button key={prod.id_producto} onClick={() => agregarProducto(prod)}
-                  className={`relative text-left p-3 rounded-xl border transition-all
+                  className={`relative text-left rounded-xl border transition-all overflow-hidden
                     ${enCarrito
-                      ? 'border-cafe-500 bg-cafe-50 dark:bg-cafe-700/50'
-                      : 'border-cafe-100 dark:border-cafe-700 bg-white dark:bg-cafe-800 hover:border-cafe-300 hover:shadow-warm'}`}>
-                  {enCarrito && (
-                    <span className="absolute top-2 right-2 w-5 h-5 bg-cafe-600 text-crema-100 text-xs rounded-full flex items-center justify-center font-bold">
-                      {enCarrito.cantidad}
+                      ? 'border-2 shadow-lg'
+                      : 'border border-cafe-100 dark:border-cafe-700 bg-white dark:bg-cafe-800 hover:shadow-warm hover:-translate-y-0.5'}`}
+                  style={enCarrito ? { borderColor: 'var(--cafe-accent)' } : {}}>
+                  {/* imagen */}
+                  <div className="relative h-28 w-full overflow-hidden">
+                    <img
+                      src={imgUrl}
+                      alt={prod.nombre}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                      onError={e => { e.target.style.display = 'none' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    {enCarrito && (
+                      <span className="absolute top-2 right-2 w-6 h-6 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg"
+                        style={{ background: 'var(--cafe-btn)' }}>
+                        {enCarrito.cantidad}
+                      </span>
+                    )}
+                    <span className="absolute bottom-1.5 left-2 text-white/80 text-[10px] capitalize font-medium">
+                      {prod.categoria}
                     </span>
-                  )}
-                  <p className="text-sm font-medium text-cafe-800 dark:text-crema-100 leading-tight mb-1 pr-6">{prod.nombre}</p>
-                  <p className="text-xs text-cafe-400 capitalize mb-2">{prod.categoria}</p>
-                  <p className="text-sm font-bold text-accent-theme">{formatMXN(prod.precio_venta)}</p>
+                  </div>
+                  {/* info */}
+                  <div className="p-2.5">
+                    <p className="text-xs font-semibold text-cafe-800 dark:text-crema-100 leading-tight mb-1 line-clamp-2">{prod.nombre}</p>
+                    <p className="text-sm font-bold text-accent-theme">{formatMXN(prod.precio_venta)}</p>
+                  </div>
                 </button>
               )
             })}

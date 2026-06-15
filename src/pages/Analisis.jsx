@@ -10,9 +10,9 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, generarMeses } from '../api/api'
-// getAllDetalle incluye campo items para calcular producto top
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { getProductImage } from '../lib/productImages'
 
 const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
 
@@ -122,22 +122,35 @@ function parseItems(raw) {
   return []
 }
 
-function calcularProductoTop(pedidos) {
-  // Log de diagnóstico — ver estructura real del campo items
-  if (pedidos.length > 0) {
-    console.log('[Analisis] items sample:', pedidos[0]?.items, '| type:', typeof pedidos[0]?.items)
-  }
+function calcularRankingProductos(pedidos) {
   const mapa = {}
+  const catMap = {}
   pedidos.forEach(p => {
     const items = parseItems(p.items)
     items.forEach(it => {
-      // Soportar nombre_producto o nombre (distintas keys según versión GAS)
       const nombre = it.nombre_producto ?? it.nombre ?? it.product_name
-      if (nombre) mapa[nombre] = (mapa[nombre] || 0) + (Number(it.cantidad) || 1)
+      const cat    = it.categoria ?? ''
+      if (nombre) {
+        mapa[nombre]   = (mapa[nombre]   || 0) + (Number(it.cantidad) || 1)
+        catMap[nombre] = catMap[nombre] || cat
+      }
     })
   })
-  if (Object.keys(mapa).length === 0) return null
-  return Object.entries(mapa).sort(([, a], [, b]) => b - a)[0][0]
+  const entries = Object.entries(mapa).sort(([, a], [, b]) => b - a)
+  if (entries.length === 0) return { top: null, menos: null }
+
+  const [topNombre, topQty]     = entries[0]
+  const [menosNombre, menosQty] = entries[entries.length - 1]
+
+  return {
+    top:   { nombre: topNombre,   qty: topQty,   categoria: catMap[topNombre]   || '' },
+    menos: { nombre: menosNombre, qty: menosQty, categoria: catMap[menosNombre] || '' },
+  }
+}
+
+// Mantener compatibilidad con el call existente
+function calcularProductoTop(pedidos) {
+  return calcularRankingProductos(pedidos).top?.nombre ?? null
 }
 
 function calcularHoraPico(pedidos) {
@@ -183,13 +196,14 @@ export default function Analisis() {
   const [mesSel, setMesSel]         = useState('')
 
   // Datos
-  const [kpis, setKpis]           = useState(null)
-  const [ventasDia, setVentasDia] = useState([])
-  const [porCanal, setPorCanal]   = useState([])
-  const [tendencia, setTendencia] = useState([])
-  const [pedidos, setPedidos]     = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState('')
+  const [kpis, setKpis]               = useState(null)
+  const [ventasDia, setVentasDia]     = useState([])
+  const [porCanal, setPorCanal]       = useState([])
+  const [tendencia, setTendencia]     = useState([])
+  const [pedidos, setPedidos]         = useState([])
+  const [rankingProd, setRankingProd] = useState({ top: null, menos: null })
+  const [loading, setLoading]         = useState(true)
+  const [error, setError]             = useState('')
 
   // Chat IA
   const [mensajes, setMensajes]   = useState([])
@@ -209,14 +223,17 @@ export default function Analisis() {
       setPedidos(todos)
       const entregados = todos.filter(p => p.estado === 'entregado')
 
+      const ranking = calcularRankingProductos(todos)
+      setRankingProd(ranking)
+
       // ── KPIs ──
       const totalVentas = entregados.reduce((s, p) => s + parseFloat(p.total || 0), 0)
       setKpis({
         totalVentas,
         ticketPromedio: entregados.length ? totalVentas / entregados.length : 0,
         totalPedidos:   todos.length,
-        canalTop:       calcularTop(todos, 'canal')       || '—',
-        productoTop:    calcularProductoTop(todos)        || '—',
+        canalTop:       calcularTop(todos, 'canal')  || '—',
+        productoTop:    ranking.top?.nombre          || '—',
       })
 
       // ── Ventas por día ──
@@ -425,13 +442,75 @@ export default function Analisis() {
         <KpiCard icon="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" label="Canal top"
           value={kpis ? canalBadge(kpis.canalTop).label : '—'}
           sub="más pedidos"
-          color="text-olivo-600 dark:text-olivo-400" />
+          color="text-accent-theme" />
         <KpiCard icon="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" label="Producto top"
           value={kpis?.productoTop ?? '—'}
           sub="más vendido" />
       </div>
 
-      {/* ── Sección B: Gráficas — COMENTADAS para diagnóstico ── */}
+      {/* ── Sección B: Destaca del Período ── */}
+      {!loading && (rankingProd.top || rankingProd.menos) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          {/* Más vendido */}
+          {rankingProd.top && (
+            <div className="relative rounded-2xl overflow-hidden border shadow-sm"
+                 style={{ borderColor: 'var(--cafe-border)' }}>
+              <img
+                src={getProductImage(rankingProd.top.nombre, rankingProd.top.categoria, 800)}
+                alt={rankingProd.top.nombre}
+                className="w-full h-48 object-cover"
+                onError={e => { e.target.src = getProductImage('café', 'café', 800) }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              {/* Badge */}
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-white"
+                   style={{ background: 'var(--cafe-btn)' }}>
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Más vendido
+              </div>
+              {/* Info */}
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white/60 text-xs capitalize mb-0.5">{rankingProd.top.categoria || 'producto'}</p>
+                <p className="text-white font-bold text-lg leading-tight line-clamp-2">{rankingProd.top.nombre}</p>
+                <p className="text-white/70 text-xs mt-1">{rankingProd.top.qty} unidades vendidas en el periodo</p>
+              </div>
+            </div>
+          )}
+
+          {/* Menos vendido */}
+          {rankingProd.menos && rankingProd.menos.nombre !== rankingProd.top?.nombre && (
+            <div className="relative rounded-2xl overflow-hidden border shadow-sm"
+                 style={{ borderColor: 'var(--cafe-border)' }}>
+              <img
+                src={getProductImage(rankingProd.menos.nombre, rankingProd.menos.categoria, 800)}
+                alt={rankingProd.menos.nombre}
+                className="w-full h-48 object-cover grayscale-[30%]"
+                onError={e => { e.target.src = getProductImage('café', 'café', 800) }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+              {/* Badge */}
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-gray-600/80">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                </svg>
+                Menos vendido
+              </div>
+              {/* Info */}
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white/60 text-xs capitalize mb-0.5">{rankingProd.menos.categoria || 'producto'}</p>
+                <p className="text-white font-bold text-lg leading-tight line-clamp-2">{rankingProd.menos.nombre}</p>
+                <p className="text-white/70 text-xs mt-1">{rankingProd.menos.qty} unidades en el periodo · considerar promoción</p>
+              </div>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ── Sección C: Gráficas ── */}
       {/* GRAFICA_1_BAR */}
       {!loading && ventasDia.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

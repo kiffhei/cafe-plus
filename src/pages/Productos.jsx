@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { productos as productosApi } from '../api/api'
 import { useAuth } from '../context/AuthContext'
+import { getProductImage } from '../lib/productImages'
 
 const CATEGORIAS = ['café', 'bebida', 'pan', 'sándwich', 'otro']
 
@@ -53,8 +54,28 @@ function ModalProducto({ producto, onClose, onSaved }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 sticky top-0 bg-white z-10">
-          <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
+        {/* Imagen de cabecera */}
+        {!esNuevo && (
+          <div className="relative h-36 w-full overflow-hidden rounded-t-2xl">
+            <img
+              src={getProductImage(form.nombre, form.categoria, 600)}
+              alt={form.nombre}
+              className="w-full h-full object-cover"
+              onError={e => { e.target.parentElement.style.display = 'none' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60" />
+            <div className="absolute bottom-3 left-5">
+              <p className="text-white/60 text-xs capitalize">{form.categoria}</p>
+              <p className="text-white font-semibold text-lg leading-tight">{form.nombre}</p>
+            </div>
+            <button onClick={onClose}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors text-lg">
+              ×
+            </button>
+          </div>
+        )}
+        <div className={`flex items-center justify-between px-6 py-4 border-b border-crema-200 sticky top-0 bg-white z-10 ${!esNuevo ? 'hidden' : ''}`}>
+          <h2 className="text-lg font-semibold text-cafe-800">
             {esNuevo ? 'Nuevo producto' : 'Editar producto'}
           </h2>
           <button onClick={onClose}
@@ -278,6 +299,7 @@ export default function Productos() {
           <table className="w-full">
             <thead>
               <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide w-10" />
                 <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Producto</th>
                 <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Categoría</th>
                 <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Costo</th>
@@ -298,6 +320,15 @@ export default function Productos() {
                     className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors
                       ${!p.activo ? 'opacity-50' : ''}
                       ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
+                    <td className="px-3 py-2">
+                      <img
+                        src={getProductImage(p.nombre, p.categoria, 80)}
+                        alt={p.nombre}
+                        className="w-10 h-10 rounded-lg object-cover"
+                        loading="lazy"
+                        onError={e => { e.target.style.display = 'none' }}
+                      />
+                    </td>
                     <td className="px-5 py-4">
                       <div className="font-medium text-cafe-800 dark:text-crema-100 text-sm">{p.nombre}</div>
                       {p.descripcion && (
