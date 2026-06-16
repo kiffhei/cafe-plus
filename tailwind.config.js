@@ -46,10 +46,10 @@ export default {
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
-        'warm':    '0 4px 24px rgba(45, 106, 79, 0.12)',
-        'warm-lg': '0 8px 40px rgba(45, 106, 79, 0.22)',
-        'card':    '0 2px 12px rgba(45, 106, 79, 0.08)',
-        'glow':    '0 0 0 3px rgba(45, 106, 79, 0.15)',
+        'warm':    '0 4px 24px rgba(0, 0, 0, 0.12)',
+        'warm-lg': '0 8px 40px rgba(0, 0, 0, 0.22)',
+        'card':    '0 2px 12px rgba(0, 0, 0, 0.08)',
+        'glow':    '0 0 0 3px rgba(0, 0, 0, 0.12)',
       },
       transitionTimingFunction: {
         'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
