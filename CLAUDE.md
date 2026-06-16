@@ -1,8 +1,8 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-15 (S8 — contraste global + imágenes EXACT_MATCH + gráficas temáticas)
+> Archivo consolidado. Actualizado: 2026-06-15 (S9 — tests/vitest, imágenes 404, regalo cliente frecuente, CORS verificado, contraste AA light mode)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
-> **Estado actual (cierre S8 / inicio S9):** Build cerrado para producción. 7 temas dinámicos. EXACT_MATCH en productImages. modal-surface/label-muted. Gráficas con gradientes temáticos. Fondo = ShaderBackground WebGL. AISidebar IA flotante. `npm run lint` → 0 errores. **Deuda conocida y documentada: 0 tests, bundle 676KB sin code-splitting (ver tasks-s9).**
+> **Estado actual (cierre S9 / inicio S10):** Build estable. 7 temas. **vitest instalado — 20 tests (productImages + descuentos).** Chat IA + CORS verificados en vivo (webhook `cafe-plus-chat`). Imágenes 404 corregidas + fallback onError. Regalo de cliente frecuente se aplica al crear pedido (E2E confirmado). Contraste AA de acento y badges en light mode (var `--cafe-accent-ink` + overrides `--status-*-fg`). `npm run lint` → 0 errores. **Deuda: code-splitting NO viable en Vite8/rolldown (bundle 676KB se queda). Light mode aún con detalles visuales de contraste pendientes → S10 = SOLO diseño gráfico.**
 
 ---
 
@@ -249,15 +249,27 @@ console.log('[IA] parsed data:', data)
 | 7 | Sidebar user info contraste (inline styles con darkMode) | Sidebar.jsx | ✓ HECHO |
 | 8 | 7 temas: vinyl-dark + vinyl-light agregados (total 7 paletas) | index.css + Sidebar.jsx | ✓ HECHO |
 
-## TAREAS PENDIENTES — SESION 9
+## TAREAS COMPLETADAS — SESION 9 ✓
+
+| # | Tarea | Archivo | Estado |
+|---|-------|---------|--------|
+| 1 | vitest + primeros tests (lógica pura) — 20 tests | productImages.test.js, descuentos.test.js, vite.config.js | ✓ `npm test` / `test:run` |
+| 2 | Imágenes 404 (café americano, etc.) reemplazadas + fallback onError centralizado | productImages.js, Productos.jsx, NuevoPedido.jsx | ✓ HECHO |
+| 3 | Regalo de cliente frecuente se aplica al crear pedido (descuento = N unidades más baratas) | descuentos.js, NuevoPedido.jsx | ✓ HECHO (E2E confirmado) |
+| 4 | Chat IA + CORS verificados en vivo (webhook `cafe-plus-chat`) | n8n + doc | ✓ RESUELTO (ver sección CORS arriba) |
+| 5 | Contraste AA de acento (`--cafe-accent-ink`) y badges de estado (`--status-*-fg`) en light mode | index.css | ✓ HECHO (estructural) |
+| 6 | Code-splitting | — | ❌ NO VIABLE en Vite8/rolldown (descarta `import()` dinámicos). Bundle 676KB se queda |
+
+## TAREAS PENDIENTES — SESION 10 (EXCLUSIVAMENTE DISEÑO GRÁFICO)
+
+> Decisión de Brian al cierre de S9: la próxima sesión es **solo** diseño gráfico — llevan varias sesiones sin cerrarse.
 
 | # | Tarea | Archivo | Prioridad |
 |---|-------|---------|-----------|
-| 1 | Light mode QA sistemático en los 7 temas — puede haber conflictos de contraste pendientes | index.css + todos los módulos | ALTA |
-| 2 | Badges de categoría en Productos e Historial — siguen hardcodeados en verde | Productos.jsx, Historial.jsx | MEDIA |
+| 1 | Light mode — detalles de contraste visuales pendientes (el audit AA estructural ya está; falta QA con la app corriendo en los 7 temas) | index.css + módulos | ALTA |
+| 2 | Badges de categoría dinámicos en Productos e Historial (siguen hardcodeados en verde) | Productos.jsx, Historial.jsx, api.js | MEDIA |
 | 3 | Skeleton loaders en lugar de spinners de carga | Componentes con fetch | MEDIA |
 | 4 | Empty states ilustrados por módulo (0 productos, 0 clientes, etc.) | Todos los módulos | BAJA |
-| 5 | ~~CORS chat IA~~ | n8n workflow | ✓ RESUELTO S9 — webhook `cafe-plus-chat`, CORS verificado en vivo (ver sección CORS arriba) |
 
 ---
 
@@ -415,6 +427,15 @@ git push
 
 ## HISTORIAL DE CAMBIOS POR SESIÓN
 
+### Sesión 9 — Tests, imágenes, regalo, CORS, contraste AA light mode (2026-06-15)
+- **vitest instalado (primer testing del proyecto):** `vitest@4.1.9` + scripts `test`/`test:run`. `vite.config.js` con `test.include: ['src/**/*.{test,spec}.{js,jsx}']` — IMPRESCINDIBLE: sin ese scope vitest corre las ~391 suites `bun:test` de `.claude/skills/gstack/` y "fallan". **20 tests verdes:** `productImages.test.js` (11) + `descuentos.test.js` (9). Commits `32ba710`, `08ea5d4`.
+- **Imágenes de producto rotas (`19e6d59`):** 4 fotos de Unsplash daban 404 (café americano, macchiato, dona, limonada) y los `onError` ocultaban la img → quedaba en blanco. Reemplazadas por IDs verificados 200 + `handleProductImageError()` que degrada a la foto default una vez (sin loop), cableado en Productos y NuevoPedido. **Lección:** un test de mapeo puede pasar mientras la feature está rota — verificar el efecto (curl 200), no solo el valor.
+- **Regalo de cliente frecuente (`08ea5d4`):** el regalo por visitas (café/muffin gratis en hito 5/10/15) se mostraba pero nunca se aplicaba al pedido. `src/lib/descuentos.js` (`regaloPorVisitas` + `calcularRegaloDescuento`, lógica pura testeada) lo traduce a descuento = suma de las N unidades cualificantes más baratas del carrito. `descuento_aplicado` del payload ahora incluye el regalo. Descuento % se mantiene fijo 5%/30%. **E2E confirmado por Brian.**
+- **CORS chat IA — RESUELTO y verificado (`7dccd85`):** misdiagnóstico inicial por doc-drift — CLAUDE.md tenía la URL vieja `df19bf86-…`; la real desplegada es `.../webhook/cafe-plus-chat` (se obtuvo grepeando el bundle de producción). En vivo: OPTIONS→204 + `access-control-allow-origin`; POST→200 + `{respuesta}` real desde Sheets. **Lección:** verificar la URL del bundle desplegado, no la del doc.
+- **Contraste AA en light mode (`fff3016`, `da53c09`):** el `--cafe-accent` y los `--status-*-fg` de cada tema están afinados para fondos oscuros; como texto sobre superficies claras fallaban WCAG AA (acento 1.47–2.47:1, badges 1.27–2.16:1, verificado por cálculo). Fix sin regresión: var `--cafe-accent-ink` + overrides `--status-*-fg` **solo en light mode** (`html:not(.dark)[data-theme]`), tono preservado, ≥4.6:1. Dark mode y chrome oscuro intactos (fallback al brillante). `.cafe-accent-text` NO se tocó (solo vive en el sidebar oscuro).
+- **Code-splitting (#3) — NO VIABLE:** probado que rolldown (Vite 8) descarta los `import()` dinámicos del build (jspdf desaparecía → PDF roto). `codeSplitting:true` no lo arregla. El bundle de 676KB es recharts+React+Clerk (jspdf ya estaba en chunk aparte). App.jsx bloqueado impide lazy de rutas. Decisión: dejar el bundle como está.
+- **Pendiente para S10 (decisión de Brian):** light mode aún tiene detalles visuales de contraste; la próxima sesión es **exclusivamente diseño gráfico**.
+
 ### Sesión 7 — Fix Dockerfile (2026-06-12)
 - **Root cause identificado:** multi-stage build sin `ARG`/`ENV` para variables `VITE_*` — Vite no podía incrustarlas en el bundle durante el build en EasyPanel.
 - **Dockerfile corregido:** bloque `ARG → ENV → RUN npm run build` para `VITE_CLERK_PUBLISHABLE_KEY`, `VITE_API_URL`, `VITE_N8N_WEBHOOK`.
@@ -571,6 +592,52 @@ REGLA TEMAS: nunca usar bg-cafe-700, bg-olivo-500 ni text-terracota-500 — usar
 No tocar App.jsx ni Sidebar.jsx.
 npm run build antes de cualquier push.
 /compact si el contexto llega al 40%.
+```
+
+---
+
+## PROMPT DE INICIO SESION 10 — EXCLUSIVAMENTE DISEÑO GRÁFICO
+
+```
+Lee el CLAUDE.md y el DESIGNER.md en la raíz del proyecto, y las memorias en
+~/.claude/projects/-Users-brianear-proyectos-cafe-plus/memory/ (MEMORY.md → tasks-s9.md).
+
+ESTA SESIÓN ES EXCLUSIVAMENTE DE DISEÑO GRÁFICO. No funcionalidad nueva, no backend,
+no lógica. Llevan varias sesiones sin cerrar el pulido visual y el objetivo es terminarlo.
+Portafolio público — cada pantalla debe verse premium.
+
+CONTEXTO S9 (cerrado, NO retocar salvo que el diseño lo exija):
+- Tests con vitest (20), imágenes 404 corregidas, regalo de cliente frecuente E2E OK,
+  CORS chat IA verificado (webhook cafe-plus-chat).
+- Contraste AA ESTRUCTURAL ya resuelto en light mode: var --cafe-accent-ink (texto de
+  acento) y overrides --status-*-fg (badges) bajo html:not(.dark)[data-theme] en index.css.
+  Verificado por cálculo, NO visualmente.
+
+ALCANCE — en orden de prioridad:
+1. LIGHT MODE — detalles de contraste que QUEDAN (lo dijo Brian: "sigue con detalles").
+   El audit AA por cálculo está hecho; falta el QA VISUAL real. Recorrer los 7 temas
+   (matcha, cafe-oscuro, medianoche, terracota, pizarra, vinyl-dark, vinyl-light) en
+   modo LIGHT y revisar con ojos: textos, inputs, tablas, badges, sidebar, panel IA,
+   cards, gráficas. Atención al combo "sidebar/panel IA oscuros + contenido claro".
+   >>> Requiere la app corriendo. Pedir a Brian que maneje el login de Clerk, o que
+       pase screenshots por tema, o levantar npm run dev y coordinar acceso.
+2. Badges de CATEGORÍA dinámicos en Productos.jsx e Historial.jsx (siguen hardcodeados
+   en verde) — crear categoriaBadge(cat) en api.js, análogo a canalBadge.
+3. Skeleton loaders en lugar de spinners (Analisis, Historial, Productos, Clientes).
+4. Empty states ilustrados por módulo (0 productos, 0 clientes, etc.).
+
+REGLAS DE TEMAS (críticas — ver DESIGNER.md):
+- NUNCA bg-cafe-700, bg-olivo-500, text-terracota-500, dark:bg-cafe-800, text-cafe-400
+  hardcodeados. Usar var(--cafe-*), .text-accent-theme, .tab-active-theme, .modal-surface,
+  .label-muted, o inline style con darkMode de useTheme().
+- Texto de acento sobre superficie CLARA → var(--cafe-accent-ink, var(--cafe-accent)).
+  Sobre superficie OSCURA → var(--cafe-accent).
+- Probar SIEMPRE el tema más saturado (terracota/pizarra) y AMBOS modos.
+- Auditar TODOS los usos de un token antes de migrarlo (lección INC-S7).
+
+No tocar App.jsx ni Sidebar.jsx. recharts@2.15.3 (no v3). fetch nativo (no axios).
+npm run build + npm run lint (0 errores) + npm run test:run (20/20) antes de cada push.
+git status LIMPIO antes de cerrar. /compact al 40% de contexto.
 ```
 
 ---

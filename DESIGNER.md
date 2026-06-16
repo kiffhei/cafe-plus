@@ -1,6 +1,6 @@
 # DESIGNER.md — Café+ | Guía Visual
 
-Referencia de identidad visual para el proyecto. Actualizado: 2026-06-15 (S8 — 7 temas, EXACT_MATCH, modal-surface, gradientes recharts).
+Referencia de identidad visual para el proyecto. Actualizado: 2026-06-15 (S9 — contraste AA light mode: `--cafe-accent-ink` + `--status-*-fg`; imágenes 404 + fallback onError).
 
 ---
 
@@ -207,12 +207,36 @@ Patrón para BarChart con gradientes verticales temáticos:
 - IDs sufijados con `${tema}` evitan colisiones entre renders
 - `chartAccent` / `chartBtn` vienen de tablas estáticas `TEMA_CHART_PRIMARY[tema]` — no `getComputedStyle`
 
-## Pendientes visuales — próxima fase
+## Contraste AA en light mode (S9)
 
-- Light mode QA en los 7 temas — puede haber conflictos de contraste pendientes
+Los `--cafe-accent` y `--status-*-fg` de cada tema están afinados para fondos OSCUROS
+(el sidebar y el panel IA siguen oscuros incluso en light mode, porque `--cafe-sb-bg`
+es oscuro en todos los temas). Como texto sobre superficies CLARAS no alcanzaban WCAG AA.
+
+**Patrón de fix (en `index.css`, sin regresión en dark mode):**
+```css
+/* Solo light mode + solo temas que fallan. Donde no se define, var() cae al brillante. */
+html:not(.dark)[data-theme="pizarra"] {
+  --cafe-accent-ink: #57800f;   /* tono oscuro del acento para texto sobre claro */
+  --status-prep-fg:  #126bc3;   /* fg oscuro AA sobre el tint translúcido del badge */
+  --status-ok-fg:    #52780c;
+}
+```
+- **Texto de acento sobre superficie CLARA** → `var(--cafe-accent-ink, var(--cafe-accent))`.
+  Ya aplicado en `.text-accent-theme` y `thead th`. Sobre superficie OSCURA (sidebar,
+  panel IA) → seguir usando `var(--cafe-accent)` brillante (p.ej. `.cafe-accent-text`).
+- Todos los valores se calcularon a ≥4.6:1 preservando el tono (script WCAG, no a ojo).
+- `vinyl-light` y `:root` ya cumplían — no llevan override.
+- **REGLA:** al añadir un acento como texto, decidir primero la superficie (clara→ink,
+  oscura→accent). Nunca oscurecer `--cafe-accent` global (rompe el chrome oscuro).
+
+## Pendientes visuales — S10 (sesión exclusiva de diseño)
+
+- **Light mode — detalles de contraste que QUEDAN** (Brian: "sigue con detalles"). El AA
+  estructural está hecho por cálculo; falta el QA VISUAL en los 7 temas con la app corriendo.
+- Badges de categoría dinámicos (actualmente hardcodeados en verde) — `categoriaBadge()` en api.js
 - Skeleton loaders en lugar de spinners de carga
 - Empty states ilustrados por módulo (0 productos, 0 clientes, etc.)
-- Badges de categoría dinámicos (actualmente hardcodeados en verde)
 
 ---
 
@@ -232,9 +256,9 @@ Estas clases son las únicas que garantizan contraste correcto en los 7 temas.
 | Elemento | Clase/style correcto | NUNCA usar |
 |----------|---------------------|------------|
 | Botones primarios | `btn-primary` → `var(--cafe-btn)` | `bg-cafe-500` hardcodeado |
-| Valores KPI destacados | `text-accent-theme` → `var(--cafe-accent)` | `text-terracota-500` hardcodeado |
+| Valores KPI destacados (texto sobre claro) | `text-accent-theme` → `var(--cafe-accent-ink, var(--cafe-accent))` | `text-terracota-500` hardcodeado |
 | Tabs / filtros activos | `tab-active-theme` → `var(--cafe-btn)` | `bg-cafe-700` hardcodeado |
-| Encabezado de tabla (thead) | `rgba(255,255,255,0.08)` fondo + `color: var(--cafe-accent)` texto | `var(--cafe-btn)` como fondo — rompe contraste en tema terracota |
+| Encabezado de tabla (thead) | `rgba(255,255,255,0.08)` fondo + `color: var(--cafe-accent-ink, var(--cafe-accent))` texto (S9: ink en light) | `var(--cafe-btn)` como fondo — rompe contraste en tema terracota |
 | Sidebar y header | `.cafe-sidebar-surface` | `bg-cafe-800` hardcodeado |
 | Área central de contenido | `.cafe-main-surface` | `bg-cafe-800` hardcodeado |
 | Fondo animado | `ShaderBackground.jsx` — canvas WebGL montado en Layout.jsx:61 (los colores reaccionan al tema vía `colorsRef`) | recrear el contexto WebGL en cada cambio de tema (usar el ref) |
