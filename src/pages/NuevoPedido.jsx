@@ -4,6 +4,7 @@ import { productos as productosApi, clientes as clientesApi, pedidos as pedidosA
          formatMXN } from '../api/api'
 import { useTheme } from '../context/ThemeContext'
 import { getProductImage, handleProductImageError } from '../lib/productImages'
+import { regaloPorVisitas, calcularRegaloDescuento } from '../lib/descuentos'
 
 const CANALES = ['local','didi','rappi','ubereats']
 const ESTADOS_CANAL = { local:'Local', didi:'DiDi Food', rappi:'Rappi', ubereats:'Uber Eats' }
@@ -96,17 +97,12 @@ export default function NuevoPedido() {
   const subtotal = carrito.reduce((s, item) =>
     s + (parseFloat(item.producto.precio_venta) * item.cantidad), 0)
   const descuento = subtotal * descuentoPct
-  const total     = subtotal - descuento
 
-  // Regalo por visitas
-  const regaloActual = (() => {
-    if (!cliente) return null
-    const v = cliente.visitas_acumuladas
-    if (v === 4)  return { label: '1 café gratis en esta visita (visita 5)', aplicar: true }
-    if (v === 9)  return { label: '1 muffin gratis en esta visita (visita 10)', aplicar: true }
-    if (v === 14) return { label: '2 cafés gratis en esta visita (visita 15)', aplicar: true }
-    return null
-  })()
+  // Regalo por visitas (café/muffin gratis en hitos 5/10/15) -> descuento extra
+  // igual a las N unidades cualificantes más baratas del carrito.
+  const regalo          = cliente ? regaloPorVisitas(cliente.visitas_acumuladas) : null
+  const regaloDescuento = calcularRegaloDescuento(carrito, regalo)
+  const total           = Math.max(0, subtotal - descuento - regaloDescuento)
 
   function agregarProducto(prod) {
     setCarrito(c => {
@@ -141,7 +137,7 @@ export default function NuevoPedido() {
       const payload = {
         canal,
         id_cliente: cliente?.id_cliente || '',
-        descuento_aplicado: descuento,
+        descuento_aplicado: descuento + regaloDescuento,
         notas: notasPedido,
         items: carrito.map(i => ({
           id_producto:     i.producto.id_producto,
@@ -220,9 +216,14 @@ export default function NuevoPedido() {
               />
             </div>
           </div>
-          {regaloActual && (
+          {regalo && (
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-xs text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
-              🎁 {regaloActual.label}
+              🎁 {regalo.label}
+              {regaloDescuento === 0 && (
+                <span className="opacity-70">
+                  · agrega un {regalo.categoria === 'pan' ? 'pan' : 'café'} al carrito para aplicarlo
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -354,6 +355,12 @@ export default function NuevoPedido() {
               <div className="flex justify-between text-sm text-accent-theme">
                 <span>Descuento {cliente?.es_cumpleanos ? '🎂 30%' : '5% Plus'}</span>
                 <span>−{formatMXN(descuento)}</span>
+              </div>
+            )}
+            {regaloDescuento > 0 && (
+              <div className="flex justify-between text-sm text-accent-theme">
+                <span>🎁 Regalo por visitas</span>
+                <span>−{formatMXN(regaloDescuento)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-base text-cafe-800 dark:text-crema-100 pt-1 border-t border-cafe-100 dark:border-cafe-700">
