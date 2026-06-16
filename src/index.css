@@ -142,19 +142,21 @@
   --status-ok-bg:   rgba(139,48,16,.15);   --status-ok-fg:   #6b2510;
 }
 
-/* ── Light mode: tinta de acento AA sobre superficies CLARAS ──
-   --cafe-accent está afinado para fondos OSCUROS (sidebar/panel IA siguen oscuros
-   en light mode); como texto sobre blanco no alcanza 4.5:1. --cafe-accent-ink es
-   la versión oscura del mismo tono para texto sobre superficies claras. Solo se
-   define en light mode y los temas que fallan; donde no está definida, var() cae
-   a --cafe-accent (brillante) -> dark mode y chrome oscuro quedan intactos.
-   Ratios sobre blanco verificados ≥4.6:1 (WCAG AA). vinyl-light ya cumple. */
-html:not(.dark)[data-theme="matcha"]      { --cafe-accent-ink: #36825e; } /* 4.65:1 */
-html:not(.dark)[data-theme="cafe-oscuro"] { --cafe-accent-ink: #a3681c; } /* 4.61:1 */
-html:not(.dark)[data-theme="medianoche"]  { --cafe-accent-ink: #7b4eff; } /* 4.80:1 */
-html:not(.dark)[data-theme="terracota"]   { --cafe-accent-ink: #b85900; } /* 4.70:1 */
-html:not(.dark)[data-theme="pizarra"]     { --cafe-accent-ink: #57800f; } /* 4.67:1 */
-html:not(.dark)[data-theme="vinyl-dark"]  { --cafe-accent-ink: #906e21; } /* 4.73:1 */
+/* ── Light mode: contraste AA sobre superficies CLARAS ──
+   Los acentos y los fg de badges de estado de cada tema están afinados para fondos
+   OSCUROS (el sidebar/panel IA siguen oscuros en light mode); como texto sobre
+   superficies claras no alcanzan 4.5:1. Estos overrides aplican SOLO en light mode
+   y solo a los temas que fallan; donde no se define, var() cae al valor brillante
+   original -> dark mode y chrome oscuro quedan intactos.
+   - --cafe-accent-ink: tono oscuro del acento para texto sobre blanco.
+   - --status-*-fg: fg oscuro AA sobre el tint translúcido del badge (compuesto
+     sobre blanco). Ratios verificados ≥4.6:1 (WCAG AA). vinyl-light ya cumple. */
+html:not(.dark)[data-theme="matcha"]      { --cafe-accent-ink: #36825e; --status-prep-fg: #147689; --status-ok-fg: #25764c; }
+html:not(.dark)[data-theme="cafe-oscuro"] { --cafe-accent-ink: #a3681c; --status-prep-fg: #885a11; --status-ok-fg: #8e631b; }
+html:not(.dark)[data-theme="medianoche"]  { --cafe-accent-ink: #7b4eff; --status-prep-fg: #0a768a; --status-ok-fg: #6740ff; }
+html:not(.dark)[data-theme="terracota"]   { --cafe-accent-ink: #b85900; --status-prep-fg: #996100; --status-ok-fg: #ab5100; }
+html:not(.dark)[data-theme="pizarra"]     { --cafe-accent-ink: #57800f; --status-prep-fg: #126bc3; --status-ok-fg: #52780c; }
+html:not(.dark)[data-theme="vinyl-dark"]  { --cafe-accent-ink: #906e21; --status-prep-fg: #786724; --status-ok-fg: #84651e; }
 
 * { box-sizing: border-box; }
 
