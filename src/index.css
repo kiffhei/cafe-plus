@@ -142,6 +142,20 @@
   --status-ok-bg:   rgba(139,48,16,.15);   --status-ok-fg:   #6b2510;
 }
 
+/* ── Light mode: tinta de acento AA sobre superficies CLARAS ──
+   --cafe-accent está afinado para fondos OSCUROS (sidebar/panel IA siguen oscuros
+   en light mode); como texto sobre blanco no alcanza 4.5:1. --cafe-accent-ink es
+   la versión oscura del mismo tono para texto sobre superficies claras. Solo se
+   define en light mode y los temas que fallan; donde no está definida, var() cae
+   a --cafe-accent (brillante) -> dark mode y chrome oscuro quedan intactos.
+   Ratios sobre blanco verificados ≥4.6:1 (WCAG AA). vinyl-light ya cumple. */
+html:not(.dark)[data-theme="matcha"]      { --cafe-accent-ink: #36825e; } /* 4.65:1 */
+html:not(.dark)[data-theme="cafe-oscuro"] { --cafe-accent-ink: #a3681c; } /* 4.61:1 */
+html:not(.dark)[data-theme="medianoche"]  { --cafe-accent-ink: #7b4eff; } /* 4.80:1 */
+html:not(.dark)[data-theme="terracota"]   { --cafe-accent-ink: #b85900; } /* 4.70:1 */
+html:not(.dark)[data-theme="pizarra"]     { --cafe-accent-ink: #57800f; } /* 4.67:1 */
+html:not(.dark)[data-theme="vinyl-dark"]  { --cafe-accent-ink: #906e21; } /* 4.73:1 */
+
 * { box-sizing: border-box; }
 
 body {
@@ -301,7 +315,7 @@ h1, h2, h3, h4 {
     transition: background 0.8s ease;
   }
   .table-wrapper thead th {
-    color: var(--cafe-accent) !important;
+    color: var(--cafe-accent-ink, var(--cafe-accent)) !important;
     font-weight: 600;
     letter-spacing: 0.02em;
   }
@@ -389,7 +403,7 @@ h1, h2, h3, h4 {
     transition: background 0.8s ease;
   }
   .text-accent-theme {
-    color: var(--cafe-accent) !important;
+    color: var(--cafe-accent-ink, var(--cafe-accent)) !important;
     transition: color 0.8s ease;
   }
 }
