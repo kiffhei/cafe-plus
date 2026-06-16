@@ -33,7 +33,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 | Backend GAS | https://script.google.com/macros/s/AKfycbw8sF-F3T0ftXO6BBqUwXB1yI6SZnAd0U7HAdw7fs5gI541jl6L4C37AJhjxMZMkyRt/exec |
 | Spreadsheet ID | 1GdeZReoLbIhZc9kRGK7IjhsgaNds8O26uEGQVvY1dq4 |
 | n8n base | https://appn8n-n8n.u555aa.easypanel.host |
-| n8n webhook chat IA | https://appn8n-n8n.u555aa.easypanel.host/webhook/df19bf86-8f1a-46af-af4f-71a7a253fd24 |
+| n8n webhook chat IA | https://appn8n-n8n.u555aa.easypanel.host/webhook/cafe-plus-chat |
 | n8n workflow ID | chpLlo3iR6CM2Ja5 (Cafe_Plus) |
 | EasyPanel VPS | http://89.116.167.180:3000 |
 
@@ -216,16 +216,12 @@ Reduce tokens del AI Agent al darle solo lo esencial.
 ```
 El frontend busca: `data?.respuesta ?? data?.output ?? data?.text`
 
-### BUG ACTIVO — CORS bloqueado en browser
-El workflow procesa correctamente (confirmado via MCP n8n).
-El browser bloquea la respuesta por falta de header Access-Control-Allow-Origin.
-
-Fix pendiente en nodo Respond to Webhook -> Options -> Response Headers:
-```
-Access-Control-Allow-Origin: https://clawdbot-cafe-plus.u555aa.easypanel.host
-Access-Control-Allow-Methods: POST, OPTIONS
-Content-Type: application/json
-```
+### CORS — RESUELTO (verificado 2026-06-15, S9)
+URL real del webhook: `.../webhook/cafe-plus-chat` (NO `df19bf86-…`, que era una URL vieja/obsoleta y causó un misdiagnóstico en S9 — siempre verificar la URL del bundle desplegado, no la del doc).
+Verificación en vivo desde el origen de producción:
+- OPTIONS → `204` con `access-control-allow-origin: https://clawdbot-cafe-plus.u555aa.easypanel.host` + `access-control-allow-methods: OPTIONS, POST`.
+- POST → `200` con header ACAO + `content-type: application/json` + `{"respuesta":"..."}` real desde Sheets.
+El nodo Respond to Webhook ya tiene los headers CORS configurados.
 
 ### Logging diagnostico para Analisis.jsx (agregar temporalmente)
 ```js
@@ -261,7 +257,7 @@ console.log('[IA] parsed data:', data)
 | 2 | Badges de categoría en Productos e Historial — siguen hardcodeados en verde | Productos.jsx, Historial.jsx | MEDIA |
 | 3 | Skeleton loaders en lugar de spinners de carga | Componentes con fetch | MEDIA |
 | 4 | Empty states ilustrados por módulo (0 productos, 0 clientes, etc.) | Todos los módulos | BAJA |
-| 5 | CORS chat IA — headers en nodo Respond to Webhook en n8n (configuración del nodo — no es código) | n8n workflow | PENDIENTE (no código) |
+| 5 | ~~CORS chat IA~~ | n8n workflow | ✓ RESUELTO S9 — webhook `cafe-plus-chat`, CORS verificado en vivo (ver sección CORS arriba) |
 
 ---
 
