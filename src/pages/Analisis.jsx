@@ -14,8 +14,6 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { getProductImage } from '../lib/productImages'
 
-const CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
-
 const TEMA_CHART_PRIMARY = {
   'matcha':       '#52b788',
   'cafe-oscuro':  '#d4a96a',
@@ -149,11 +147,6 @@ function calcularRankingProductos(pedidos) {
     top:   { nombre: topNombre,   qty: topQty,   categoria: catMap[topNombre]   || '' },
     menos: { nombre: menosNombre, qty: menosQty, categoria: catMap[menosNombre] || '' },
   }
-}
-
-// Mantener compatibilidad con el call existente
-function calcularProductoTop(pedidos) {
-  return calcularRankingProductos(pedidos).top?.nombre ?? null
 }
 
 function calcularHoraPico(pedidos) {
@@ -354,7 +347,7 @@ export default function Analisis() {
       const respuesta = data?.respuesta ?? data?.output ?? data?.text
         ?? 'No pude obtener una respuesta. Intenta de nuevo.'
       setMensajes(m => [...m, { role: 'agent', texto: respuesta, ts: Date.now() }])
-    } catch (err) {
+    } catch {
       setMensajes(m => [...m, {
         role:  'agent',
         texto: 'Error al conectar con el agente IA. Verifica que el webhook de n8n esté activo.',

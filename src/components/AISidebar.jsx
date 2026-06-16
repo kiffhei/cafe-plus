@@ -69,7 +69,7 @@ export default function AISidebar() {
       })
       const raw = await res.text()
       let data = null
-      try { data = JSON.parse(raw) } catch {}
+      try { data = JSON.parse(raw) } catch { /* respuesta no-JSON: se usa el fallback de abajo */ }
       const respuesta = data?.respuesta ?? data?.output ?? data?.text
         ?? 'No pude obtener una respuesta. Intenta de nuevo.'
       setMensajes(m => [...m, { role: 'agent', texto: respuesta, ts: Date.now() }])

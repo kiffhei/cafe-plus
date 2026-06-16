@@ -64,6 +64,7 @@ function ModalPedidos({ cliente, onClose }) {
       }
     }
     cargar()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intencional: solo recargar pedidos al cambiar de cliente (id), no al editar nombre/teléfono dentro del modal
   }, [cliente.id_cliente])
 
   return (
@@ -142,7 +143,7 @@ function ModalPedidos({ cliente, onClose }) {
   )
 }
 
-function ModalCliente({ cliente, onClose, onSaved, esAdmin }) {
+function ModalCliente({ cliente, onClose, onSaved }) {
   const esNuevo = !cliente?.id_cliente
   const [form, setForm] = useState({
     nombre:           cliente?.nombre           || '',
@@ -460,7 +461,6 @@ export default function Clientes() {
           cliente={modal === 'nuevo' ? null : modal}
           onClose={() => setModal(null)}
           onSaved={() => { setModal(null); cargar() }}
-          esAdmin={esAdmin}
         />
       )}
 

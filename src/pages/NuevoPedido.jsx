@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { productos as productosApi, clientes as clientesApi, pedidos as pedidosApi,
-         formatMXN, canalBadge } from '../api/api'
-import { useAuth } from '../context/AuthContext'
+         formatMXN } from '../api/api'
 import { useTheme } from '../context/ThemeContext'
 import { getProductImage } from '../lib/productImages'
 
@@ -69,7 +68,6 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
 }
 
 export default function NuevoPedido() {
-  const { user } = useAuth()
   const { darkMode } = useTheme()
   const navigate = useNavigate()
   const [canal, setCanal]         = useState('local')

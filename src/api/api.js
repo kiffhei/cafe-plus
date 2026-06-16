@@ -25,7 +25,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
     return res
   } catch (err) {
     clearTimeout(id)
-    if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado. Apps Script tardó demasiado.')
+    if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado. Apps Script tardó demasiado.', { cause: err })
     throw err
   }
 }

@@ -215,7 +215,8 @@ export default function ShaderBackground() {
       gl.deleteProgram(prog)
       gl.deleteBuffer(buf)
     }
-  }, []) // init once — colors update via colorsRef
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init once; el contexto WebGL se crea una vez y los colores se actualizan vía colorsRef sin recrear el programa
+  }, [])
 
   return (
     <canvas
