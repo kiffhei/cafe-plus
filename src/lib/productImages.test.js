@@ -42,7 +42,7 @@ describe('getProductImage', () => {
       const base = photoId(getProductImage('cafe americano', 'cafe'))
       expect(photoId(getProductImage('CAFÉ AMERICANO', 'cafe'))).toBe(base)
       expect(photoId(getProductImage('  Café Americano  ', 'cafe'))).toBe(base)
-      expect(base).toBe('photo-1510591509098-f4fdc8e10c4d')
+      expect(base).toBe('photo-1497935586351-b67a49e012bf')
     })
   })
 

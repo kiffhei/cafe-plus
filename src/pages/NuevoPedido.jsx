@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { productos as productosApi, clientes as clientesApi, pedidos as pedidosApi,
          formatMXN } from '../api/api'
 import { useTheme } from '../context/ThemeContext'
-import { getProductImage } from '../lib/productImages'
+import { getProductImage, handleProductImageError } from '../lib/productImages'
 
 const CANALES = ['local','didi','rappi','ubereats']
 const ESTADOS_CANAL = { local:'Local', didi:'DiDi Food', rappi:'Rappi', ubereats:'Uber Eats' }
@@ -271,7 +271,7 @@ export default function NuevoPedido() {
                       alt={prod.nombre}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       loading="lazy"
-                      onError={e => { e.target.style.display = 'none' }}
+                      onError={handleProductImageError}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     {enCarrito && (

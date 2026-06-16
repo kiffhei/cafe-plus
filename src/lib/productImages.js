@@ -7,7 +7,7 @@ const norm = (s = '') =>
 // Tiene PRIORIDAD sobre el keyword map. Cubre todos los productos del catálogo.
 const EXACT_MATCH = {
   // Cafés
-  'cafe americano':      'photo-1510591509098-f4fdc8e10c4d',
+  'cafe americano':      'photo-1497935586351-b67a49e012bf',
   'cafe latte':          'photo-1541167760496-1628856ab772',
   'cappuccino':          'photo-1534040385115-33dcb3acba5b',
   'cafe frio':           'photo-1461023058943-07fcbe16d735',
@@ -44,7 +44,7 @@ const KEYWORD_MAP = [
     'photo-1582196016295-f8c8bd4b3a99'],
   // Americano
   [['americano'],
-    'photo-1510591509098-f4fdc8e10c4d'],
+    'photo-1497935586351-b67a49e012bf'],
   // Latte / flat white
   [['latte', 'flat white', 'vaporizada'],
     'photo-1541167760496-1628856ab772'],
@@ -56,7 +56,7 @@ const KEYWORD_MAP = [
     'photo-1578374173705-969cbe6f2d6b'],
   // Macchiato
   [['macchiato'],
-    'photo-1485808191679-5f86510bd5b8'],
+    'photo-1521302080334-4bebac2763a6'],
   // Matcha / té verde (ANTES del genérico té)
   [['matcha', 'té verde', 'te verde'],
     'photo-1536256263959-770b48d82b0a'],
@@ -71,7 +71,7 @@ const KEYWORD_MAP = [
     'photo-1548839140-29a749e1cf4d'],
   // Limonada
   [['limonada', 'lemonade'],
-    'photo-1568622503284-d6af7f2b3a66'],
+    'photo-1621263764928-df1444c5e859'],
   // Jugos / smoothie
   [['jugo', 'smoothie', 'licuado'],
     'photo-1622597467836-f3285f2131b8'],
@@ -95,7 +95,7 @@ const KEYWORD_MAP = [
     'photo-1558961363-fa8fdf82db35'],
   // Dona
   [['dona', 'donut', 'doughnut'],
-    'photo-1551024601-bec78de5b69f'],
+    'photo-1551024709-8f23befc6f87'],
   // Pan de elote
   [['pan de elote', 'elote', 'maíz', 'maiz', 'corn', 'tradicional mexicano'],
     'photo-1565299624946-b28f40a0ae38'],
@@ -161,6 +161,17 @@ export function getProductImage(nombre = '', categoria = '', width = 400) {
   const key = norm(nombre)
   const photoId = EXACT_MATCH[key] ?? keywordMatch(nombre, categoria)
   return `https://images.unsplash.com/${photoId}?w=${width}&q=80&fit=crop&crop=center`
+}
+
+/**
+ * Handler para <img onError>: si una foto de Unsplash falla (404 u offline),
+ * degrada a la foto por defecto una sola vez — nunca deja la imagen en blanco
+ * ni entra en loop de reintentos.
+ */
+export function handleProductImageError(e) {
+  const fallback = `https://images.unsplash.com/${DEFAULT_PHOTO}?w=400&q=80&fit=crop&crop=center`
+  if (e.target.src === fallback) return
+  e.target.src = fallback
 }
 
 function keywordMatch(nombre, categoria) {

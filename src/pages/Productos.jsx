@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { productos as productosApi } from '../api/api'
 import { useAuth } from '../context/AuthContext'
-import { getProductImage } from '../lib/productImages'
+import { getProductImage, handleProductImageError } from '../lib/productImages'
 
 const CATEGORIAS = ['café', 'bebida', 'pan', 'sándwich', 'otro']
 
@@ -326,7 +326,7 @@ export default function Productos() {
                         alt={p.nombre}
                         className="w-10 h-10 rounded-lg object-cover"
                         loading="lazy"
-                        onError={e => { e.target.style.display = 'none' }}
+                        onError={handleProductImageError}
                       />
                     </td>
                     <td className="px-5 py-4">
