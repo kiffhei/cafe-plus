@@ -2,7 +2,7 @@
 > Archivo consolidado. Actualizado: 2026-06-15 (S8 — contraste global + imágenes EXACT_MATCH + gráficas temáticas)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
-> **Estado actual (S9):** 7 temas dinámicos. EXACT_MATCH en productImages. modal-surface/label-muted. Gráficas con gradientes y colores temáticos. Light mode pendiente de QA completo.
+> **Estado actual (cierre S8 / inicio S9):** Build cerrado para producción. 7 temas dinámicos. EXACT_MATCH en productImages. modal-surface/label-muted. Gráficas con gradientes temáticos. Fondo = ShaderBackground WebGL. AISidebar IA flotante. `npm run lint` → 0 errores. **Deuda conocida y documentada: 0 tests, bundle 676KB sin code-splitting (ver tasks-s9).**
 
 ---
 
@@ -43,7 +43,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 
 | Capa | Tecnología | Notas |
 |------|-----------|-------|
-| Frontend | React 18 + Vite + Tailwind CSS v3 | v4 evitado por CLI |
+| Frontend | React 19.2 + Vite 8 + Tailwind CSS v3 + react-router-dom 7 | v4 Tailwind evitado por CLI |
 | Estilos | Paleta Fresh Matcha + Plus Jakarta Sans + Outfit | Ver tokens abajo |
 | Backend | Google Apps Script REST API | fetch nativo obligatorio — sin axios |
 | Base de datos | Google Sheets (5 hojas) | Ver estructura abajo |
@@ -171,10 +171,11 @@ const { darkMode, toggleDark, tema, setTema } = useTheme()
 - Panel con 5 opciones: swatch + nombre + check ✓ en activo
 - Persiste en `localStorage.cafe_tema`; ThemeContext aplica `document.documentElement.dataset.theme`
 
-### Fondo animado (Layout.jsx)
-- 3 orbes CSS: `.cafe-orb-1/2/3` — `filter: blur(80px)` + `@keyframes cafe-breathe`
-- `position: fixed; z-index: 0; pointer-events: none` — cero JS, animación pura CSS
-- Colores cambian vía `style={{ background: 'var(--cafe-orb1/2/3)' }}` — reaccionan al tema
+### Fondo animado (Layout.jsx) — ShaderBackground WebGL
+- **Realidad del código:** `src/components/ui/ShaderBackground.jsx` monta un canvas **WebGL** con `requestAnimationFrame` (no son orbes CSS — eso era la implementación anterior). Montado en `Layout.jsx:61`.
+- El contexto WebGL se crea **una sola vez** (`useEffect([])`); los colores del shader se actualizan vía `colorsRef` sin recrear el programa → el cambio de tema/darkMode reacciona sin remount.
+- `position: fixed; z-index: 0; pointer-events: none`.
+- Deuda: WebGL en todas las pantallas. Si causa carga en equipos viejos, considerar fallback a orbes CSS. Ver [architecture-decisions en memoria].
 
 ---
 
@@ -425,6 +426,19 @@ git push
 - **App restaurada:** Clerk carga correctamente en producción.
 - **Regla para futuros deploys:** si se cambia un valor `VITE_*` en EasyPanel, cambiar también el valor de `CACHE_BUST` para forzar rebuild completo.
 
+### Cierre S8 — Auditoría real + build para producción (2026-06-15)
+- **Auditoría con herramientas (no con fe):** build ✓, lint real, grep de patrones. Hallazgos corregidos:
+- **`tailwind.config.js` sin commitear** (fix de sombras verde→neutral de S8) — **nunca había llegado a producción**. Commiteado aislado y primero: `3bf23ca`.
+- **eslint lintaba `.claude/skills/gstack/`** → 235 errores falsos ocultaban 19 reales en `src/`. Agregado ignore de `.claude` → lint real visible.
+- **Código muerto removido:** `CHART_COLORS`, `calcularProductoTop` (Analisis), `canalBadge` + `user` (NuevoPedido), `esAdmin` param (Clientes).
+- **catch vacíos** justificados con comentario; `api.js` re-lanza `AbortError` con `{ cause }`.
+- **`axios` removido** de package.json — estaba como dependencia muerta (no se usaba; viola regla solo-fetch).
+- **2 reglas de lint a `warn`** (set-state-in-effect, only-export-components) — idioms de framework, documentado inline en `eslint.config.js`. Resultado: `npm run lint` → **0 errores, 9 warnings**.
+- **Doc corregida:** CLAUDE.md/DESIGNER.md decían "React 18" y "fondo = orbes CSS" — falso. Real: **React 19.2 + Router 7**, **fondo = ShaderBackground WebGL**.
+- **Commits:** `3bf23ca` (fix sombras, prod), `00a58ab` (chore cleanup, no-prod).
+- **Verificación:** `npm run build` ✓ (4.45s), `npm run lint` exit 0.
+- **Deuda explícita documentada (NO resuelta):** 0 tests automatizados, bundle 676KB sin code-splitting. Ver `tasks-s9.md`. **Declarar "100% production-ready" con 0 tests sería deshonesto** — el build es estable y verificado manualmente, pero sin red de seguridad automatizada.
+
 ### Sesión 8 — Contraste global + imágenes + gráficas temáticas (2026-06-15)
 - **Contraste global resuelto:** nuevas clases `.modal-surface` (var(--cafe-sb-bg) dark / rgba(255,255,255,0.96) light) y `.label-muted` (rgba con darkMode) en `index.css` — sustituyen `dark:bg-cafe-800` hardcodeado en modals.
 - **`btn-secondary` dark:** regla `.dark .btn-secondary` con CSS vars en lugar de Tailwind — funciona en todos los temas.
@@ -497,7 +511,7 @@ description: Especialista en React + Tailwind para Cafe+
 model: claude-sonnet-4-6
 tools: [read, write, bash]
 prompt: |
-  Especialista en React 18 + Vite + Tailwind CSS para Cafe+.
+  Especialista en React 19 + Vite 8 + Tailwind CSS para Cafe+.
   Paleta Fresh Matcha: cafe-500=#2d6a4f, terracota-500=#1e6091.
   Tipografia: Plus Jakarta Sans (display) + Outfit (body).
   Reglas: formatFecha (no formatFechaHora), input-cafe (no input-cafeteria),

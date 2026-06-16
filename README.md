@@ -11,7 +11,7 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | React 19 + Vite 8 + Tailwind CSS v3 |
+| Frontend | React 19.2 + Vite 8 + Tailwind CSS v3 + react-router-dom 7 |
 | Auth | Clerk (ClerkProvider + useUser + publicMetadata) |
 | Backend | Google Apps Script REST API v1.5 |
 | Base de datos | Google Sheets (5 hojas) |
@@ -35,6 +35,13 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 | Productos | CRUD, toggle activo/inactivo, cálculo de margen |
 | Usuarios | CRUD admin, control de roles (admin/cajero) |
 | Análisis | KPIs, BarChart canales, Treemap, LineChart tendencia, chat IA |
+
+Componentes transversales: `ShaderBackground` (fondo WebGL), `AISidebar` (chat IA flotante en Análisis e Historial), 7 temas dinámicos vía CSS variables.
+
+### Estado del build
+
+- `npm run build` ✓ · `npm run lint` → 0 errores (9 warnings de idioms de framework, documentados).
+- **Deuda conocida:** sin tests automatizados (0% cobertura) y bundle principal ~676 KB sin code-splitting. El build es estable y verificado manualmente; no hay red de seguridad de tests aún. Primera tarea de tests: `src/lib/productImages.js`.
 
 ---
 

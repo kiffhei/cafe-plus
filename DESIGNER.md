@@ -150,6 +150,22 @@ Versión fija: `recharts@2.15.3` — no actualizar a v3.
 
 ---
 
+## Componentes nuevos de S8
+
+### ShaderBackground.jsx — fondo WebGL (`src/components/ui/`)
+Reemplaza los orbes CSS anteriores. Canvas WebGL con `requestAnimationFrame`, montado en `Layout.jsx:61`.
+- Contexto WebGL creado **una sola vez** (`useEffect([])`) — recrearlo en cada render mata el rendimiento.
+- Los colores del shader vienen de `colorsRef` (no de deps del effect) → cambio de tema/darkMode sin remount.
+- `position: fixed; z-index: 0; pointer-events: none`.
+- **Trade-off conocido:** WebGL corre en todas las pantallas. En equipos viejos puede consumir GPU; si se reporta, fallback a orbes CSS.
+
+### AISidebar.jsx — chat IA flotante (`src/components/`)
+Panel lateral colapsable con el chat del agente IA (n8n + OpenAI). Usado en Análisis e Historial.
+- Detecta contexto por ruta: `/historial` → `historial_pedidos`, resto → `analisis_ventas`.
+- POST a `VITE_N8N_WEBHOOK` con `fetch` nativo (sin headers — evita preflight CORS).
+- Lee respuesta con fallback en cadena: `data?.respuesta ?? data?.output ?? data?.text`.
+- JSON no parseable → mensaje de fallback (catch documentado, no silencioso).
+
 ## Imágenes de producto — EXACT_MATCH (S8)
 
 Archivo: `src/lib/productImages.js`
@@ -221,7 +237,7 @@ Estas clases son las únicas que garantizan contraste correcto en los 7 temas.
 | Encabezado de tabla (thead) | `rgba(255,255,255,0.08)` fondo + `color: var(--cafe-accent)` texto | `var(--cafe-btn)` como fondo — rompe contraste en tema terracota |
 | Sidebar y header | `.cafe-sidebar-surface` | `bg-cafe-800` hardcodeado |
 | Área central de contenido | `.cafe-main-surface` | `bg-cafe-800` hardcodeado |
-| Fondo animado | Orbes CSS puro (`.cafe-orb` + `@keyframes cafe-breathe`) en Layout.jsx | canvas, WebGL, JS animation loops |
+| Fondo animado | `ShaderBackground.jsx` — canvas WebGL montado en Layout.jsx:61 (los colores reaccionan al tema vía `colorsRef`) | recrear el contexto WebGL en cada cambio de tema (usar el ref) |
 | Toggles activos | `style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}` | `bg-olivo-500` hardcodeado |
 | Colores de gráficas (recharts) | `TEMA_CHART_PRIMARY[tema]` / `TEMA_CHART_BTN[tema]` (tablas estáticas) | `getComputedStyle` — timing issue vs `useEffect` |
 
