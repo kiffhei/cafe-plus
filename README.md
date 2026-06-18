@@ -1,5 +1,7 @@
 # Café+ — Sistema de Gestión Operativa
 
+[![CI](https://github.com/kiffhei/cafe-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/kiffhei/cafe-plus/actions/workflows/ci.yml)
+
 > Sistema de gestión operativa y CRM con IA integrada para cafetería.
 > Motor de temas dinámicos (7 paletas en runtime), fondo WebGL animado,
 > backend serverless en Google Sheets + GAS sin costo de servidor de DB.

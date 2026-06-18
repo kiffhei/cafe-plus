@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { productos as productosApi } from '../api/api'
+import { productos as productosApi, categoriaBadge } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 import { getProductImage, handleProductImageError } from '../lib/productImages'
 
@@ -336,9 +336,7 @@ export default function Productos() {
                       )}
                     </td>
                     <td className="hidden sm:table-cell px-5 py-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-crema-100 dark:bg-cafe-700 text-cafe-700 dark:text-crema-200 capitalize">
-                        {p.categoria}
-                      </span>
+                      {(({ cls, label }) => <span className={cls}>{label}</span>)(categoriaBadge(p.categoria))}
                     </td>
                     <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-cafe-600 dark:text-cafe-400">
                       {p.costo ? `$${parseFloat(p.costo).toFixed(2)}` : '—'}

@@ -184,6 +184,18 @@ export function estadoBadge(estado) {
   return map[estado] || { label: estado, cls: '' }
 }
 
+export function categoriaBadge(cat) {
+  const norm = (s) => (s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim()
+  const map = {
+    'cafe':       { label: 'Café',         cls: 'badge-cat-cafe' },
+    'bebidas':    { label: 'Bebidas Frías', cls: 'badge-cat-bebidas' },
+    'pasteleria': { label: 'Pastelería',   cls: 'badge-cat-pasteleria' },
+    'sandwich':   { label: 'Sándwich',     cls: 'badge-cat-sandwich' },
+    'extras':     { label: 'Extras',       cls: 'badge-cat-extras' },
+  }
+  return map[norm(cat)] || { label: cat, cls: 'badge-cat-default' }
+}
+
 export function generarMeses() {
   const meses = []
   const ahora = new Date()
