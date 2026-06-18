@@ -34,7 +34,7 @@ async function apiGet(action, params = {}) {
   const meta = getUserMeta()
   const url = new URL(BASE)
   url.searchParams.set('action', action)
-  url.searchParams.set('apiKey', 'CAFEPLUS_2026_SECURE')
+  url.searchParams.set('apiKey', import.meta.env.VITE_GAS_API_KEY)
   url.searchParams.set('userId', meta.id_usuario || '')
   url.searchParams.set('userCategoria', meta.categoria || 'cajero')
   url.searchParams.set('usuario', meta.usuario || '')
@@ -48,12 +48,12 @@ async function apiGet(action, params = {}) {
 
 async function apiPost(action, body = {}) {
   const meta = getUserMeta()
-  const url = `${BASE}?action=${action}&apiKey=CAFEPLUS_2026_SECURE`
+  const url = `${BASE}?action=${action}&apiKey=${import.meta.env.VITE_GAS_API_KEY}`
   const res = await fetchWithTimeout(url, {
     method: 'POST',
     body: JSON.stringify({
       ...body,
-      apiKey:        'CAFEPLUS_2026_SECURE',
+      apiKey:        import.meta.env.VITE_GAS_API_KEY,
       userId:        meta.id_usuario || '',
       userCategoria: meta.categoria || 'cajero',
       usuario:       meta.usuario   || '',

@@ -1,6 +1,10 @@
 # Café+ — Sistema de Gestión Operativa
 
-Sistema de gestión operativa y CRM para cafetería en Cuautitlán, EdoMex.
+> Sistema de gestión operativa y CRM con IA integrada para cafetería.
+> Motor de temas dinámicos (7 paletas en runtime), fondo WebGL animado,
+> backend serverless en Google Sheets + GAS sin costo de servidor de DB.
+> Autenticación con Clerk, agente IA con n8n + OpenAI, deploy Docker en VPS.
+
 Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 **Producción:** https://clawdbot-cafe-plus.u555aa.easypanel.host
@@ -40,8 +44,11 @@ Componentes transversales: `ShaderBackground` (fondo WebGL), `AISidebar` (chat I
 
 ### Estado del build
 
+![CI](https://github.com/kiffhei/cafe-plus/actions/workflows/ci.yml/badge.svg)
+
 - `npm run build` ✓ · `npm run lint` → 0 errores (9 warnings de idioms de framework, documentados).
-- **Deuda conocida:** sin tests automatizados (0% cobertura) y bundle principal ~676 KB sin code-splitting. El build es estable y verificado manualmente; no hay red de seguridad de tests aún. Primera tarea de tests: `src/lib/productImages.js`.
+- `npm test` → **20 tests** en lógica de negocio pura (`productImages`, `descuentos`).
+- **Deuda conocida:** bundle principal ~676 KB sin code-splitting (no viable en Vite 8/rolldown). Tests cubren lógica pura; cobertura de componentes/páginas pendiente.
 
 ---
 

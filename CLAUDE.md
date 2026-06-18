@@ -30,12 +30,9 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 |---------|-----|
 | Repo GitHub | https://github.com/kiffhei/cafe-plus |
 | App producción | https://clawdbot-cafe-plus.u555aa.easypanel.host |
-| Backend GAS | https://script.google.com/macros/s/AKfycbw8sF-F3T0ftXO6BBqUwXB1yI6SZnAd0U7HAdw7fs5gI541jl6L4C37AJhjxMZMkyRt/exec |
-| Spreadsheet ID | 1GdeZReoLbIhZc9kRGK7IjhsgaNds8O26uEGQVvY1dq4 |
-| n8n base | https://appn8n-n8n.u555aa.easypanel.host |
-| n8n webhook chat IA | https://appn8n-n8n.u555aa.easypanel.host/webhook/cafe-plus-chat |
-| n8n workflow ID | chpLlo3iR6CM2Ja5 (Cafe_Plus) |
-| EasyPanel VPS | http://89.116.167.180:3000 |
+| Backend GAS | `VITE_API_URL` en `.env` |
+| n8n webhook chat IA | `VITE_N8N_WEBHOOK` en `.env` |
+| EasyPanel | Ver `.env.example` para configuración |
 
 ---
 
@@ -644,7 +641,4 @@ git status LIMPIO antes de cerrar. /compact al 40% de contexto.
 
 ## CREDENCIALES DE PRUEBA
 
-```
-Admin:  admin / admin123
-Cajero: cajero1 / cajero123
-```
+Ver `CLAUDE.internal.md` (no commiteado — en `.gitignore`).

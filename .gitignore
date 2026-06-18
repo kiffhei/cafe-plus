@@ -33,3 +33,7 @@ dist-ssr
 .claude/skills/gstack/
 .gstack/
 CLAUDE.local.md
+CLAUDE.internal.md
+
+# Claude Code settings locales
+.claude/
