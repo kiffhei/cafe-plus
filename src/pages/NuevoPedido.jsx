@@ -190,7 +190,7 @@ export default function NuevoPedido() {
       <div className="flex-1 min-w-0">
         {/* Canal + Cliente */}
         <div className="modal-surface rounded-2xl p-5 mb-4 shadow-sm">
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-semibold text-cafe-600 dark:text-cafe-400 uppercase tracking-wide mb-2">Canal de venta</label>
               <div className="flex gap-2 flex-wrap">
