@@ -15,13 +15,13 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 ## Screenshots
 
-| Login (Clerk auth) | Nuevo Pedido (POS) |
+| Análisis IA — gráficas + agente en vivo | Análisis IA — KPIs y selector de temas |
 |---|---|
-| ![Login](Muestras/login.png) | ![Nuevo Pedido](Muestras/nuevo%20pedido.png) |
+| ![Análisis con agente](Muestras/analisis%20con%20agente.png) | ![Análisis KPIs](Muestras/analisis%201.png) |
 
-| Pedidos del Día (kanban) | Selector de temas (7 paletas) |
+| Nuevo Pedido (POS) | Login (Clerk auth) |
 |---|---|
-| ![Pedidos](Muestras/pedidos%20del%20dia.png) | ![Temas](Muestras/seleccion%20de%20temas.png) |
+| ![Nuevo Pedido](Muestras/nuevo%20pedido.png) | ![Login](Muestras/login.png) |
 
 ---
 
