@@ -11,6 +11,17 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 **Producción:** https://clawdbot-cafe-plus.u555aa.easypanel.host
 
+## Demo
+
+Acceso de prueba (rol cajero — solo lectura de configuración, acceso completo a ventas y clientes):
+
+| Campo | Valor |
+|-------|-------|
+| Usuario | `cajero` |
+| Contraseña | `cajero123` |
+
+> El rol administrador permite CRUD de productos y usuarios — disponible bajo solicitud.
+
 ---
 
 ## Stack técnico
