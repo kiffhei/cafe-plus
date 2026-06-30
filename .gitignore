@@ -34,6 +34,7 @@ dist-ssr
 .gstack/
 CLAUDE.local.md
 CLAUDE.internal.md
+DESIGNER.internal.md
 
 # Claude Code settings locales
 .claude/

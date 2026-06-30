@@ -1,260 +1,119 @@
-# DESIGNER.md — Café+ | Guía Visual
+# DESIGNER.md — Café+ Visual Design System
 
-Referencia de identidad visual para el proyecto. Actualizado: 2026-06-29 (S10 — auditoría visual: modal-surface en 6 módulos; tooltips recharts dinámicos; clases Tailwind inexistentes corregidas; KPI cards con bgStyle).
-
----
-
-## Identidad visual — "Fresh Matcha"
-
-Estética: glassmorphism + verde matcha + tipografía premium. Portafolio público — cada pantalla debe verse premium.
+> Reference for UI contributors and AI design assistants.
+> Covers: identity, palette, typography, theme system, component classes, and rules.
 
 ---
 
-## Paleta Tailwind activa
+## Visual identity — "Fresh Matcha"
+
+Aesthetic: **glassmorphism + matcha green + premium typography**.
+Every screen is treated as a portfolio piece — high contrast, intentional whitespace, cohesive color.
+
+---
+
+## Color palette
+
+Defined as Tailwind tokens in `tailwind.config.js`:
 
 ```js
-cafe-500:      '#2d6a4f'   // verde primario — botones, acentos, links
-cafe-800:      '#0d2d1f'   // verde oscuro — dark mode surfaces
-terracota-500: '#1e6091'   // azul acento — KPIs secundarios, badges
-olivo-500:     '#40916c'   // verde positivo — estados OK, badges activo
-crema-bg:      '#f8fffe'   // fondo light
-dark-bg:       '#0d1b2a'   // fondo dark
+cafe-500:      '#2d6a4f'   // primary green — buttons, active states, accents
+cafe-800:      '#0d2d1f'   // dark green — dark mode surfaces
+terracota-500: '#1e6091'   // blue accent — secondary KPIs, highlights
+olivo-500:     '#40916c'   // positive green — success states, badges
+crema-bg:      '#f8fffe'   // light background
+dark-bg:       '#0d1b2a'   // dark background
+```
 
-// recharts — SIEMPRE estos colores, en este orden
+> Only the shades defined in `tailwind.config.js` exist.
+> For subtle tints use `color-500/10` — never assume `-50` or `-100` shades.
+
+### Chart colors (always use these, in order)
+
+```js
 CHART_COLORS = ['#2d6a4f', '#1e6091', '#40916c', '#48cae4', '#84cba8']
 
-// Canales delivery (Treemap y leyendas)
-Local:     #2d6a4f
-Rappi:     #1e6091
-Uber Eats: #40916c
-DiDi Food: #48cae4
-```
-
-**Regla:** No cambiar tokens sin instrucción explícita. Están definidos en `tailwind.config.js`.
-
----
-
-## Tipografía
-
-| Rol | Fuente | Uso |
-|-----|--------|-----|
-| Display | Plus Jakarta Sans | h1–h4, títulos de módulo, logo |
-| Body | Outfit | Texto general, labels, botones, subtítulos |
-| Mono | JetBrains Mono | IDs, códigos, valores numéricos en tablas |
-
-Cargadas desde Google Fonts en `index.html`. Configuradas como `fontFamily` en `tailwind.config.js`.
-
----
-
-## Componentes y clases CSS activas
-
-### Inputs
-```jsx
-className="input-cafe"    // input estándar — borde cafe, focus ring verde
-className="input-field"   // alias de input-cafe
-// NO existe: input-cafeteria
-```
-
-### Botones
-```jsx
-className="btn-primary"   // fondo cafe-500, texto blanco, hover cafe-600
-className="btn-secondary" // borde cafe-200, texto cafe-700, hover crema
-```
-
-### Cards y superficies
-```jsx
-className="kpi-card"      // glassmorphism — backdrop-blur + bg semi-transparente + sombra
-className="table-wrapper" // contenedor tabla con scroll horizontal + bordes redondeados
-```
-
-### Header
-```jsx
-className="header-glass"  // sticky header translúcido con backdrop-blur
-```
-
-### Badges de estado y canal
-```js
-// Importar desde api.js:
-import { canalBadge, estadoBadge } from '../api/api'
-
-canalBadge('local')     // → { label: 'Local',     cls: 'badge-canal-local' }
-estadoBadge('entregado') // → { label: 'Entregado', cls: 'badge-estado-entregado' }
-```
-
-### Animaciones
-```css
-/* Definidas en index.css */
-.stagger-item          /* aparición escalonada en listas */
-.animate-fade-in       /* fade in suave */
-.animate-slide-up      /* slide desde abajo */
+// Delivery channel colors (Treemap and legends)
+Local:     '#2d6a4f'
+Rappi:     '#1e6091'
+Uber Eats: '#40916c'
+DiDi Food: '#48cae4'
 ```
 
 ---
 
-## Dark mode
+## Typography
 
-Tailwind `darkMode: 'class'` — la clase `dark` se aplica en `<html>` via `ThemeContext.jsx`.
+| Role | Font | Usage |
+|------|------|-------|
+| Display | Plus Jakarta Sans | h1–h4, module titles, logo |
+| Body | Outfit | Labels, body text, buttons |
+| Mono | JetBrains Mono | IDs, codes, numeric values in tables |
 
-**Regla obligatoria:** todos los elementos nuevos deben tener variante dark:
-
-```jsx
-// Patrón estándar
-className="bg-white dark:bg-cafe-800 text-cafe-800 dark:text-crema-100 border-cafe-100 dark:border-cafe-700"
-
-// Superficie elevada
-className="bg-crema-50 dark:bg-cafe-900"
-
-// Texto secundario
-className="text-cafe-500 dark:text-cafe-400"
-```
+Loaded from Google Fonts in `index.html`. Registered in `tailwind.config.js` as `fontFamily`.
 
 ---
 
-## Clerk theme
+## Theme system
 
-Archivo: `src/lib/clerkTheme.js`
+7 dynamic color themes. Active theme is set via `data-theme` attribute on `<html>`.
+`ThemeContext.jsx` manages theme state and persists to `localStorage`.
 
-Paleta Fresh Matcha aplicada al componente `<SignIn>` de Clerk:
+| Theme ID | Name | Mode |
+|----------|------|------|
+| `matcha` | Fresh Matcha | dark |
+| `cafe-oscuro` | Café Oscuro | dark |
+| `medianoche` | Medianoche | dark |
+| `terracota` | Terracota | dark |
+| `pizarra` | Pizarra | dark |
+| `vinyl-dark` | Vinyl Dark | dark |
+| `vinyl-light` | Record Shop | **light** |
+
+Only `vinyl-light` supports light mode. `darkMode` is derived from the active theme:
 
 ```js
-variables: {
-  colorPrimary:    '#2d6a4f',   // cafe-500
-  colorBackground: '#f8fffe',   // crema-bg
-  borderRadius:    '0.75rem',
-  fontFamily:      '"Outfit", system-ui, sans-serif',
-}
+const LIGHT_THEMES = new Set(['vinyl-light'])
+const darkMode = !LIGHT_THEMES.has(tema)
 ```
 
-La pantalla de login (`Login.jsx`) usa gradiente `crema-bg → olivo` en light y `dark-bg → cafe-800` en dark.
+### CSS custom properties (defined per theme in `index.css`)
+
+| Variable | Purpose |
+|----------|---------|
+| `--cafe-accent` | Accent color — active icons, highlighted text on dark surfaces |
+| `--cafe-accent-ink` | Accent for text on **light** surfaces (meets WCAG AA ≥4.5:1) |
+| `--cafe-btn` | Primary button background, active tabs, ON toggles |
+| `--cafe-sb-bg` | Sidebar background (glassmorphism + backdrop-blur) |
+| `--cafe-main-bg` | Main content area background |
+| `--cafe-border` | Surface and card borders |
+| `--cafe-kpi-val` | Numeric KPI values |
+| `--cafe-bg-base` | Page base color (canvas background) |
+| `--status-*-bg/fg` | Semantic status colors (pendiente / preparacion / entregado / cancelado) |
 
 ---
 
-## recharts — reglas de uso
+## Component classes
+
+### Surfaces
 
 ```jsx
-// CORRECTO — contentStyle con objeto dinámico (ver PATRONES CONFIRMADOS S10 §c)
-<Tooltip
-  formatter={(value) => [formatMXN(value), 'Ventas']}
-  contentStyle={TOOLTIP_STYLE}
-  itemStyle={TOOLTIP_ITEM_STYLE}
-/>
-// NUNCA hardcodear colores matcha (#0d2d1f) en contentStyle — no reaccionan a otros temas
-
-// INCORRECTO — rompe en producción con Vite 8 rolldown
-<Tooltip content={<MiComponenteTooltip />} />
-
-// Treemap customContent: función que retorna SVG primitivo
-// NO usar componentes React como contentRenderer
-```
-
-Versión fija: `recharts@2.15.3` — no actualizar a v3.
-
----
-
-## Componentes nuevos de S8
-
-### ShaderBackground.jsx — fondo WebGL (`src/components/ui/`)
-Reemplaza los orbes CSS anteriores. Canvas WebGL con `requestAnimationFrame`, montado en `Layout.jsx:61`.
-- Contexto WebGL creado **una sola vez** (`useEffect([])`) — recrearlo en cada render mata el rendimiento.
-- Los colores del shader vienen de `colorsRef` (no de deps del effect) → cambio de tema/darkMode sin remount.
-- `position: fixed; z-index: 0; pointer-events: none`.
-- **Trade-off conocido:** WebGL corre en todas las pantallas. En equipos viejos puede consumir GPU; si se reporta, fallback a orbes CSS.
-
-### AISidebar.jsx — chat IA flotante (`src/components/`)
-Panel lateral colapsable con el chat del agente IA (n8n + OpenAI). Usado en Análisis e Historial.
-- Detecta contexto por ruta: `/historial` → `historial_pedidos`, resto → `analisis_ventas`.
-- POST a `VITE_N8N_WEBHOOK` con `fetch` nativo (sin headers — evita preflight CORS).
-- Lee respuesta con fallback en cadena: `data?.respuesta ?? data?.output ?? data?.text`.
-- JSON no parseable → mensaje de fallback (catch documentado, no silencioso).
-
-## Imágenes de producto — EXACT_MATCH (S8)
-
-Archivo: `src/lib/productImages.js`
-
-**Arquitectura EXACT_MATCH:** nombre normalizado (sin acentos, minúsculas) como key lookup O(1). Prioridad absoluta sobre keyword map.
-
-```js
-import { getProductImage } from '../lib/productImages'
-
-// En card de producto:
-<img src={getProductImage(producto.nombre, producto.categoria, 400)} alt={producto.nombre} />
-```
-
-- 18 productos del catálogo con foto exacta asignada
-- `keywordMatch()` como fallback para productos no listados
-- `CATEGORY_FALLBACK` como último recurso por categoría normalizada
-- Para agregar nuevo producto: una línea en `EXACT_MATCH` con `norm(nombre): 'photo-id-unsplash'`
-
-## recharts — gradientes S8
-
-Patrón para BarChart con gradientes verticales temáticos:
-
-```jsx
-<BarChart data={...}>
-  <defs>
-    <linearGradient id={`barHigh${tema}`} x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stopColor={chartBtn}    stopOpacity={1} />
-      <stop offset="100%" stopColor={chartAccent} stopOpacity={0.75} />
-    </linearGradient>
-  </defs>
-  <Bar ...>
-    {data.map((entry, i) => (
-      <Cell key={i} fill={`url(#barHigh${tema})`} />
-    ))}
-  </Bar>
-</BarChart>
-```
-
-- IDs sufijados con `${tema}` evitan colisiones entre renders
-- `chartAccent` / `chartBtn` vienen de tablas estáticas `TEMA_CHART_PRIMARY[tema]` — no `getComputedStyle`
-
-## Contraste AA en light mode (S9)
-
-Los `--cafe-accent` y `--status-*-fg` de cada tema están afinados para fondos OSCUROS
-(el sidebar y el panel IA siguen oscuros incluso en light mode, porque `--cafe-sb-bg`
-es oscuro en todos los temas). Como texto sobre superficies CLARAS no alcanzaban WCAG AA.
-
-**Patrón de fix (en `index.css`, sin regresión en dark mode):**
-```css
-/* Solo light mode + solo temas que fallan. Donde no se define, var() cae al brillante. */
-html:not(.dark)[data-theme="pizarra"] {
-  --cafe-accent-ink: #57800f;   /* tono oscuro del acento para texto sobre claro */
-  --status-prep-fg:  #126bc3;   /* fg oscuro AA sobre el tint translúcido del badge */
-  --status-ok-fg:    #52780c;
-}
-```
-- **Texto de acento sobre superficie CLARA** → `var(--cafe-accent-ink, var(--cafe-accent))`.
-  Ya aplicado en `.text-accent-theme` y `thead th`. Sobre superficie OSCURA (sidebar,
-  panel IA) → seguir usando `var(--cafe-accent)` brillante (p.ej. `.cafe-accent-text`).
-- Todos los valores se calcularon a ≥4.6:1 preservando el tono (script WCAG, no a ojo).
-- `vinyl-light` y `:root` ya cumplían — no llevan override.
-- **REGLA:** al añadir un acento como texto, decidir primero la superficie (clara→ink,
-  oscura→accent). Nunca oscurecer `--cafe-accent` global (rompe el chrome oscuro).
-
-## PATRONES CONFIRMADOS — SESIÓN 10 (2026-06-29)
-
-### a) modal-surface — superficies de modal, card y panel
-
-Reemplaza `bg-white dark:bg-cafe-800`. Aplicado en: Productos.jsx, Clientes.jsx,
-PedidosHoy.jsx (TarjetaPedido), NuevoPedido.jsx (panel canal+cliente y carrito),
-Analisis.jsx (sección Hora pico y Chat IA).
-
-**Regla:** cualquier superficie que deba responder a los 7 temas usa `modal-surface`.
-La clase ya resuelve fondo **y** borde — no agregar `border-*` adicional.
-
-```jsx
-// ANTES — verde matcha fijo en temas distintos a matcha
-<div className="bg-white dark:bg-cafe-800 rounded-xl border border-cafe-100 dark:border-cafe-700">
-
-// DESPUÉS — correcto en los 7 temas y ambos modos
+// Theme-aware modal / card / panel background — use instead of bg-white dark:bg-cafe-800
 <div className="modal-surface rounded-xl">
+
+// Sidebar glassmorphism
+<nav className="cafe-sidebar-surface">
+
+// Main content area
+<main className="cafe-main-surface">
 ```
 
-CSS de referencia en `index.css`:
+> `modal-surface` resolves both background and border — do not add extra `border-*`.
+
+CSS reference:
 ```css
 .modal-surface {
-  background: var(--cafe-sb-bg) !important;  /* oscuro del tema activo */
-  border: 1px solid var(--cafe-border);       /* ya incluye borde */
+  background: var(--cafe-sb-bg) !important;   /* dark: active theme surface */
+  border: 1px solid var(--cafe-border);
 }
 html:not(.dark) .modal-surface {
   background: rgba(255,255,255,0.96) !important;
@@ -262,31 +121,86 @@ html:not(.dark) .modal-surface {
 }
 ```
 
----
+### Inputs
 
-### b) Clases Tailwind inexistentes — NO USAR
+```jsx
+className="input-cafe"    // standard input — green border, focus ring
+className="input-field"   // alias for input-cafe
+// ❌ input-cafeteria does NOT exist
+```
 
-Detectadas en auditoría: producen fondo transparente sin error de build ni de lint.
+### Buttons
 
-| Clase usada (MAL) | Por qué falla | Alternativa correcta |
-|------------------|--------------|---------------------|
-| `bg-olivo-50` | Solo existen shades 400/500/600 en tailwind.config.js | `bg-olivo-500/10` |
-| `text-olivo-700` | Solo existen 400/500/600 | `text-olivo-600` |
-| `bg-terracota-100` | Solo existen 400/500/600/700 | `bg-terracota-500/10` |
+```jsx
+className="btn-primary"    // var(--cafe-btn) background, white text
+className="btn-secondary"  // border cafe-200, cafe-700 text
+```
 
-**Regla:** antes de usar `color-NN` de un color custom, verificar que `NN` existe en
-`tailwind.config.js`. Para tintes sutiles usar `color-500/10` (sintaxis opacidad)
-en vez de asumir que existe un tono claro como `-50` o `-100`.
+### KPI cards
 
----
+```jsx
+className="kpi-card"   // glassmorphism: backdrop-blur + semi-transparent bg + border
+```
 
-### c) Tooltips dinámicos en recharts (Analisis.jsx)
-
-`TOOLTIP_STYLE` ya no es una constante de módulo. Vive **dentro del componente**
-usando `darkMode` de `useTheme()`:
+For KPI cards with semantic state (e.g. pending orders), use inline `bgStyle`/`colorStyle`:
 
 ```js
-// Dentro del componente — después de const { tema, darkMode } = useTheme()
+// Correct — works across all 7 themes and both modes
+{ colorStyle: { color: 'var(--status-prep-fg)' },
+  bgStyle:    { background: 'var(--status-prep-bg)', borderColor: 'var(--status-prep-fg)' } }
+```
+
+### Text accents
+
+```jsx
+// Accent text on DARK surface (sidebar, AI panel)
+className="cafe-accent-text"    // → var(--cafe-accent)
+
+// Accent text on LIGHT surface (card values, KPI numbers)
+className="text-accent-theme"   // → var(--cafe-accent-ink, var(--cafe-accent))
+```
+
+### Tabs and active filters
+
+```jsx
+className="tab-active-theme"   // → var(--cafe-btn) background + white text
+```
+
+### Badges
+
+```js
+import { canalBadge, estadoBadge, categoriaBadge } from '../api/api'
+
+canalBadge('local')         // → { label: 'Local',     cls: 'badge-canal-local' }
+estadoBadge('entregado')    // → { label: 'Entregado', cls: 'badge-estado-entregado' }
+categoriaBadge('bebida')    // → { label: 'Bebida',    cls: 'badge-cat-bebidas' }
+```
+
+Badge CSS classes follow the pattern `badge-{type}-{value}`, defined in `index.css`.
+
+### Table headers
+
+```css
+/* thead background */
+background: rgba(255,255,255,0.08);
+
+/* thead text — use ink variant for AA on light surfaces */
+color: var(--cafe-accent-ink, var(--cafe-accent));
+```
+
+### Animated background
+
+`ShaderBackground.jsx` — WebGL canvas mounted in `Layout.jsx`.
+- WebGL context created **once** (`useEffect([])`). Never recreate on theme change.
+- Colors update via `colorsRef` without remounting the canvas.
+- `position: fixed; z-index: 0; pointer-events: none`.
+
+---
+
+## recharts patterns
+
+```jsx
+// Tooltip — define INSIDE the component using darkMode from useTheme()
 const TOOLTIP_STYLE = {
   backgroundColor: darkMode ? 'var(--cafe-sb-bg)' : 'rgba(12,12,12,0.88)',
   border: '1px solid var(--cafe-border)',
@@ -294,97 +208,67 @@ const TOOLTIP_STYLE = {
   color: '#f0ece8',
   fontSize: '12px',
 }
-const TOOLTIP_ITEM_STYLE = { color: '#f0ece8' }
+
+// ✅ Correct — primitive props only
+<Tooltip formatter={(v) => [formatMXN(v), 'Ventas']} contentStyle={TOOLTIP_STYLE} />
+
+// ❌ Wrong — React component as content breaks with Vite 8 rolldown
+<Tooltip content={<MyTooltip />} />
 ```
 
-Dark mode → `--cafe-sb-bg` (oscuro del tema activo).
-Light mode → `rgba(12,12,12,0.88)` (negro semitransparente universal, legible sobre cualquier fondo claro).
+Bar chart gradients — suffix IDs with `${tema}` to avoid collisions:
 
-**Regla:** cualquier `contentStyle`/`labelStyle` de recharts con colores fijos migrar a este patrón.
-Los colores hardcodeados matcha no reaccionan a otros temas.
-
----
-
-### d) KPI cards con bgStyle en lugar de clases estáticas (PedidosHoy.jsx)
-
-Para KPI cards que expresan estado semántico, usar `bgStyle`/`colorStyle` inline.
-
-```js
-// ANTES — Tailwind estático, no combina dark mode + múltiples temas
-{ label: 'Pendientes',
-  color: 'text-yellow-600 dark:text-yellow-400',
-  bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' }
-
-// DESPUÉS — un solo objeto que funciona en todos los modos y temas
-{ label: 'Pendientes',
-  color: '', colorStyle: { color: '#ca8a04' },
-  bg:    '', bgStyle: { background: 'rgba(234,179,8,0.12)', borderColor: 'rgba(202,138,4,0.40)' } }
-
-// Referencia — "En prep." usa CSS vars semánticas donde existen
-{ label: 'En prep.',
-  color: '', colorStyle: { color: 'var(--status-prep-fg)' },
-  bg:    '', bgStyle: { background: 'var(--status-prep-bg)', borderColor: 'var(--status-prep-fg)' } }
-```
-
-Render:
 ```jsx
-<div className={`rounded-xl border p-4 ${m.bg}`} style={m.bgStyle}>
-  <p className={m.color} style={m.colorStyle}>{m.value}</p>
-</div>
+<BarChart data={data}>
+  <defs>
+    <linearGradient id={`barGrad${tema}`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stopColor={chartPrimary} stopOpacity={1} />
+      <stop offset="100%" stopColor={chartAccent}  stopOpacity={0.75} />
+    </linearGradient>
+  </defs>
+  <Bar dataKey="value">
+    {data.map((_, i) => <Cell key={i} fill={`url(#barGrad${tema})`} />)}
+  </Bar>
+</BarChart>
 ```
 
----
-
-## Pendientes visuales — post S10
-
-- **Light mode — QA visual en los 7 temas** (AA estructural ✓, `modal-surface` en 6 módulos ✓ — queda verificación visual con la app corriendo).
-- Badges de categoría dinámicos (hardcodeados en verde) — `categoriaBadge()` en api.js
-- Skeleton loaders en lugar de spinners de carga
-- Empty states ilustrados por módulo (0 productos, 0 clientes, etc.)
-- `agente` export muerto en api.js (violación CORS latente — no afecta producción hoy)
+Use `TEMA_CHART_PRIMARY[tema]` static tables for chart colors — never `getComputedStyle` (timing issue with `useEffect`).
 
 ---
 
-## SISTEMA DE TEMAS — REGLAS
+## WCAG AA — light mode rule
 
-7 paletas dinámicas (`matcha`, `cafe-oscuro`, `medianoche`, `terracota`, `pizarra`, `vinyl-dark`, `vinyl-light`) controladas por `data-theme` en `<html>` via `ThemeContext.jsx`. Las variables CSS se definen en `[data-theme="X"]` en `index.css`.
+`--cafe-accent` is tuned for dark surfaces. On light surfaces it may fail contrast.
 
-### Clases de superficie S8 (nuevas — usar en lugar de dark:bg-cafe-800)
+- Text on **dark surface** (sidebar, AI panel) → `var(--cafe-accent)` (bright)
+- Text on **light surface** (card values, table cells) → `var(--cafe-accent-ink, var(--cafe-accent))`
+
+Override pattern in `index.css` (only affects light mode, no dark mode regression):
 
 ```css
-.modal-surface   /* dark: var(--cafe-sb-bg) + blur / light: rgba(255,255,255,0.96) */
-.label-muted     /* dark: rgba(255,255,255,0.45) / light: rgba(0,0,0,0.45) — etiquetas secundarias */
+html:not(.dark)[data-theme="pizarra"] {
+  --cafe-accent-ink: #57800f;   /* darkened accent, ≥4.5:1 on white */
+  --status-prep-fg:  #126bc3;
+}
 ```
 
-Estas clases son las únicas que garantizan contraste correcto en los 7 temas.
-
-| Elemento | Clase/style correcto | NUNCA usar |
-|----------|---------------------|------------|
-| Botones primarios | `btn-primary` → `var(--cafe-btn)` | `bg-cafe-500` hardcodeado |
-| Valores KPI destacados (texto sobre claro) | `text-accent-theme` → `var(--cafe-accent-ink, var(--cafe-accent))` | `text-terracota-500` hardcodeado |
-| Tabs / filtros activos | `tab-active-theme` → `var(--cafe-btn)` | `bg-cafe-700` hardcodeado |
-| Encabezado de tabla (thead) | `rgba(255,255,255,0.08)` fondo + `color: var(--cafe-accent-ink, var(--cafe-accent))` texto (S9: ink en light) | `var(--cafe-btn)` como fondo — rompe contraste en tema terracota |
-| Sidebar y header | `.cafe-sidebar-surface` | `bg-cafe-800` hardcodeado |
-| Área central de contenido | `.cafe-main-surface` | `bg-cafe-800` hardcodeado |
-| Fondo animado | `ShaderBackground.jsx` — canvas WebGL montado en Layout.jsx:61 (los colores reaccionan al tema vía `colorsRef`) | recrear el contexto WebGL en cada cambio de tema (usar el ref) |
-| Toggles activos | `style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}` | `bg-olivo-500` hardcodeado |
-| Colores de gráficas (recharts) | `TEMA_CHART_PRIMARY[tema]` / `TEMA_CHART_BTN[tema]` (tablas estáticas) | `getComputedStyle` — timing issue vs `useEffect` |
-
-**Transición:** todos los elementos temáticos usan `transition: background 0.8s ease` para animación suave al cambiar de paleta.
+Never darken `--cafe-accent` globally — it would break the dark chrome.
 
 ---
 
-## Reglas que nunca romper
+## Rules — never break
 
-| Regla | Razón |
-|-------|-------|
-| `recharts@2.15.3` — no actualizar | v3 incompatible con Vite 8 rolldown |
-| `className="input-cafe"` — no `input-cafeteria` | La clase `input-cafeteria` no existe |
-| `formatFecha(str)` — no `formatFechaHora` | `formatFechaHora` no existe en api.js — build error |
-| Dark mode en todos los elementos nuevos | Modo oscuro es feature de primera clase |
-| No componentes React como `content` en recharts | Rompe en producción silenciosamente |
-| `tab-active-theme` / `text-accent-theme` — no colores Tailwind fijos | El sistema de temas requiere CSS custom properties en runtime |
-| Superficies modal/card/panel → `modal-surface`, no `bg-white dark:bg-cafe-800` | Tailwind `dark:` es estático — no reacciona al tema activo en runtime |
-| No asumir shades claros (`-50`, `-100`) de colores custom | Verificar en `tailwind.config.js` — clases inexistentes producen fondo transparente sin error |
-| `TOOLTIP_STYLE` en recharts → definir dentro del componente con `darkMode` | Constante de módulo con colores fijos no reacciona a otros temas |
-| KPI cards de estado → `bgStyle`/`colorStyle` inline | Clases estáticas Tailwind no combinan dark mode + 7 temas simultáneamente |
+| Rule | Reason |
+|------|--------|
+| Use `modal-surface` for modal/card/panel backgrounds | `dark:bg-cafe-800` is static and ignores the active theme |
+| Use `var(--cafe-*)` CSS vars, not Tailwind color classes | Tailwind classes are static — they don't react to runtime theme changes |
+| Use `text-accent-theme` / `tab-active-theme` for themed text/tabs | Hard-coded Tailwind colors ignore the current palette |
+| Define `TOOLTIP_STYLE` inside the component with `darkMode` | A module-level constant with fixed colors won't react to theme or mode changes |
+| KPI semantic state → `bgStyle`/`colorStyle` inline | Static Tailwind classes can't combine dark mode + 7 themes |
+| `recharts@2.15.3` — do not upgrade | v3 ESM exports are tree-shaken by rolldown → runtime TypeError in production |
+| New GAS deployment → new URL → update `VITE_API_URL` | The editor URL ≠ the web app URL |
+| `formatFecha(str)` — not `formatFechaHora` | `formatFechaHora` does not exist; build passes but runtime errors occur |
+| `input-cafe` — not `input-cafeteria` | `input-cafeteria` class does not exist |
+| Native `fetch` only to GAS (no axios, no explicit `Content-Type`) | Explicit headers trigger CORS preflight — GAS rejects it |
+| Verify custom shade exists in `tailwind.config.js` before using | Classes like `bg-cafe-50` silently produce transparent backgrounds |
+| All theme color changes → `transition: background 0.8s ease` | Smooth palette swap animation |
