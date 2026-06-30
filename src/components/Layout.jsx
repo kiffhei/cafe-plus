@@ -4,7 +4,6 @@ import Sidebar from './Sidebar'
 import ShaderBackground from './ui/ShaderBackground'
 import AISidebar from './AISidebar'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 
 const PAGE_TITLES = {
   '/pedido':      'Nuevo Pedido',
@@ -16,36 +15,6 @@ const PAGE_TITLES = {
   '/usuarios':    'Gestión de Usuarios',
 }
 
-function ThemeToggle() {
-  const { darkMode, toggleDark } = useTheme()
-  return (
-    <button
-      onClick={toggleDark}
-      title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium
-                 transition-all duration-200
-                 bg-white/10 text-white/70 border border-white/15
-                 hover:bg-white/20 hover:text-white/90"
-    >
-      {darkMode ? (
-        <>
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71M17.66 17.66l.71.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
-          </svg>
-          <span className="hidden sm:inline">Claro</span>
-        </>
-      ) : (
-        <>
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-          </svg>
-          <span className="hidden sm:inline">Oscuro</span>
-        </>
-      )}
-    </button>
-  )
-}
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false)
@@ -97,7 +66,6 @@ export default function Layout() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <div className="text-right hidden sm:block ml-1">
               <p className="text-white/80 text-sm font-medium">{user?.nombre}</p>
               <p className="text-white/40 text-xs capitalize">{user?.categoria}</p>
