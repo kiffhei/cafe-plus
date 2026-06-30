@@ -18,7 +18,7 @@ Acceso de prueba (rol cajero — solo lectura de configuración, acceso completo
 | Campo | Valor |
 |-------|-------|
 | Usuario | `cajero` |
-| Contraseña | `cajero123` |
+| Contraseña | `c4j3r0p4ss` |
 
 > El rol administrador permite CRUD de productos y usuarios — disponible bajo solicitud.
 
