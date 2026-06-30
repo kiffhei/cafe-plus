@@ -61,7 +61,7 @@ Componentes transversales: `ShaderBackground` (fondo WebGL), `AISidebar` (chat I
 
 - `npm run build` ✓ · `npm run lint` → 0 errores (9 warnings de idioms de framework, documentados).
 - `npm test` → **20 tests** en lógica de negocio pura (`productImages`, `descuentos`).
-- **Deuda conocida:** bundle principal ~676 KB sin code-splitting (no viable en Vite 8/rolldown). Tests cubren lógica pura; cobertura de componentes/páginas pendiente.
+- **Deuda conocida:** bundle principal ~676 KB — Vite 8 usa rolldown como bundler, que descarta los `import()` dinámicos del tree-shaking; code-splitting no es viable en esta versión. El peso real es recharts + React + Clerk (jsPDF ya va en chunk separado).
 
 ---
 
