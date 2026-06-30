@@ -48,15 +48,6 @@ function canalColor(name, tema) {
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
 
-// Estilo compartido para todos los tooltips de recharts — paleta Fresh Matcha
-const TOOLTIP_STYLE = {
-  backgroundColor: '#0d2d1f',
-  border: '1px solid #1a4a34',
-  borderRadius: '8px',
-  color: '#e8f5f0',
-  fontSize: '12px',
-}
-const TOOLTIP_ITEM_STYLE  = { color: '#e8f5f0' }
 const TOOLTIP_LABEL_STYLE = { color: '#84cba8', fontWeight: '600' }
 
 // ── Helpers de fecha ─────────────────────────────────────────────
@@ -181,7 +172,15 @@ const PREGUNTAS_RAPIDAS = [
 
 export default function Analisis() {
   const { user } = useAuth()
-  const { tema } = useTheme()
+  const { tema, darkMode } = useTheme()
+  const TOOLTIP_STYLE = {
+    backgroundColor: darkMode ? 'var(--cafe-sb-bg)' : 'rgba(12,12,12,0.88)',
+    border: '1px solid var(--cafe-border)',
+    borderRadius: '8px',
+    color: '#f0ece8',
+    fontSize: '12px',
+  }
+  const TOOLTIP_ITEM_STYLE = { color: '#f0ece8' }
   const chartAccent = TEMA_CHART_PRIMARY[tema] || '#52b788'
   const chartBtn    = TEMA_CHART_BTN[tema]    || '#2d6a4f'
 
@@ -648,7 +647,7 @@ export default function Analisis() {
 
       {/* ── Sección D: Hora pico ── */}
       {!loading && pedidos.length > 0 && (
-        <div className="bg-white dark:bg-cafe-800 rounded-xl p-5 border border-cafe-100 dark:border-cafe-700 shadow-card">
+        <div className="modal-surface rounded-xl p-5 shadow-card">
           <h3 className="text-sm font-semibold text-cafe-700 dark:text-cafe-300 uppercase tracking-wide mb-4">
             Pedidos por hora del día
           </h3>
@@ -674,7 +673,7 @@ export default function Analisis() {
       )}
 
       {/* ── Sección C: Chat IA ── */}
-      <div className="bg-white dark:bg-cafe-800 rounded-xl border border-cafe-100 dark:border-cafe-700 shadow-card overflow-hidden">
+      <div className="modal-surface rounded-xl shadow-card overflow-hidden">
 
         {/* Header */}
         <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700 flex items-center gap-3">

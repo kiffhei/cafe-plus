@@ -9,7 +9,7 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
   const items  = typeof pedido.items === 'string' ? JSON.parse(pedido.items) : (pedido.items || [])
 
   return (
-    <div className={`bg-white dark:bg-cafe-800 rounded-xl border shadow-sm transition-all
+    <div className={`modal-surface rounded-xl border shadow-sm transition-all
       ${pedido.estado === 'pendiente'   ? 'border-yellow-300 dark:border-yellow-700' : ''}
       ${pedido.estado === 'preparacion' ? 'border-blue-300 dark:border-blue-700' : ''}
       ${pedido.estado === 'entregado'   ? 'border-green-200 dark:border-green-800' : ''}
@@ -206,7 +206,7 @@ export default function PedidosHoy() {
       {/* Métricas rápidas */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Pendientes',  value: pendientes,  color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' },
+          { label: 'Pendientes',  value: pendientes,  color: '', colorStyle: { color: '#ca8a04' }, bg: '', bgStyle: { background: 'rgba(234,179,8,0.12)', borderColor: 'rgba(202,138,4,0.40)' } },
           { label: 'En prep.',    value: preparacion, color: '', colorStyle: { color: 'var(--status-prep-fg)' }, bg: '',  bgStyle: { background: 'var(--status-prep-bg)', borderColor: 'var(--status-prep-fg)' } },
           { label: 'Entregados',  value: entregados,  color: '', colorStyle: { color: 'var(--status-ok-fg)'   }, bg: '',  bgStyle: { background: 'var(--status-ok-bg)',   borderColor: 'var(--status-ok-fg)'   } },
           { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-accent-theme', bg: '', bgStyle: { background: 'color-mix(in srgb, var(--cafe-accent) 12%, transparent)', borderColor: 'var(--cafe-border)' } },

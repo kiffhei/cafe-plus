@@ -189,7 +189,7 @@ export default function NuevoPedido() {
       {/* Panel izquierdo — catálogo */}
       <div className="flex-1 min-w-0">
         {/* Canal + Cliente */}
-        <div className="bg-white dark:bg-cafe-800 rounded-2xl border border-cafe-100 dark:border-cafe-700 p-5 mb-4 shadow-sm">
+        <div className="modal-surface rounded-2xl p-5 mb-4 shadow-sm">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-semibold text-cafe-600 dark:text-cafe-400 uppercase tracking-wide mb-2">Canal de venta</label>
@@ -300,7 +300,7 @@ export default function NuevoPedido() {
 
       {/* Panel derecho — resumen */}
       <div className="w-full lg:w-80 shrink-0">
-        <div className="bg-white dark:bg-cafe-800 rounded-2xl border border-cafe-100 dark:border-cafe-700 shadow-sm sticky top-0">
+        <div className="modal-surface rounded-2xl shadow-sm sticky top-0">
           <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700">
             <h2 className="font-semibold text-cafe-800 dark:text-crema-100">Resumen del pedido</h2>
             <p className="text-xs text-cafe-400 mt-0.5">{ESTADOS_CANAL[canal]} · {carrito.length} productos</p>
