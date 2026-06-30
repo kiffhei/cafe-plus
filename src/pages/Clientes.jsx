@@ -180,7 +180,7 @@ function ModalCliente({ cliente, onClose, onSaved }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-      <div className="bg-white dark:bg-cafe-800 rounded-2xl shadow-2xl w-full max-w-md">
+      <div className="modal-surface rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200 dark:border-cafe-700">
           <div>
             <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
@@ -244,7 +244,7 @@ function ModalCliente({ cliente, onClose, onSaved }) {
               <span className="text-cafe-400 font-normal ml-1">(alergias, preferencias, etc.)</span>
             </label>
             <textarea value={form.notas} onChange={e => set('notas', e.target.value)}
-              className="input-cafe w-full resize-none dark:bg-cafe-900 dark:text-crema-100 dark:border-cafe-600" rows={2}
+              className="input-cafe w-full resize-none" rows={2}
               placeholder="Ej: sin azúcar, alérgico a gluten, prefiere leche de avena..." />
           </div>
         </div>
@@ -382,7 +382,7 @@ export default function Clientes() {
                     ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-terracota-100 flex items-center justify-center text-terracota-700 font-bold text-sm shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-terracota-500/10 flex items-center justify-center text-terracota-500 font-bold text-sm shrink-0">
                         {c.nombre?.[0]?.toUpperCase()}
                       </div>
                       <div>

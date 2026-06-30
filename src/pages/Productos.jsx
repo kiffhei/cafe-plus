@@ -53,7 +53,7 @@ function ModalProducto({ producto, onClose, onSaved }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="modal-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Imagen de cabecera */}
         {!esNuevo && (
           <div className="relative h-36 w-full overflow-hidden rounded-t-2xl">
@@ -74,7 +74,8 @@ function ModalProducto({ producto, onClose, onSaved }) {
             </button>
           </div>
         )}
-        <div className={`flex items-center justify-between px-6 py-4 border-b border-crema-200 sticky top-0 bg-white z-10 ${!esNuevo ? 'hidden' : ''}`}>
+        <div className={`flex items-center justify-between px-6 py-4 sticky top-0 z-10 modal-surface ${!esNuevo ? 'hidden' : ''}`}
+             style={{ borderBottom: '1px solid var(--cafe-border)' }}>
           <h2 className="text-lg font-semibold text-cafe-800">
             {esNuevo ? 'Nuevo producto' : 'Editar producto'}
           </h2>
@@ -132,7 +133,7 @@ function ModalProducto({ producto, onClose, onSaved }) {
             <div className="flex flex-col justify-end">
               {margen !== null && (
                 <div className={`rounded-lg px-3 py-2 text-center
-                  ${parseFloat(margen) >= 50 ? 'bg-olivo-50 text-olivo-700' :
+                  ${parseFloat(margen) >= 50 ? 'bg-olivo-500/10 text-olivo-600' :
                     parseFloat(margen) >= 30 ? 'bg-yellow-50 text-yellow-700' :
                     'bg-red-50 text-red-600'}`}>
                   <div className="text-xs font-medium">Margen</div>
@@ -182,7 +183,8 @@ function ModalProducto({ producto, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-crema-200 flex justify-end gap-3 sticky bottom-0 bg-white">
+        <div className="px-6 py-4 flex justify-end gap-3 sticky bottom-0 modal-surface"
+             style={{ borderTop: '1px solid var(--cafe-border)' }}>
           <button onClick={onClose} className="btn-secondary">Cancelar</button>
           <button onClick={handleSubmit} disabled={loading}
             className="btn-primary flex items-center gap-2">
