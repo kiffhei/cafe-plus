@@ -1,8 +1,8 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-15 (S9 — tests/vitest, imágenes 404, regalo cliente frecuente, CORS verificado, contraste AA light mode)
+> Archivo consolidado. Actualizado: 2026-06-29 (S10 — auditoría visual 6 módulos: modal-surface; tooltips dinámicos; fix VITE_GAS_API_KEY en EasyPanel)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
-> **Estado actual (cierre S9 / inicio S10):** Build estable. 7 temas. **vitest instalado — 20 tests (productImages + descuentos).** Chat IA + CORS verificados en vivo (webhook `cafe-plus-chat`). Imágenes 404 corregidas + fallback onError. Regalo de cliente frecuente se aplica al crear pedido (E2E confirmado). Contraste AA de acento y badges en light mode (var `--cafe-accent-ink` + overrides `--status-*-fg`). `npm run lint` → 0 errores. **Deuda: code-splitting NO viable en Vite8/rolldown (bundle 676KB se queda). Light mode aún con detalles visuales de contraste pendientes → S10 = SOLO diseño gráfico.**
+> **Estado actual (cierre S10):** Build estable. 7 temas. 20 tests. 6 módulos auditados (dark mode + temas OK en todos). VITE_GAS_API_KEY presente en EasyPanel (fix infra S10). `npm run lint` → 0 errores. **Deuda: bundle 676KB (code-splitting no viable en Vite8/rolldown). QA visual light mode en 7 temas pendiente.**
 
 ---
 
@@ -31,6 +31,7 @@ Dev: Brian Anaya (kiffhei) | **Portafolio público — cada pantalla debe verse 
 | Repo GitHub | https://github.com/kiffhei/cafe-plus |
 | App producción | https://clawdbot-cafe-plus.u555aa.easypanel.host |
 | Backend GAS | `VITE_API_URL` en `.env` |
+| Backend GAS apiKey | `VITE_GAS_API_KEY` en `.env` — debe coincidir EXACTO con string en Codigo.gs |
 | n8n webhook chat IA | `VITE_N8N_WEBHOOK` en `.env` |
 | EasyPanel | Ver `.env.example` para configuración |
 
@@ -102,7 +103,7 @@ mono:    'JetBrains Mono'     /* IDs, codigos */
 
 ---
 
-## ESTADO DE MODULOS — CIERRE SESION 7
+## ESTADO DE MODULOS — ACTUALIZADO S10
 
 | Archivo | Estado | Sesion |
 |---------|--------|--------|
@@ -111,18 +112,18 @@ mono:    'JetBrains Mono'     /* IDs, codigos */
 | Sidebar.jsx | OK — tema selector + nav items BLOQUEADO | S7 |
 | ThemeContext.jsx | OK 5 temas + darkMode + localStorage | S7 |
 | Layout.jsx | OK orbes CSS + cafe-sidebar-surface + hamburguesa | S7 |
-| index.css | OK 5 temas CSS vars + tab-active-theme + text-accent-theme + btn-primary/kpi-card dinámicos | S7 |
+| index.css | OK 7 temas CSS vars + contraste AA light mode (--cafe-accent-ink, --status-*-fg) | S9 |
 | tailwind.config.js | OK paleta Fresh Matcha + cafe-accent/cafe-btn/cafe-border vars | S7 |
 | api.js | OK Clerk auth + userCategoria + redirect:follow | S6 |
 | AuthContext.jsx | OK Clerk useUser + cafe_user localStorage compat | S6 |
 | src/lib/clerkTheme.js | OK tema Clerk con paleta Fresh Matcha | S6 |
 | Usuarios.jsx | OK CRUD + toggle theme-aware | S7 |
-| Productos.jsx | OK CRUD + filter tabs + toggle theme-aware | S7 |
-| Clientes.jsx | OK CRUD + badges + historial pedidos + toggle theme-aware | S7 |
-| NuevoPedido.jsx | OK carrito + tabs + precios theme-aware | S7 |
-| PedidosHoy.jsx | OK kanban + tabs + KPI + Entregar button theme-aware | S7 |
+| Productos.jsx | OK — modal-surface en ModalProducto (header/footer sticky + badge margen) + clases Tailwind inexistentes corregidas | S10 |
+| Clientes.jsx | OK — modal-surface + inputs dark sin override hardcodeado + avatar bg-terracota-500/10 | S10 |
+| NuevoPedido.jsx | OK — modal-surface en panel canal/cliente y panel carrito | S10 |
+| PedidosHoy.jsx | OK — modal-surface en TarjetaPedido + KPI Pendientes con bgStyle/colorStyle | S10 |
 | Historial.jsx | OK tabla paginada + filtros + PDF + KPI + modal total theme-aware | S7 |
-| Analisis.jsx | OK KPIs + charts + tabs + chat IA theme-aware | S7 — CORS n8n pendiente |
+| Analisis.jsx | OK — modal-surface en Hora pico y Chat IA + TOOLTIP_STYLE dinámico con darkMode | S10 |
 
 ---
 
@@ -246,6 +247,16 @@ console.log('[IA] parsed data:', data)
 | 7 | Sidebar user info contraste (inline styles con darkMode) | Sidebar.jsx | ✓ HECHO |
 | 8 | 7 temas: vinyl-dark + vinyl-light agregados (total 7 paletas) | index.css + Sidebar.jsx | ✓ HECHO |
 
+## TAREAS COMPLETADAS — SESION 10 ✓
+
+| # | Tarea | Archivo | Estado |
+|---|-------|---------|--------|
+| 1 | Auditoría visual completa — 6 módulos con bg-white/dark:bg-cafe-800 → modal-surface | Productos, Clientes, PedidosHoy, NuevoPedido, Analisis | ✓ HECHO |
+| 2 | KPI "Pendientes" en PedidosHoy → bgStyle/colorStyle (iguala patrón del resto de KPIs) | PedidosHoy.jsx | ✓ HECHO |
+| 3 | TOOLTIP_STYLE recharts → dinámico con darkMode (dentro del componente) | Analisis.jsx | ✓ HECHO |
+| 4 | Clases Tailwind inexistentes corregidas (bg-olivo-50→bg-olivo-500/10, bg-terracota-100→bg-terracota-500/10) | Productos.jsx, Clientes.jsx | ✓ HECHO |
+| 5 | VITE_GAS_API_KEY — diagnosticado faltante en EasyPanel (INC-S9-A) | EasyPanel (infra, no código) | ✓ RESUELTO |
+
 ## TAREAS COMPLETADAS — SESION 9 ✓
 
 | # | Tarea | Archivo | Estado |
@@ -257,16 +268,16 @@ console.log('[IA] parsed data:', data)
 | 5 | Contraste AA de acento (`--cafe-accent-ink`) y badges de estado (`--status-*-fg`) en light mode | index.css | ✓ HECHO (estructural) |
 | 6 | Code-splitting | — | ❌ NO VIABLE en Vite8/rolldown (descarta `import()` dinámicos). Bundle 676KB se queda |
 
-## TAREAS PENDIENTES — SESION 10 (EXCLUSIVAMENTE DISEÑO GRÁFICO)
-
-> Decisión de Brian al cierre de S9: la próxima sesión es **solo** diseño gráfico — llevan varias sesiones sin cerrarse.
+## TAREAS PENDIENTES — SESION 11
 
 | # | Tarea | Archivo | Prioridad |
 |---|-------|---------|-----------|
-| 1 | Light mode — detalles de contraste visuales pendientes (el audit AA estructural ya está; falta QA con la app corriendo en los 7 temas) | index.css + módulos | ALTA |
+| 1 | Light mode — QA visual en los 7 temas con la app corriendo (AA estructural ✓, modal-surface en 6 módulos ✓ — queda verificación visual) | index.css + módulos | ALTA |
 | 2 | Badges de categoría dinámicos en Productos e Historial (siguen hardcodeados en verde) | Productos.jsx, Historial.jsx, api.js | MEDIA |
 | 3 | Skeleton loaders en lugar de spinners de carga | Componentes con fetch | MEDIA |
 | 4 | Empty states ilustrados por módulo (0 productos, 0 clientes, etc.) | Todos los módulos | BAJA |
+| 5 | `agente` export muerto en api.js — dead code con Content-Type header (violación CORS latente) | src/api/api.js | BAJA |
+| 6 | Clientes.jsx usa localStorage para `esAdmin` en lugar de `useAuth()` | Clientes.jsx | BAJA |
 
 ---
 
@@ -419,10 +430,31 @@ git push
 | INC-S8-C | S8 | Muffin Blueberry obtenía imagen de Muffin Chocolate | keyword map 'muffin' matcheaba antes de 'blueberry' — solucionado con EXACT_MATCH prioritario por nombre normalizado |
 | INC-S8-D | S8 | Categorías duplicadas en NuevoPedido (Café/cafe/Sándwich/sandwich) | Backend GAS envía capitalización inconsistente. normCat() con NFD normalize + toLowerCase antes de Set() |
 | INC-S8-E | S8 | Treemap colores fijos (verde/azul) ignoraban el tema activo | TEMA_CANAL_COLORS map (7 temas × 4 canales). canalColor(name, tema) recibe tema de useTheme() |
+| INC-S9-A | S9 | VITE_GAS_API_KEY faltante en EasyPanel — frontend enviaba apiKey=undefined a GAS, causando 401 en todos los endpoints | Agregar VITE_GAS_API_KEY al checklist de variables de entorno al desplegar en cualquier entorno nuevo. Sin esta var, Vite la serializa como string literal "undefined" en build time. |
+| INC-S9-B | S9 | bg-white/dark:bg-cafe-800 hardcodeado en 6 módulos — rompía con temas distintos a Fresh Matcha | Usar modal-surface para toda superficie de modal/card/panel. Tailwind dark: classes son estáticas y no responden al tema activo. |
+
+---
+
+## SEGURIDAD — HALLAZGOS PENDIENTES
+
+> Encontrados en auditoría S10 (2026-06-29). No bloquean el demo actual. Ver prioridades abajo.
+
+| Hallazgo | Riesgo | Prioridad |
+|----------|--------|-----------|
+| `apiKey` fija compartida visible en bundle JS público (`VITE_GAS_API_KEY`) — única barrera de acceso al backend GAS | Cualquiera con devtools puede extraer la key y hacer requests directos a GAS | BAJA (demo), MEDIA-ALTA (producción real) |
+| GAS no valida `userCategoria` contra Clerk — confía ciegamente en el parámetro que envía el frontend | Con la apiKey + devtools, se puede falsificar `userCategoria=admin` en un request directo, sin pasar por Clerk | BAJA (demo), MEDIA-ALTA (producción real) |
+| Sistema `generateToken/validateToken` con `CacheService` en Codigo.gs — mecanismo de auth anterior, no integrado al flujo actual (Clerk + apiKey fija). `loginUser` no es el método de auth activo. | Confusión futura sobre qué mecanismo está activo | BAJA |
+
+**Recomendación futura** (cuando el cliente pase a producción real con datos sensibles): mover validación de rol al backend GAS en lugar de confiar en el parámetro plano `userCategoria`. Ejemplo: validar token Clerk en GAS via `UrlFetchApp` a la API de Clerk antes de procesar cada request.
 
 ---
 
 ## HISTORIAL DE CAMBIOS POR SESIÓN
+
+### Sesión 10 — Auditoría visual + fix VITE_GAS_API_KEY (2026-06-29)
+- **Auditoría visual completa (commits `7044a08`, `ea37132`):** 6 módulos con `bg-white dark:bg-cafe-800` hardcodeado corregidos a `modal-surface` (Productos, Clientes, PedidosHoy, NuevoPedido, Analisis). Clases Tailwind inexistentes detectadas (`bg-olivo-50`, `bg-terracota-100`) → corregidas a `color-500/10`. KPI "Pendientes" en PedidosHoy migrado de clases Tailwind estáticas a `bgStyle`/`colorStyle` inline. `TOOLTIP_STYLE` en Analisis.jsx movido dentro del componente usando `darkMode` de `useTheme()` → tooltips adaptativos por tema y modo.
+- **INC-S9-A — VITE_GAS_API_KEY faltante en EasyPanel:** diagnóstico vía `grep -rn "apiKey" src/` → `api.js` lee `import.meta.env.VITE_GAS_API_KEY` sin fallback en 3 lugares (`apiGet`, `apiPost` URL, `apiPost` body). Sin la variable, Vite serializa `"undefined"` literal en build → 401 en todos los endpoints GAS. El string de comparación vive en Codigo.gs (fuera del repo). **Fix: agregar la variable en EasyPanel → Environment.**
+- **Hallazgos de seguridad documentados (no resueltos, ver sección SEGURIDAD):** apiKey pública en bundle, `userCategoria` sin validación server-side, sistema de tokens legado en GAS no integrado al flujo actual.
 
 ### Sesión 9 — Tests, imágenes, regalo, CORS, contraste AA light mode (2026-06-15)
 - **vitest instalado (primer testing del proyecto):** `vitest@4.1.9` + scripts `test`/`test:run`. `vite.config.js` con `test.include: ['src/**/*.{test,spec}.{js,jsx}']` — IMPRESCINDIBLE: sin ese scope vitest corre las ~391 suites `bun:test` de `.claude/skills/gstack/` y "fallan". **20 tests verdes:** `productImages.test.js` (11) + `descuentos.test.js` (9). Commits `32ba710`, `08ea5d4`.

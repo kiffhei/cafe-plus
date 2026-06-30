@@ -1,6 +1,6 @@
 # DESIGNER.md — Café+ | Guía Visual
 
-Referencia de identidad visual para el proyecto. Actualizado: 2026-06-15 (S9 — contraste AA light mode: `--cafe-accent-ink` + `--status-*-fg`; imágenes 404 + fallback onError).
+Referencia de identidad visual para el proyecto. Actualizado: 2026-06-29 (S10 — auditoría visual: modal-surface en 6 módulos; tooltips recharts dinámicos; clases Tailwind inexistentes corregidas; KPI cards con bgStyle).
 
 ---
 
@@ -132,12 +132,13 @@ La pantalla de login (`Login.jsx`) usa gradiente `crema-bg → olivo` en light y
 ## recharts — reglas de uso
 
 ```jsx
-// CORRECTO — props primitivos siempre
+// CORRECTO — contentStyle con objeto dinámico (ver PATRONES CONFIRMADOS S10 §c)
 <Tooltip
   formatter={(value) => [formatMXN(value), 'Ventas']}
-  contentStyle={{ backgroundColor: '#0d2d1f', borderRadius: '8px' }}
-  labelStyle={{ color: '#d4a96a' }}
+  contentStyle={TOOLTIP_STYLE}
+  itemStyle={TOOLTIP_ITEM_STYLE}
 />
+// NUNCA hardcodear colores matcha (#0d2d1f) en contentStyle — no reaccionan a otros temas
 
 // INCORRECTO — rompe en producción con Vite 8 rolldown
 <Tooltip content={<MiComponenteTooltip />} />
@@ -230,13 +231,117 @@ html:not(.dark)[data-theme="pizarra"] {
 - **REGLA:** al añadir un acento como texto, decidir primero la superficie (clara→ink,
   oscura→accent). Nunca oscurecer `--cafe-accent` global (rompe el chrome oscuro).
 
-## Pendientes visuales — S10 (sesión exclusiva de diseño)
+## PATRONES CONFIRMADOS — SESIÓN 10 (2026-06-29)
 
-- **Light mode — detalles de contraste que QUEDAN** (Brian: "sigue con detalles"). El AA
-  estructural está hecho por cálculo; falta el QA VISUAL en los 7 temas con la app corriendo.
-- Badges de categoría dinámicos (actualmente hardcodeados en verde) — `categoriaBadge()` en api.js
+### a) modal-surface — superficies de modal, card y panel
+
+Reemplaza `bg-white dark:bg-cafe-800`. Aplicado en: Productos.jsx, Clientes.jsx,
+PedidosHoy.jsx (TarjetaPedido), NuevoPedido.jsx (panel canal+cliente y carrito),
+Analisis.jsx (sección Hora pico y Chat IA).
+
+**Regla:** cualquier superficie que deba responder a los 7 temas usa `modal-surface`.
+La clase ya resuelve fondo **y** borde — no agregar `border-*` adicional.
+
+```jsx
+// ANTES — verde matcha fijo en temas distintos a matcha
+<div className="bg-white dark:bg-cafe-800 rounded-xl border border-cafe-100 dark:border-cafe-700">
+
+// DESPUÉS — correcto en los 7 temas y ambos modos
+<div className="modal-surface rounded-xl">
+```
+
+CSS de referencia en `index.css`:
+```css
+.modal-surface {
+  background: var(--cafe-sb-bg) !important;  /* oscuro del tema activo */
+  border: 1px solid var(--cafe-border);       /* ya incluye borde */
+}
+html:not(.dark) .modal-surface {
+  background: rgba(255,255,255,0.96) !important;
+  border-color: rgba(0,0,0,0.08);
+}
+```
+
+---
+
+### b) Clases Tailwind inexistentes — NO USAR
+
+Detectadas en auditoría: producen fondo transparente sin error de build ni de lint.
+
+| Clase usada (MAL) | Por qué falla | Alternativa correcta |
+|------------------|--------------|---------------------|
+| `bg-olivo-50` | Solo existen shades 400/500/600 en tailwind.config.js | `bg-olivo-500/10` |
+| `text-olivo-700` | Solo existen 400/500/600 | `text-olivo-600` |
+| `bg-terracota-100` | Solo existen 400/500/600/700 | `bg-terracota-500/10` |
+
+**Regla:** antes de usar `color-NN` de un color custom, verificar que `NN` existe en
+`tailwind.config.js`. Para tintes sutiles usar `color-500/10` (sintaxis opacidad)
+en vez de asumir que existe un tono claro como `-50` o `-100`.
+
+---
+
+### c) Tooltips dinámicos en recharts (Analisis.jsx)
+
+`TOOLTIP_STYLE` ya no es una constante de módulo. Vive **dentro del componente**
+usando `darkMode` de `useTheme()`:
+
+```js
+// Dentro del componente — después de const { tema, darkMode } = useTheme()
+const TOOLTIP_STYLE = {
+  backgroundColor: darkMode ? 'var(--cafe-sb-bg)' : 'rgba(12,12,12,0.88)',
+  border: '1px solid var(--cafe-border)',
+  borderRadius: '8px',
+  color: '#f0ece8',
+  fontSize: '12px',
+}
+const TOOLTIP_ITEM_STYLE = { color: '#f0ece8' }
+```
+
+Dark mode → `--cafe-sb-bg` (oscuro del tema activo).
+Light mode → `rgba(12,12,12,0.88)` (negro semitransparente universal, legible sobre cualquier fondo claro).
+
+**Regla:** cualquier `contentStyle`/`labelStyle` de recharts con colores fijos migrar a este patrón.
+Los colores hardcodeados matcha no reaccionan a otros temas.
+
+---
+
+### d) KPI cards con bgStyle en lugar de clases estáticas (PedidosHoy.jsx)
+
+Para KPI cards que expresan estado semántico, usar `bgStyle`/`colorStyle` inline.
+
+```js
+// ANTES — Tailwind estático, no combina dark mode + múltiples temas
+{ label: 'Pendientes',
+  color: 'text-yellow-600 dark:text-yellow-400',
+  bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' }
+
+// DESPUÉS — un solo objeto que funciona en todos los modos y temas
+{ label: 'Pendientes',
+  color: '', colorStyle: { color: '#ca8a04' },
+  bg:    '', bgStyle: { background: 'rgba(234,179,8,0.12)', borderColor: 'rgba(202,138,4,0.40)' } }
+
+// Referencia — "En prep." usa CSS vars semánticas donde existen
+{ label: 'En prep.',
+  color: '', colorStyle: { color: 'var(--status-prep-fg)' },
+  bg:    '', bgStyle: { background: 'var(--status-prep-bg)', borderColor: 'var(--status-prep-fg)' } }
+```
+
+Render:
+```jsx
+<div className={`rounded-xl border p-4 ${m.bg}`} style={m.bgStyle}>
+  <p className={m.color} style={m.colorStyle}>{m.value}</p>
+</div>
+```
+
+---
+
+## Pendientes visuales — post S10
+
+- **Light mode — QA visual en los 7 temas** (AA estructural ✓, `modal-surface` en 6 módulos ✓ — queda verificación visual con la app corriendo).
+- Badges de categoría dinámicos (hardcodeados en verde) — `categoriaBadge()` en api.js
 - Skeleton loaders en lugar de spinners de carga
 - Empty states ilustrados por módulo (0 productos, 0 clientes, etc.)
+- `agente` export muerto en api.js (violación CORS latente — no afecta producción hoy)
 
 ---
 
@@ -279,3 +384,7 @@ Estas clases son las únicas que garantizan contraste correcto en los 7 temas.
 | Dark mode en todos los elementos nuevos | Modo oscuro es feature de primera clase |
 | No componentes React como `content` en recharts | Rompe en producción silenciosamente |
 | `tab-active-theme` / `text-accent-theme` — no colores Tailwind fijos | El sistema de temas requiere CSS custom properties en runtime |
+| Superficies modal/card/panel → `modal-surface`, no `bg-white dark:bg-cafe-800` | Tailwind `dark:` es estático — no reacciona al tema activo en runtime |
+| No asumir shades claros (`-50`, `-100`) de colores custom | Verificar en `tailwind.config.js` — clases inexistentes producen fondo transparente sin error |
+| `TOOLTIP_STYLE` en recharts → definir dentro del componente con `darkMode` | Constante de módulo con colores fijos no reacciona a otros temas |
+| KPI cards de estado → `bgStyle`/`colorStyle` inline | Clases estáticas Tailwind no combinan dark mode + 7 temas simultáneamente |

@@ -60,11 +60,13 @@ Crear `.env` en la raíz (nunca commitear — está en `.gitignore`):
 
 ```env
 VITE_API_URL=https://script.google.com/macros/s/<deployment-id>/exec
+VITE_GAS_API_KEY=<api-key>           # debe coincidir EXACTO con el string validado en Codigo.gs
 VITE_N8N_WEBHOOK=https://<n8n-host>/webhook/<webhook-id>
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_<clerk-key>
 ```
 
-Para producción, configurar las mismas variables en EasyPanel → Environment antes de redesplegar.
+Para producción, configurar **todas** las variables en EasyPanel → Environment antes de redesplegar.
+`VITE_GAS_API_KEY` es crítica: sin ella Vite la serializa como `"undefined"` literal en build time y todos los endpoints de GAS responden 401.
 
 ---
 
