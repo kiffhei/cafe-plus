@@ -15,9 +15,13 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 ## Screenshots
 
-| Login (autenticación con Clerk) | Módulo Nuevo Pedido |
+| Login (Clerk auth) | Nuevo Pedido (POS) |
 |---|---|
-| ![Login](Muestras/login.png) | ![Dashboard](Muestras/dashboard.png) |
+| ![Login](Muestras/login.png) | ![Nuevo Pedido](Muestras/nuevo%20pedido.png) |
+
+| Pedidos del Día (kanban) | Selector de temas (7 paletas) |
+|---|---|
+| ![Pedidos](Muestras/pedidos%20del%20dia.png) | ![Temas](Muestras/seleccion%20de%20temas.png) |
 
 ---
 
