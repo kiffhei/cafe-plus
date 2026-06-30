@@ -289,13 +289,31 @@ export default function Productos() {
       {/* Tabla */}
       <div className="table-wrapper">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-cafe-400">
-            <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
-            Cargando productos...
-          </div>
+          <table className="w-full">
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-crema-100 dark:border-cafe-700">
+                  <td className="px-3 py-3">
+                    <div className="w-10 h-10 rounded-lg animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                  </td>
+                  {[55, 30, 25, 20, 18].map((w, j) => (
+                    <td key={j} className="px-5 py-4">
+                      <div className="h-3 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" style={{ width: `${w}%` }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : filtrados.length === 0 ? (
-          <div className="text-center py-16 text-cafe-400">
-            {buscar || filtroCategoria !== 'todas' ? 'Sin resultados para ese filtro' : 'No hay productos registrados'}
+          <div className="text-center py-16">
+            <svg className="w-12 h-12 mx-auto mb-3 text-cafe-300 dark:text-cafe-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+              {buscar || filtroCategoria !== 'todas' ? 'Sin productos con ese filtro' : 'Aún no hay productos en el catálogo'}
+            </p>
+            {!buscar && filtroCategoria === 'todas' && <p className="text-cafe-400 dark:text-cafe-500 text-xs mt-1">Usa el botón "+ Producto" para agregar el primero</p>}
           </div>
         ) : (
           <table className="w-full">

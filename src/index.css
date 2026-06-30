@@ -287,9 +287,8 @@ h1, h2, h3, h4 {
   /* Category badges */
   .badge-cat-cafe        { @apply bg-amber-700 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-cat-bebidas     { @apply bg-sky-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-cat-pasteleria  { @apply bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
+  .badge-cat-pan         { @apply bg-yellow-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-cat-sandwich    { @apply bg-orange-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
-  .badge-cat-extras      { @apply bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   .badge-cat-default     { @apply bg-gray-500 text-white text-xs px-2 py-0.5 rounded-full font-medium; }
   /* badge-estado-pendiente definido abajo con pulse */
   .badge-estado-preparacion {

@@ -354,13 +354,37 @@ export default function Clientes() {
       {/* Tabla */}
       <div className="table-wrapper">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-cafe-400">
-            <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
-            Cargando clientes...
-          </div>
+          <table className="w-full">
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-crema-100 dark:border-cafe-700">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700 shrink-0" />
+                      <div className="space-y-1.5">
+                        <div className="h-3 w-32 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                        <div className="h-2.5 w-24 rounded-full animate-pulse bg-cafe-100 dark:bg-cafe-800" />
+                      </div>
+                    </div>
+                  </td>
+                  {[60, 40, 30, 25].map((w, j) => (
+                    <td key={j} className="hidden sm:table-cell px-5 py-4">
+                      <div className="h-3 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" style={{ width: `${w}%` }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : filtrados.length === 0 ? (
-          <div className="text-center py-16 text-cafe-400">
-            {buscar ? 'No se encontraron clientes con ese criterio' : 'No hay clientes registrados'}
+          <div className="text-center py-16">
+            <svg className="w-12 h-12 mx-auto mb-3 text-cafe-300 dark:text-cafe-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+              {buscar ? 'Sin clientes con ese criterio' : 'Aún no hay clientes registrados'}
+            </p>
+            {!buscar && <p className="text-cafe-400 dark:text-cafe-500 text-xs mt-1">Usa el botón "+ Nuevo" para agregar el primero</p>}
           </div>
         ) : (
           <table className="w-full">

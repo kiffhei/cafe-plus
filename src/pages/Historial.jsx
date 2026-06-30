@@ -488,10 +488,19 @@ export default function Historial() {
       {/* Tabla */}
       <div className="table-wrapper">
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-cafe-400">
-            <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
-            Cargando historial...
-          </div>
+          <table className="w-full">
+            <tbody>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i} className="border-b border-cafe-100 dark:border-cafe-700">
+                  {[28, 80, 90, 90, 60, 50, 60].map((w, j) => (
+                    <td key={j} className="px-4 py-4">
+                      <div className="h-3 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" style={{ width: `${w}%` }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : registrosPag.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-3">📋</p>
