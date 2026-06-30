@@ -4,7 +4,6 @@
 // ============================================================
 
 const BASE = import.meta.env.VITE_API_URL
-const N8N  = import.meta.env.VITE_N8N_WEBHOOK
 
 function getUserMeta() {
   try {
@@ -109,22 +108,6 @@ export const pedidos = {
 export const analytics = {
   getPeriodo: (desde, hasta) =>
     apiGet('getAnalytics', { fecha_desde: desde, fecha_hasta: hasta }),
-}
-
-export const agente = {
-  analizar: (payload) =>
-    fetch(`${N8N}/analizar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).then(r => r.json()),
-
-  chat: (mensaje, contexto) =>
-    fetch(`${N8N}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mensaje, contexto }),
-    }).then(r => r.json()),
 }
 
 // ── Helpers de formato ────────────────────────────────────────

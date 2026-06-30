@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { clientes as clientesApi, pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, estadoBadge } from '../api/api'
+import { useAuth } from '../context/AuthContext'
 
 function esInactivo(c) {
   if (!c.ultimo_pedido) return false
@@ -271,9 +272,7 @@ export default function Clientes() {
   const [toggling, setToggling]       = useState(null)
   const [error, setError]             = useState('')
 
-  const userStr = localStorage.getItem('cafe_user')
-  const user    = userStr ? JSON.parse(userStr) : {}
-  const esAdmin = user.categoria === 'admin'
+  const { isAdmin: esAdmin } = useAuth()
 
   async function cargar() {
     setLoading(true)
