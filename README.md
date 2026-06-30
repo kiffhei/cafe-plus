@@ -11,6 +11,16 @@ Dev: Brian Anaya ([@kiffhei](https://github.com/kiffhei)) | Portafolio público.
 
 **Producción:** https://clawdbot-cafe-plus.u555aa.easypanel.host
 
+---
+
+## Screenshots
+
+| Login (autenticación con Clerk) | Módulo Nuevo Pedido |
+|---|---|
+| ![Login](Muestras/login.png) | ![Dashboard](Muestras/dashboard.png) |
+
+---
+
 ## Demo
 
 Acceso de prueba (rol cajero — solo lectura de configuración, acceso completo a ventas y clientes):
