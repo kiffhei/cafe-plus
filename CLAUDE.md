@@ -1,8 +1,8 @@
 # CLAUDE.md — Café Plus | Master
-> Archivo consolidado. Actualizado: 2026-06-29 (S10 — auditoría visual 6 módulos: modal-surface; tooltips dinámicos; fix VITE_GAS_API_KEY en EasyPanel)
+> Archivo consolidado. Actualizado: 2026-06-29 (S11 — portfolio demo readiness: credenciales demo, favicon, meta OG, screenshots, dark mode fijo por tema, mobile fix, skeletons, empty states, badges categoría, dead code)
 > Reemplaza: CLAUDE_S4.md, CLAUDE_S5.md, Avance_Perplexity.md
 > Contiene: bases del proyecto + estado actual + historial bugs + tareas pendientes
-> **Estado actual (cierre S10):** Build estable. 7 temas. 20 tests. 6 módulos auditados (dark mode + temas OK en todos). VITE_GAS_API_KEY presente en EasyPanel (fix infra S10). `npm run lint` → 0 errores. **Deuda: bundle 676KB (code-splitting no viable en Vite8/rolldown). QA visual light mode en 7 temas pendiente.**
+> **Estado actual (cierre S11):** Build estable. 7 temas (solo `vinyl-light` es claro, resto dark-only). 20 tests. `npm run lint` → 0 errores. Usuario demo `cajero / c4j3r0p4ss` activo en Clerk. **Deuda: bundle 676KB (no viable en Vite8/rolldown). B2 (tests de componentes) pendiente.**
 
 ---
 
@@ -268,18 +268,36 @@ console.log('[IA] parsed data:', data)
 | 5 | Contraste AA de acento (`--cafe-accent-ink`) y badges de estado (`--status-*-fg`) en light mode | index.css | ✓ HECHO (estructural) |
 | 6 | Code-splitting | — | ❌ NO VIABLE en Vite8/rolldown (descarta `import()` dinámicos). Bundle 676KB se queda |
 
-## TAREAS PENDIENTES — SESION 11
+## TAREAS COMPLETADAS — SESION 11 ✓
+
+| # | Tarea | Archivo | Estado |
+|---|-------|---------|--------|
+| C1 | Credenciales demo en README (usuario Clerk cajero/c4j3r0p4ss) | README.md | ✓ `5f5c9ec` |
+| C2 | Favicon corregido (vite.svg → favicon.svg) | index.html | ✓ `5f5c9ec` |
+| C3 | Meta description + OG tags en index.html | index.html | ✓ `5f5c9ec` |
+| A1 | Screenshots login + dashboard en README (carpeta Muestras/) | README.md | ✓ `d5b3c65` |
+| A2 | Dark mode fijo por tema — solo vinyl-light es claro, toggle eliminado | ThemeContext.jsx, Layout.jsx | ✓ `269020f` |
+| A3 | Mobile fix NuevoPedido — canal+cliente apilados en mobile | NuevoPedido.jsx | ✓ `80772e4` |
+| M1 | Empty states con icono SVG en Productos y Clientes | Productos.jsx, Clientes.jsx | ✓ `14f5f8c` |
+| M2 | Skeleton loaders en Historial, Productos y Clientes | Historial.jsx, Productos.jsx, Clientes.jsx | ✓ `14f5f8c` |
+| M3 | Badges categoría corregidos (bebida/pan/sándwich/otro reales) + badge-cat-pan | api.js, index.css | ✓ `14f5f8c` |
+| B1 | Dead code eliminado: export agente + const N8N en api.js; esAdmin via useAuth() en Clientes | api.js, Clientes.jsx | ✓ `33efe46` |
+| B3 | Nota bundle 676KB con explicación técnica (Vite8/rolldown) en README | README.md | ✓ `11881a4` |
+
+## TAREAS PENDIENTES — SESION 12
 
 | # | Tarea | Archivo | Prioridad |
 |---|-------|---------|-----------|
-| 1 | Light mode — QA visual en los 7 temas con la app corriendo (AA estructural ✓, modal-surface en 6 módulos ✓ — queda verificación visual) | index.css + módulos | ALTA |
-| 2 | Badges de categoría dinámicos en Productos e Historial (siguen hardcodeados en verde) | Productos.jsx, Historial.jsx, api.js | MEDIA |
-| 3 | Skeleton loaders en lugar de spinners de carga | Componentes con fetch | MEDIA |
-| 4 | Empty states ilustrados por módulo (0 productos, 0 clientes, etc.) | Todos los módulos | BAJA |
-| 5 | `agente` export muerto en api.js — dead code con Content-Type header (violación CORS latente) | src/api/api.js | BAJA |
-| 6 | Clientes.jsx usa localStorage para `esAdmin` en lugar de `useAuth()` | Clientes.jsx | BAJA |
+| 1 | Tests de componentes/integración — 0 cobertura en páginas (solo 20 tests de lógica pura) | src/pages/*.jsx | MEDIA |
 
 ---
+
+## LECCIONES S11 — DECISIONES DE DISEÑO Y ERRORES
+
+- **Dark mode toggle eliminado — decisión de diseño (INC-S11-A):** los 6 temas oscuros tenían contraste malo en light mode. En lugar de arreglar 6 paletas, se tomó la decisión de hacer esos temas dark-only. Solo `vinyl-light` soporta light. `ThemeContext` deriva `darkMode` del tema (`LIGHT_THEMES = new Set(['vinyl-light'])`). Si se añade un nuevo tema claro en el futuro, solo agregar su ID al Set.
+- **`isAdmin: esAdmin` — patrón alias para migración sin renombrado masivo:** cuando un componente tiene 20+ usos de una variable con nombre legacy (`esAdmin` de localStorage), usar destructuring con alias `const { isAdmin: esAdmin } = useAuth()` permite migrar la fuente sin tocar el resto del componente. Menos riesgo, diff más limpio.
+- **Binary push HTTP 400 con git:** archivos PNG grandes pueden causar `HTTP 400` al hacer push. Fix: `git config http.postBuffer 524288000` (500MB). Solo necesario al agregar binarios pesados por primera vez.
+- **`categoriaBadge` mismatch — leer las categorías reales del backend antes de codificar el mapa:** se codificó el mapa con `bebidas/pastelería/extras` (nombres intuidos) cuando el backend enviaba `bebida/pan/otro`. Siempre verificar con un `console.log` o una petición real antes de hardcodear mapas de labels.
 
 ## LECCIONES S8 — ERRORES CRITICOS
 
@@ -451,6 +469,17 @@ git push
 ---
 
 ## HISTORIAL DE CAMBIOS POR SESIÓN
+
+### Sesión 11 — Portfolio demo readiness (2026-06-29)
+- **Credenciales demo (commit `5f5c9ec`, `ba4e2ab`):** usuario Clerk `cajero / c4j3r0p4ss` creado con username auth (sin email expuesto). README actualizado con tabla de credenciales. Favicon corregido (`/vite.svg` → `/favicon.svg`). Meta description + OG tags en `index.html`. Título cambiado a `Café+`.
+- **Screenshots en README (`d5b3c65`):** tabla 2 columnas (login + dashboard) usando imágenes de `Muestras/`. Push de binarios falló con HTTP 400 → fix `git config http.postBuffer 524288000`.
+- **Bundle constraint en README (`11881a4`, `ba4e2ab`):** nota explicativa del límite de 676KB con Vite 8/rolldown (code-splitting no viable).
+- **Dark mode fijo por tema (`269020f`):** decisión de diseño — los 6 temas oscuros (matcha, cafe-oscuro, medianoche, terracota, pizarra, vinyl-dark) se quedaron dark-only. Solo `vinyl-light` (Record Shop) soporta light mode. Eliminado: `ThemeToggle` en `Layout.jsx`, estado independiente `dark` en `ThemeContext.jsx`. `darkMode` ahora se deriva del tema: `const darkMode = !LIGHT_THEMES.has(tema)`. `toggleDark` es un no-op mantenido por compatibilidad de API.
+- **Mobile fix NuevoPedido (`80772e4`):** único problema responsive real — grid de canal+cliente con `grid-cols-2` fijo → `grid-cols-1 sm:grid-cols-2`. Resto de módulos ya tenían responsive correcto.
+- **Skeletons, empty states, badges categoría (`14f5f8c`):** Historial (7 cols skeleton), Productos (img+5 cols skeleton + SVG empty state), Clientes (avatar+4 cols skeleton + SVG empty state). `categoriaBadge()` corregido a categorías reales del backend (bebida/pan/sándwich/otro vs bebidas/pastelería/extras anteriores). `badge-cat-pan` añadida en `index.css`.
+- **Dead code eliminado (`33efe46`):** `export const agente` + `const N8N` removidos de `api.js` (CORS latente por Content-Type header). `esAdmin` via `localStorage` en `Clientes.jsx` → `const { isAdmin: esAdmin } = useAuth()` (patrón alias para evitar renombrar 20+ usos downstream).
+- **Verificación final:** `npm run build` ✓, `npm run lint` → 0 errores, `npm run test:run` → 20/20.
+- **Commits:** `5f5c9ec`, `ba4e2ab`, `11881a4`, `d5b3c65`, `269020f`, `80772e4`, `14f5f8c`, `33efe46`.
 
 ### Sesión 10 — Auditoría visual + fix VITE_GAS_API_KEY (2026-06-29)
 - **Auditoría visual completa (commits `7044a08`, `ea37132`):** 6 módulos con `bg-white dark:bg-cafe-800` hardcodeado corregidos a `modal-surface` (Productos, Clientes, PedidosHoy, NuevoPedido, Analisis). Clases Tailwind inexistentes detectadas (`bg-olivo-50`, `bg-terracota-100`) → corregidas a `color-500/10`. KPI "Pendientes" en PedidosHoy migrado de clases Tailwind estáticas a `bgStyle`/`colorStyle` inline. `TOOLTIP_STYLE` en Analisis.jsx movido dentro del componente usando `darkMode` de `useTheme()` → tooltips adaptativos por tema y modo.
