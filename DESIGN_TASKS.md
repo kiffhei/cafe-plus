@@ -20,6 +20,16 @@ Reglas de diseño que NO se pueden romper (por compatibilidad con el sistema de 
 
 ---
 
+## Estado de tareas (verificado contra CLAUDE.internal.md — 2026-07-20)
+
+- [x] DT1 · QA visual de light mode — 7 temas (auditoría visual completa, Sesión 10, 2026-06-29)
+- [x] DT2 · Badges de categoría dinámicos (clases `badge-cat-*` creadas en index.css)
+- [x] DT3 · Skeleton loaders (Productos/Clientes/Historial ya lo tenían; agregado en Análisis y PedidosHoy)
+- [x] DT4 · Empty states ilustrados (los 5 módulos ya tenían icono/emoji + mensaje)
+- [x] DT5 · Screenshots para README (grid 2x2 ya en README.md, 9 imágenes en Muestras/)
+
+---
+
 ## DT1 · QA visual de light mode — 7 temas `[ALTA]`
 
 El contraste AA está calculado matemáticamente pero NO verificado con ojos.

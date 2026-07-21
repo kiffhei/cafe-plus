@@ -20,6 +20,18 @@ Reglas críticas:
 
 ---
 
+## Estado de tareas (verificado contra código real — 2026-07-20)
+
+- [x] DEV1 · Mover API key a variable de entorno
+- [x] DEV2 · Crear `.env.example`
+- [x] DEV3 · Eliminar código muerto en `api.js`
+- [x] DEV4 · Actualizar `package.json` versión y README
+- [x] DEV5 · Sacar CLAUDE.md y DESIGNER.md del repo público (vía alternativa: CLAUDE.md público limpio, contenido sensible en CLAUDE.internal.md/CLAUDE.local.md gitignorados)
+- [x] DEV6 · GitHub Actions CI básico
+- [x] DEV7 · Badges de categoría dinámicos (`categoriaBadge()` cableado en Historial.jsx — de paso se corrigió un bug: `getAll()` usa `sin_detalle=true` y el detalle de items llegaba vacío; ahora "Ver" y "Descargar ticket" usan `getById` bajo demanda)
+
+---
+
 ## DEV1 · Mover API key a variable de entorno `[XS]` — CRÍTICO
 
 **Archivo:** `src/api/api.js`
