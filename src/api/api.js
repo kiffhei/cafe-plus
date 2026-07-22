@@ -14,6 +14,13 @@ function getUserMeta() {
   }
 }
 
+// appToken — emitido por GAS (clerkExchange) tras verificar la sesión real de
+// Clerk. GAS ya no confía en userCategoria/userId del cliente para autorizar,
+// solo en este token. Ver AuthContext.jsx para cómo se obtiene y guarda.
+function getAppToken() {
+  return localStorage.getItem('cafe_app_token') || ''
+}
+
 // Fetch con timeout configurable (default 25s — Apps Script puede tardar)
 async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
   const controller = new AbortController()
@@ -34,6 +41,7 @@ async function apiGet(action, params = {}) {
   const url = new URL(BASE)
   url.searchParams.set('action', action)
   url.searchParams.set('apiKey', import.meta.env.VITE_GAS_API_KEY)
+  url.searchParams.set('appToken', getAppToken())
   url.searchParams.set('userId', meta.id_usuario || '')
   url.searchParams.set('userCategoria', meta.categoria || 'cajero')
   url.searchParams.set('usuario', meta.usuario || '')
@@ -53,6 +61,7 @@ async function apiPost(action, body = {}) {
     body: JSON.stringify({
       ...body,
       apiKey:        import.meta.env.VITE_GAS_API_KEY,
+      appToken:      getAppToken(),
       userId:        meta.id_usuario || '',
       userCategoria: meta.categoria || 'cajero',
       usuario:       meta.usuario   || '',
@@ -69,7 +78,13 @@ export const auth = {
       body: JSON.stringify({ usuario, password }),
     }, 20000).then(r => r.json()),
 
-  // validateToken: no se usa con Clerk — auth manejada por ClerkProvider
+  // Canjea el token de sesión de Clerk por un appToken de GAS ya verificado.
+  // No usa apiPost() porque todavía no hay appToken que enviar — es lo que emite.
+  clerkExchange: (clerkToken) =>
+    fetchWithTimeout(`${BASE}?action=clerkExchange&apiKey=${import.meta.env.VITE_GAS_API_KEY}`, {
+      method: 'POST',
+      body: JSON.stringify({ clerkToken, apiKey: import.meta.env.VITE_GAS_API_KEY }),
+    }).then(r => r.json()),
 }
 
 export const usuarios = {
