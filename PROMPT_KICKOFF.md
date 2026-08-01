@@ -1,6 +1,10 @@
 # PROMPT_KICKOFF.md — Café+ | Prompts de inicio para sesiones dedicadas
 > Generado: 2026-06-17 · Auditoría completa en AUDIT.md · Plan en PLAN.md
 
+> **✅ KICKOFF A, B y C ejecutados** (DEV1-DEV7, DT1-DT5 — ver `DEV_TASKS.md`/`DESIGN_TASKS.md`).
+> Quedan como referencia de formato. **KICKOFF D (nuevo, 2026-07-22)** al final del archivo es
+> el único con trabajo pendiente activo — no es de código, es de acción manual de Brian.
+
 ---
 
 ## KICKOFF A — Sesión Claude Code (seguridad + limpieza) `[45-60 min]`
@@ -132,3 +136,30 @@ git commit -m "security: remove internal docs from public tracking"
 
 Si se quedan: al menos eliminar la sección de credenciales de prueba del CLAUDE.md
 antes de mostrar el repo a reclutadores.
+
+---
+
+## KICKOFF D — Acción manual de Brian (Clerk + Apps Script) `[15-20 min]` — 2026-07-22
+
+**No es una sesión de Claude Code — son pasos manuales que solo Brian puede hacer** (requieren
+el dashboard de Clerk y el editor de Apps Script, fuera del alcance de una sesión de terminal).
+Contexto completo: `pending-blockers.md` en la memoria del proyecto y `cierre.md`.
+
+```
+1. dashboard.clerk.com → API Keys → Secret keys → copiar CLERK_SECRET_KEY
+2. Apps Script → Configuración del proyecto → Propiedades del script
+   → agregar CLERK_SECRET_KEY (nunca en .env ni en el frontend)
+3. Pegar el Codigo.gs nuevo (ya escrito en el repo) en el editor de Apps Script
+4. Correr testClerkExchange() con un token real — confirmar que la respuesta
+   trae el rol correcto antes de desplegar
+5. Nueva implementación → Web app → Anyone → copiar la URL nueva
+6. Actualizar VITE_API_URL en .env local y en EasyPanel → Environment
+7. Smoke-test en producción: login admin y cajero, confirmar que cada uno
+   ve/edita solo lo suyo y que un cajero ya NO puede escalar a admin
+   falsificando userCategoria
+8. Si algo falla: Apps Script → historial de implementaciones → volver a la
+   anterior, y revertir el commit 908140b del frontend si hace falta
+```
+
+Cuando esto quede hecho, actualizar `pending-blockers.md` (memoria) y `DEV_TASKS.md` (DEV8 de
+`[~]` a `[x]`).

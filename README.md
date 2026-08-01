@@ -125,9 +125,13 @@ SIEMPRE: Nueva implementación → Web app → Execute as: Me → Anyone.
 Actualizar VITE_API_URL en .env y en EasyPanel tras cada deploy de GAS.
 ```
 
-### GAS — parámetro userCategoria
+### GAS — parámetro userCategoria vs. appToken
 El param `categoria` está reservado en GAS como filtro de categoría de producto.
-Para enviar el rol del usuario usar `userCategoria` (ya implementado en `api.js`).
+El rol del usuario se manda como `userCategoria` (ya implementado en `api.js`) — pero **ese
+parámetro es solo transporte, no autorización**: GAS valida el rol real con un `appToken`
+emitido por `clerkExchange()` tras verificar la sesión contra la API de Clerk (`AuthContext.jsx`
+lo canjea al cargar). `userCategoria` se sigue enviando por compatibilidad con despliegues
+anteriores del backend, pero un cliente no puede escalar privilegios falsificándolo.
 
 ### CORS con Google Apps Script
 ```js
@@ -147,6 +151,8 @@ Todos los componentes nuevos deben incluir clases `dark:` de Tailwind.
 ### Roles con Clerk
 El rol se lee de `publicMetadata.categoria` en el dashboard de Clerk.
 Sin configurar: todos los usuarios caen a `'cajero'` por defecto.
+La verificación server-side de ese rol vive en GAS vía `appToken` (ver sección anterior) — el
+frontend nunca es la fuente de verdad de autorización.
 
 ---
 

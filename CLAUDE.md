@@ -115,6 +115,11 @@ Available helpers: `formatMXN`, `formatFecha`, `canalBadge`, `estadoBadge`, `cat
 const { isAdmin, isCajero, user } = useAuth()
 ```
 
+Role authorization is verified server-side: `AuthContext.jsx` exchanges the Clerk session token
+for an `appToken` (`auth.clerkExchange`) that GAS validates on every request — the client-sent
+`userCategoria` param is transport only, never the trust boundary. If you're touching auth code,
+read `Codigo.gs`'s `clerkExchange`/`validateToken` before assuming `userCategoria` is authoritative.
+
 ---
 
 ## Theme system

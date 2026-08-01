@@ -20,7 +20,7 @@ Reglas críticas:
 
 ---
 
-## Estado de tareas (verificado contra código real — 2026-07-20)
+## Estado de tareas (verificado contra código real — 2026-07-22)
 
 - [x] DEV1 · Mover API key a variable de entorno
 - [x] DEV2 · Crear `.env.example`
@@ -29,6 +29,7 @@ Reglas críticas:
 - [x] DEV5 · Sacar CLAUDE.md y DESIGNER.md del repo público (vía alternativa: CLAUDE.md público limpio, contenido sensible en CLAUDE.internal.md/CLAUDE.local.md gitignorados)
 - [x] DEV6 · GitHub Actions CI básico
 - [x] DEV7 · Badges de categoría dinámicos (`categoriaBadge()` cableado en Historial.jsx — de paso se corrigió un bug: `getAll()` usa `sin_detalle=true` y el detalle de items llegaba vacío; ahora "Ver" y "Descargar ticket" usan `getById` bajo demanda)
+- [~] DEV8 · Validación de rol vía Clerk (`appToken`) en lugar de `userCategoria` — código listo, **deploy pendiente** (bloqueado en Brian, ver detalle abajo)
 
 ---
 
@@ -220,6 +221,35 @@ export function categoriaBadge(cat) {
 Actualizar `Productos.jsx` e `Historial.jsx` para usar `categoriaBadge(producto.categoria)` en lugar del badge hardcodeado.
 
 Agregar las clases CSS en `index.css` (en la sección de badges, junto a `badge-canal-*` y `badge-estado-*`). Colores: coordinar con DESIGN_TASKS.md DT2.
+
+---
+
+## DEV8 · Validación de rol vía Clerk (`appToken`) `[M]` — CRÍTICO (seguridad)
+
+**Problema:** GAS no validaba `userCategoria` contra Clerk — confiaba ciegamente en el parámetro
+que mandaba el frontend. Con la `apiKey` pública (visible en el bundle, ver hallazgo de seguridad
+histórico en `CLAUDE.internal.md`) + devtools, se podía falsificar `userCategoria=admin` sin pasar
+por Clerk. Riesgo: BAJA en demo, MEDIA-ALTA si el cliente pasa a producción con datos sensibles.
+
+**Cambios (commit `908140b`, 2026-07-21):**
+1. `Codigo.gs` — nueva acción `clerkExchange(clerkToken)`: llama a la API real de Clerk
+   (`GET /v1/users/{id}`) para sacar `public_metadata.categoria`, y emite un `appToken`
+   reusando `generateToken`/`validateToken`/`CacheService` (ya existían en el archivo, sin usar).
+   `processRequest` ya no arma `user` desde `params.userCategoria` — exige `appToken` válido.
+   Incluye `testClerkExchange()` para verificar manualmente antes de confiar en el flujo.
+2. `src/context/AuthContext.jsx` — al cargar el usuario de Clerk, canjea el token de sesión
+   (`useAuth().getToken()`) una sola vez por un `appToken`, guardado en `localStorage.cafe_app_token`.
+   `ready` espera ese intercambio.
+3. `src/api/api.js` — `apiGet`/`apiPost` mandan `appToken` en cada request; nuevo `auth.clerkExchange`.
+
+**Estado:** frontend commiteado y pusheado, retrocompatible (el GAS viejo sigue funcionando igual
+mientras no se despliegue el nuevo). El `Codigo.gs` nuevo está escrito pero **no desplegado** —
+requiere 5 pasos manuales de Brian en Clerk/Apps Script. Detalle completo en
+`~/.claude/projects/-Users-brianear-proyectos-cafe-plus/memory/pending-blockers.md` y en PLAN.md.
+
+Verificación hecha: `npm run build` ✓ · `npm run lint` → 0 errores · `npm run test:run` → 20/20 ·
+harness simulado (mock temporal de Clerk+fetch) confirmó ambos caminos (éxito/fallo del intercambio).
+**No verificado contra Clerk/GAS reales** — pendiente del deploy.
 
 ---
 
