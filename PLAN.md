@@ -2,12 +2,19 @@
 > Prioridad: portafolio público. Criterio: convencer a reclutador que revisa repo en 5 min.
 > Fecha: 2026-06-17
 
+> **✅ Plan del 2026-06-17 mayormente COMPLETADO** — C1-C5, I1-I6, N1, N2, N5 cerrados (ver
+> `DEV_TASKS.md`/`DESIGN_TASKS.md` para el detalle de commits). N4 se convirtió en el ítem B2,
+> diferido. **N3 (separar Analisis.jsx) sigue sin hacerse** — verificado 2026-07-22, el archivo
+> creció a 812 líneas (por encima del máximo de 800 de las reglas de estilo del usuario), no a
+> menos. Queda como referencia histórica abajo.
+> **Ver "Plan vigente (2026-07-22)" al final del archivo para el trabajo activo actual.**
+
 ---
 
 ## CRÍTICO — Bloquea mostrar el proyecto
 
 ### C1 · Sacar CLAUDE.md del repo público `[S]`
-**Problema:** CLAUDE.md contiene historial de sesiones, decisiones internas y credenciales de prueba en un repo público. Un reclutador que lo lee ve: "admin/admin123" y "cajero1/cajero123" en producción.
+**Problema:** CLAUDE.md contiene historial de sesiones, decisiones internas y credenciales de prueba en texto plano, en un repo público. Un reclutador que lo lee ve pares usuario/contraseña presentados como si fueran de producción.
 **Acción:**
 1. Agregar `CLAUDE.md` y `DESIGNER.md` a `.gitignore`
 2. Hacer `git rm --cached CLAUDE.md DESIGNER.md`
@@ -117,3 +124,25 @@ Tiene más impacto visual que 10 screenshots estáticos.
 7. I6 — CI básico (30 min)
 8. N1, N2 — sesión de diseño
 9. N3, N4 — sesiones de refactor/testing separadas
+
+---
+
+## Plan vigente (actualizado 2026-07-22)
+
+El plan de arriba está cerrado salvo N3/N4 (nunca se retomaron). El trabajo activo hoy es otro:
+
+### 🔴 P1 · Completar deploy del fix de seguridad Clerk/appToken — bloqueado en Brian
+DEV8 (ver `DEV_TASKS.md`) está commiteado pero no desplegado. 5 pasos manuales en Clerk +
+Apps Script, detallados en `~/.claude/projects/-Users-brianear-proyectos-cafe-plus/memory/pending-blockers.md`
+y en `cierre.md`. Nada de código pendiente de este lado — es 100% acción externa de Brian, luego
+un smoke-test en producción (login admin/cajero, confirmar que no hay escalación de privilegios).
+
+### 🟡 P2 · N3 — Separar Analisis.jsx `[M]` (reabierto)
+812 líneas — por encima del máximo de 800 líneas de las reglas de estilo del usuario. Nunca se
+hizo pese a estar en el plan original de 2026-06-17. Candidato: extraer `AnalisisKPIs.jsx`,
+`AnalisisCharts.jsx`, `AnalisisIA.jsx` (el panel de chat ya vive en `AISidebar.jsx` — lo que falta
+extraer es la lógica de KPIs/gráficas propia de Analisis.jsx).
+
+### 🟡 P3 · B2 — Tests de componentes (diferido desde S11)
+0 tests de páginas/componentes/contextos. Backlog de calidad, no bloqueante. Ver
+`pending-blockers.md`.

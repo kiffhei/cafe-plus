@@ -40,3 +40,6 @@ Codigo.gs
 
 # Claude Code settings locales
 .claude/
+
+# Marcador local de verificación pre-push (lo escribe scripts/verificar.sh)
+.claude/estado-verificacion.json

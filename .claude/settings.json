@@ -5,5 +5,22 @@
       "mcp__0a132713-0a44-4905-b92e-a3796b4ad0f3__execute_workflow",
       "mcp__0a132713-0a44-4905-b92e-a3796b4ad0f3__search_workflows"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/exige-verificacion.py\""
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/bloquea-env.py\""
+          }
+        ]
+      }
+    ]
   }
 }
