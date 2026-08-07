@@ -259,3 +259,31 @@ harness simulado (mock temporal de Clerk+fetch) confirmó ambos caminos (éxito/
 2. **DEV5** — decisión previa de Brian, luego 5 min de ejecución.
 3. **DEV6** — sesión separada de 30 min para CI.
 4. **DEV7** — coordinar con sesión de diseño (DESIGN_TASKS.md DT2).
+
+---
+
+## Vitrina BA Automation — pasos para entrar al portafolio público
+
+> Agregado 2026-08-07 tras la auditoría de publicabilidad. Este es el caso de estudio más
+> completo del portafolio (producto real, cliente real, frontend + backend + IA), y el
+> único con demo abrible por cualquiera. Por eso el estándar es más alto.
+
+- [ ] **VIT1 — Desplegar el `Codigo.gs` con validación de rol vía `appToken` de Clerk.**
+      El fix está commiteado en el frontend, pero falta desplegar la contraparte del
+      backend, así que producción sigue con el modelo de validación anterior. **El detalle
+      técnico vive en `pending-blockers.md` de la memoria privada del proyecto y no se
+      documenta aquí a propósito: este repositorio es público y el pendiente sigue
+      abierto.** Requiere pasos manuales de Brian en Clerk y Apps Script. Bloqueante antes
+      de presentar la demo a un perfil técnico.
+- [ ] **VIT2 — Arreglar el lint.** `npx eslint .` da hoy **13 errores y 10 warnings**
+      (verificado 2026-08-07), pese a que el propio DEV_TASKS afirmaba "0 errores" al
+      2026-07-22. Son `no-undef` de `require`/`module`/`__dirname` en `dashboard/generate.js`
+      y `dashboard/server.js`: scripts CommonJS que `eslint.config.js` no cubre. Se
+      resuelve dando `env: node` a `dashboard/`. 5 minutos, y hace verdadera la
+      afirmación del README.
+- [ ] **VIT3 — Resolver la credencial de prueba pre-Clerk que quedó en el historial de
+      git.** Ya no autentica nada (la auth es 100% Clerk desde `908140b`) y no está en
+      ningún archivo actual, pero el repo es público y el historial sigue siendo legible.
+      Purgarla del historial, o dejar constancia de que es una credencial muerta.
+
+**Estado para vitrina: BLOQUEADO en VIT1.** VIT2 y VIT3 son de bajo esfuerzo.
