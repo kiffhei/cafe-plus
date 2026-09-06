@@ -148,3 +148,25 @@ desplegado en producción todavía** — bloqueado en pasos manuales de Brian en
 Ver `PROMPT_KICKOFF.md` (KICKOFF D) y la memoria del proyecto (`pending-blockers.md`) para el
 detalle exacto. Hasta que se despliegue, producción sigue con el modelo viejo — sin riesgo
 adicional respecto al que ya existía, solo sin la mitigación todavía activa.
+
+---
+
+## Addendum — 2026-09-02: credencial de demo muerta en el historial de git
+
+**Hallazgo:** los usuarios de demostración `admin` y `cajero1` tuvieron contraseñas de
+prueba en el login viejo contra Google Sheets. Los valores no se reproducen aquí a
+propósito: este repo es público y el historial no se va a reescribir. Aparecieron en varios commits (README,
+`CLAUDE.md`, `AUDIT.md`, `PLAN.md`) entre el 2026 y se retiraron de todo archivo vigente en el
+commit `157739e` (2026-07-31).
+
+**Estado:** ya no autentican nada. La autenticación es 100% Clerk desde el commit `908140b` —
+no existe ningún endpoint que acepte usuario/contraseña. `git grep` sobre el árbol actual da
+cero coincidencias. Las cadenas siguen siendo legibles en el historial de git y este repositorio
+es público.
+
+**Decisión:** se deja constancia de que son credenciales muertas en lugar de reescribir el
+historial. Reescribir el historial de un repo público es irreversible, invalida todos los SHAs
+de commit (que este mismo proyecto cita en su documentación y memoria), y rompe clones y forks
+existentes. El riesgo real de la exposición es nulo: no hay sistema que esas cadenas abran.
+Para probar roles hoy: crear el usuario en Clerk con `publicMetadata.categoria` (`admin` o
+`cajero`). No reutilizar esas contraseñas en ningún otro sistema — trátense como públicas.

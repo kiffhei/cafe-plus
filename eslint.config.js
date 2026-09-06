@@ -28,4 +28,14 @@ export default defineConfig([
       'react-refresh/only-export-components': 'warn',
     },
   },
+  {
+    // `dashboard/` son scripts CommonJS de Node (generador + servidor local del
+    // tablero de estado), no forman parte del bundle de Vite. Usan `require`,
+    // `module` y `__dirname`, que con los globals de browser dan `no-undef`.
+    files: ['dashboard/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+      sourceType: 'commonjs',
+    },
+  },
 ])

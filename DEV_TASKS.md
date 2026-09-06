@@ -275,15 +275,22 @@ harness simulado (mock temporal de Clerk+fetch) confirmó ambos caminos (éxito/
       documenta aquí a propósito: este repositorio es público y el pendiente sigue
       abierto.** Requiere pasos manuales de Brian en Clerk y Apps Script. Bloqueante antes
       de presentar la demo a un perfil técnico.
-- [ ] **VIT2 — Arreglar el lint.** `npx eslint .` da hoy **13 errores y 10 warnings**
-      (verificado 2026-08-07), pese a que el propio DEV_TASKS afirmaba "0 errores" al
-      2026-07-22. Son `no-undef` de `require`/`module`/`__dirname` en `dashboard/generate.js`
-      y `dashboard/server.js`: scripts CommonJS que `eslint.config.js` no cubre. Se
-      resuelve dando `env: node` a `dashboard/`. 5 minutos, y hace verdadera la
-      afirmación del README.
-- [ ] **VIT3 — Resolver la credencial de prueba pre-Clerk que quedó en el historial de
-      git.** Ya no autentica nada (la auth es 100% Clerk desde `908140b`) y no está en
-      ningún archivo actual, pero el repo es público y el historial sigue siendo legible.
-      Purgarla del historial, o dejar constancia de que es una credencial muerta.
+- [x] **VIT2 — Arreglar el lint.** (2026-09-02) `npx eslint .` daba **13 errores y 10
+      warnings**: todos los errores eran `no-undef` de `require`/`module`/`__dirname` en
+      `dashboard/generate.js` y `dashboard/server.js`, scripts CommonJS de Node que
+      `eslint.config.js` lintaba con globals de browser. Fix: bloque nuevo en
+      `eslint.config.js` para `dashboard/**/*.js` con `globals.node` + `sourceType:
+      'commonjs'`. Ahora `npm run lint` → **0 errores, 10 warnings** (exit 0). Los 10
+      warnings son idioms de framework ya degradados a `warn` a propósito
+      (`react-hooks/set-state-in-effect` fetch-on-mount, `react-refresh/only-export-components`
+      en los contextos). Verificado: lint exit 0 · `npm run test:run` 20/20 · `npm run build` exit 0.
+- [x] **VIT3 — Credencial de prueba pre-Clerk en el historial de git.** (2026-09-02)
+      Resuelta por la vía documentada: se dejó constancia de que es una credencial
+      muerta (addendum 2026-09-02 en `AUDIT.md`) en lugar de reescribir el historial de
+      un repo público. Las credenciales de demo pre-Clerk (usuarios `admin` y `cajero1`,
+      contraseñas no reproducidas aquí) no autentican nada desde
+      `908140b` (auth 100% Clerk), no hay endpoint usuario/contraseña, y `git grep` sobre
+      el árbol actual da cero coincidencias. Reescribir el historial invalidaría todos
+      los SHAs que el propio proyecto cita y rompería clones/forks, con riesgo real nulo.
 
-**Estado para vitrina: BLOQUEADO en VIT1.** VIT2 y VIT3 son de bajo esfuerzo.
+**Estado para vitrina: BLOQUEADO en VIT1.** VIT2 y VIT3 cerrados el 2026-09-02.

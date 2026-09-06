@@ -39,7 +39,13 @@ cierre.md
 Codigo.gs
 
 # Claude Code settings locales
-.claude/
+# Se ignora el CONTENIDO (.claude/*), no el directorio: git no desciende a un
+# directorio excluido, así que con `.claude/` las excepciones de abajo serían inertes.
+.claude/*
+
+# Excepción: los hooks de seguridad SÍ se versionan (auditoría 2026-08-05, H4).
+# Sin esto, un clon nuevo hereda settings.json apuntando a scripts inexistentes.
+!.claude/hooks/
 
 # Marcador local de verificación pre-push (lo escribe scripts/verificar.sh)
 .claude/estado-verificacion.json
