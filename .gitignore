@@ -49,3 +49,6 @@ Codigo.gs
 
 # Marcador local de verificación pre-push (lo escribe scripts/verificar.sh)
 .claude/estado-verificacion.json
+
+# Descargas de material de terceros para auditorías (no ejecutar, no commitear)
+descargas/
