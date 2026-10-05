@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
 const DEBUG_IA = import.meta.env.VITE_DEBUG_IA === 'true'
 import {
   BarChart, Bar,
   LineChart, Line,
-  Treemap,
-  Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  Cell, LabelList,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts'
 import { pedidos as pedidosApi, formatMXN, formatFecha, canalBadge, generarMeses } from '../api/api'
@@ -33,22 +33,41 @@ const TEMA_CHART_BTN = {
   'vinyl-light':  '#8b3010',
 }
 
-const TEMA_CANAL_COLORS = {
-  'matcha':      { Local: '#2d6a4f', Rappi: '#1e6091', 'Uber Eats': '#40916c', 'DiDi Food': '#48cae4' },
-  'cafe-oscuro': { Local: '#8a5e34', Rappi: '#c09050', 'Uber Eats': '#b07540', 'DiDi Food': '#d4a070' },
-  'medianoche':  { Local: '#5248c8', Rappi: '#38b8f0', 'Uber Eats': '#8068e8', 'DiDi Food': '#38d4f0' },
-  'terracota':   { Local: '#b85820', Rappi: '#d4903a', 'Uber Eats': '#e8a850', 'DiDi Food': '#ffb878' },
-  'pizarra':     { Local: '#3a5070', Rappi: '#70a0c0', 'Uber Eats': '#a8e835', 'DiDi Food': '#60a8f0' },
-  'vinyl-dark':  { Local: '#7a6349', Rappi: '#b89060', 'Uber Eats': '#d4a843', 'DiDi Food': '#c8b070' },
-  'vinyl-light': { Local: '#8b3010', Rappi: '#b74416', 'Uber Eats': '#d45c28', 'DiDi Food': '#e07840' },
+// Colores de marca fijos — Rappi/Uber Eats/DiDi Food son marcas independientes a Café+,
+// su color no debe cambiar según el tema activo de la app (solo el de "Local" sí, porque
+// es Café+ mismo). Aproximación de sus colores públicos de marca, no logos.
+const CANAL_BRAND_COLORS = {
+  'Rappi':      '#FF441F',
+  'Uber Eats':  '#000000', // negro translúcido — como el branding general de la app Uber
+  'DiDi Food':  '#FF7A00',
 }
-function canalColor(name, tema) {
-  return (TEMA_CANAL_COLORS[tema] ?? TEMA_CANAL_COLORS['matcha'])[name] ?? '#84cba8'
+function canalColor(name, colorLocal) {
+  return CANAL_BRAND_COLORS[name] ?? colorLocal
 }
+
+// Color fijo (independiente del tema) para el radar de clientes fidelizados — dorado,
+// evoca "programa de lealtad" sin competir con el acento del tema activo.
+const LOYALTY_COLOR = '#d4af37'
+// Color fijo (independiente del tema) para "sin registro" SOLO en el radar comparativo —
+// azul, a propósito distante del dorado de arriba y de los verdes del tema activo, para
+// que las dos series se distingan incluso cuando se superponen.
+const UNREGISTERED_COLOR = '#3b82f6'
+
+// Fotografía de stock genérica por canal — no son fotos de marca, solo ambientación
+// (café sirviéndose / chefs trabajando en cocina / auto en movimiento de noche / repartidor
+// en moto haciendo una entrega urbana).
+const CANAL_FOTOS = {
+  local:    'photo-1515442261605-65987783cb6a',
+  rappi:    'photo-1676128923106-1f4bf988f347',
+  ubereats: 'photo-1758728073289-8f5f76f82fe3',
+  didi:     'photo-1636217255573-5f7eafa833f4',
+}
+
+// Punto focal por canal (fp-x/fp-y de Unsplash, 0–1) — se deja vacío mientras el recorte por
+// defecto (crop=center) enmarque bien al sujeto principal de la foto.
+const CANAL_FOTO_FOCO = {}
 
 const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK
-
-const TOOLTIP_LABEL_STYLE = { color: '#84cba8', fontWeight: '600' }
 
 // ── Helpers de fecha ─────────────────────────────────────────────
 
@@ -65,23 +84,203 @@ const PERIODOS = {
   mes:    { label: 'Este mes',    desde: fechaMX(-29), hasta: fechaMX() },
 }
 
+// Meses cubiertos por un rango de fechas (inclusive) — se usa para decidir si hay
+// suficiente historial como para que el radar comparativo de fidelización aporte algo
+// (con rangos cortos las dos series se ven casi iguales y no se distinguen).
+function mesesEnRango(desde, hasta) {
+  if (!desde || !hasta) return 0
+  const d = new Date(desde)
+  const h = new Date(hasta)
+  return (h.getFullYear() - d.getFullYear()) * 12 + (h.getMonth() - d.getMonth()) + 1
+}
+
+// Clases de grid completas (no interpoladas) para que Tailwind las detecte en build —
+// el número de columnas se ajusta al número real de tarjetas visibles, así cuando un
+// canal sin ventas desaparece, los restantes se reparten el espacio sin dejar hueco.
+const CANAL_GRID_COLS = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-2 sm:grid-cols-3',
+  4: 'grid-cols-2 sm:grid-cols-4',
+}
+
+// Mismo criterio que arriba, pero con breakpoint lg (los radares son más anchos que las
+// tarjetas de canal) — se usa para que los radares visibles llenen la cinta sin hueco.
+const RADAR_GRID_COLS = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 lg:grid-cols-2',
+  3: 'grid-cols-1 lg:grid-cols-3',
+}
+
+// ── Helpers del comparativo de periodos ─────────────────────────
+
+function toISODate(d) {
+  return d.toISOString().split('T')[0]
+}
+
+const HOY = new Date()
+const ANIO_ACTUAL = HOY.getFullYear()
+
+// Lista de meses desde enero 2025 (inicio del histórico sembrado) hasta el mes actual.
+function generarMesesDesde(anioInicio, mesInicio) {
+  const meses = []
+  let d = new Date(HOY.getFullYear(), HOY.getMonth(), 1)
+  const limite = new Date(anioInicio, mesInicio - 1, 1)
+  while (d >= limite) {
+    const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })
+    meses.push({
+      label: label.charAt(0).toUpperCase() + label.slice(1),
+      anio:  d.getFullYear(),
+      mes:   d.getMonth(),
+      desde: toISODate(d),
+      hasta: toISODate(new Date(d.getFullYear(), d.getMonth() + 1, 0)),
+    })
+    d = new Date(d.getFullYear(), d.getMonth() - 1, 1)
+  }
+  return meses
+}
+
+const MESES_COMPARATIVO  = generarMesesDesde(2025, 1)
+const ANIOS_COMPARATIVO  = [...new Set(MESES_COMPARATIVO.map(m => m.anio))].sort((a, b) => b - a)
+
+const COMPARATIVO_MODOS = [
+  { key: 'mes_anio', label: 'Mes vs. año anterior' },
+  { key: 'anio',     label: 'Año vs. año anterior' },
+  { key: 'mes_mes',  label: 'Mes vs. mes' },
+]
+
+function periodoMesAnioAnterior(mesObj) {
+  const d = new Date(mesObj.anio - 1, mesObj.mes, 1)
+  const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })
+  return {
+    label: label.charAt(0).toUpperCase() + label.slice(1),
+    desde: toISODate(d),
+    hasta: toISODate(new Date(d.getFullYear(), d.getMonth() + 1, 0)),
+  }
+}
+
+function periodoAnio(anio) {
+  const esActual = anio === ANIO_ACTUAL
+  return {
+    label: `Año ${anio}`,
+    desde: `${anio}-01-01`,
+    hasta: esActual ? toISODate(HOY) : `${anio}-12-31`,
+  }
+}
+
+async function obtenerMetricasPeriodo(desde, hasta) {
+  const res = await pedidosApi.getAll({ fecha_desde: desde, fecha_hasta: hasta })
+  if (!res.ok) throw new Error(res.message || 'sin datos')
+  const data = Array.isArray(res.data) ? res.data : []
+  const entregados = data.filter(p => p.estado === 'entregado')
+  const totalVentas = entregados.reduce((s, p) => s + parseFloat(p.total || 0), 0)
+  return {
+    totalVentas,
+    totalPedidos:   data.length,
+    ticketPromedio: entregados.length ? totalVentas / entregados.length : 0,
+  }
+}
+
 // ── KPI card ─────────────────────────────────────────────────────
 
-function KpiCard({ icon, label, value, sub, color = 'text-cafe-800 dark:text-crema-100', loading = false }) {
+function KpiCard({ icon, label, value, sub, color = 'kpi-value-theme', loading = false }) {
   return (
     <div className="kpi-card">
       <div className="flex items-center gap-2 mb-1">
-        <svg className="w-4 h-4 text-cafe-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <svg className="w-4 h-4 label-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
           <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
         </svg>
-        <p className="text-xs font-medium text-cafe-400 uppercase tracking-wide">{label}</p>
+        <p className="text-xs font-medium label-muted uppercase tracking-wide">{label}</p>
       </div>
       {loading ? (
-        <div className="h-6 w-3/4 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700 mt-1" />
+        <div className="h-6 w-3/4 rounded-full animate-pulse skeleton-theme mt-1" />
       ) : (
         <p className={`text-xl font-bold leading-tight truncate ${color}`}>{value}</p>
       )}
-      {sub && !loading && <p className="text-xs text-cafe-400 mt-0.5">{sub}</p>}
+      {sub && !loading && <p className="text-xs label-muted mt-0.5">{sub}</p>}
+    </div>
+  )
+}
+
+// ── Tarjeta comparativa (periodo A vs periodo B) ────────────────
+
+function ComparativoCard({ label, labelA, labelB, valueA, valueB, formatter = (v) => v }) {
+  const max = Math.max(valueA, valueB, 1)
+  const pctA = (valueA / max) * 100
+  const pctB = (valueB / max) * 100
+  const delta = valueB !== 0 ? ((valueA - valueB) / valueB) * 100 : (valueA > 0 ? 100 : 0)
+  const subiendo = delta >= 0
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-medium label-muted uppercase tracking-wide">{label}</p>
+        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+          subiendo ? 'text-emerald-400 bg-emerald-400/10' : 'text-red-400 bg-red-400/10'
+        }`}>
+          {subiendo ? '▲' : '▼'} {Math.abs(delta).toFixed(1)}%
+        </span>
+      </div>
+      <div className="space-y-2.5">
+        <div>
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-ink-secondary">{labelA}</span>
+            <span className="font-semibold text-accent-theme">{formatter(valueA)}</span>
+          </div>
+          <div className="h-2 rounded-full skeleton-theme-soft overflow-hidden">
+            <div className="h-full rounded-full" style={{ width: `${pctA}%`, background: 'var(--cafe-btn)' }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between text-xs mb-1">
+            <span className="label-muted">{labelB}</span>
+            <span className="font-semibold label-muted">{formatter(valueB)}</span>
+          </div>
+          <div className="h-2 rounded-full skeleton-theme-soft overflow-hidden">
+            <div className="h-full rounded-full opacity-50" style={{ width: `${pctB}%`, background: 'var(--cafe-btn)' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Tarjeta de canal de venta ────────────────────────────────────
+
+// Pide el recorte directamente a Unsplash (en vez de depender de object-position en CSS):
+// con una tarjeta mucho más ancha que alta, el recorte real que hace el navegador es
+// vertical, así que un ajuste horizontal en CSS no tiene efecto — hay que resolverlo en
+// el origen con el punto focal (fp-x/fp-y) que entiende el CDN de Unsplash.
+function canalFotoUrl(foto, foco) {
+  const base = `https://images.unsplash.com/${foto}?w=480&h=170&q=60&fit=crop`
+  return foco ? `${base}&crop=focalpoint&fp-x=${foco.x}&fp-y=${foco.y}&fp-z=1` : `${base}&crop=center`
+}
+
+function CanalCard({ label, foto, foco, pedidos, ventas, ticketPromedio, pct, color }) {
+  return (
+    <div className="relative rounded-2xl overflow-hidden border shadow-sm"
+         style={{ borderColor: 'var(--cafe-border)' }}>
+      <div className="h-24 flex items-center justify-center relative overflow-hidden">
+        <img
+          src={canalFotoUrl(foto, foco)}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-[2px]"
+        />
+        <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${color}99, ${color}66)` }} />
+        <span className="relative font-bold text-lg text-white drop-shadow-sm px-2 text-center">
+          {label}
+        </span>
+        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[11px] font-bold text-white bg-black/30">
+          {pct}%
+        </span>
+      </div>
+      <div className="p-3 modal-surface">
+        <div className="flex items-center justify-between text-xs">
+          <span className="label-muted">{pedidos} pedidos</span>
+          <span className="font-semibold text-accent-theme">{formatMXN(ventas)}</span>
+        </div>
+        <p className="text-xs label-muted mt-0.5">Ticket prom. {formatMXN(ticketPromedio)}</p>
+      </div>
     </div>
   )
 }
@@ -144,6 +343,58 @@ function calcularRankingProductos(pedidos) {
   }
 }
 
+// Ranking completo por producto (unidades y monto) — el top 5 a mostrar y el orden
+// se resuelven en el componente según el modo elegido (unidades vs monto).
+function calcularRankingProductosDetalle(pedidos) {
+  const mapa = {}
+  pedidos.forEach(p => {
+    parseItems(p.items).forEach(it => {
+      const nombre = it.nombre_producto ?? it.nombre ?? it.product_name
+      if (!nombre) return
+      const cantidad = Number(it.cantidad) || 1
+      const monto    = Number(it.subtotal_linea ?? cantidad * Number(it.precio_unitario || 0))
+      const prev = mapa[nombre] || { qty: 0, monto: 0 }
+      mapa[nombre] = { qty: prev.qty + cantidad, monto: prev.monto + monto }
+    })
+  })
+  return Object.entries(mapa).map(([nombre, v]) => ({ nombre, ...v }))
+}
+
+const CANALES_VALIDOS = ['local', 'didi', 'rappi', 'ubereats']
+
+// Defensa contra valores de canal mal capturados en la fuente (ej. "didifood" en vez
+// de "didi") — normaliza a la clave canónica más cercana en vez de crear un grupo nuevo.
+function normCanal(raw) {
+  const v = (raw || 'local').toLowerCase().trim()
+  if (CANALES_VALIDOS.includes(v)) return v
+  return CANALES_VALIDOS.find(c => v.startsWith(c)) || v
+}
+
+function calcularPorCanalDetalle(pedidos) {
+  const mapa = {}
+  pedidos.forEach(p => {
+    const canal = normCanal(p.canal)
+    const prev = mapa[canal] || { count: 0, ventas: 0 }
+    mapa[canal] = {
+      count:  prev.count + 1,
+      ventas: prev.ventas + (p.estado === 'entregado' ? parseFloat(p.total || 0) : 0),
+    }
+  })
+  const totalPedidos = pedidos.length
+  return Object.entries(mapa)
+    .map(([canal, { count, ventas }]) => ({
+      canal,
+      ...canalBadge(canal),
+      foto:           CANAL_FOTOS[canal] || CANAL_FOTOS.local,
+      foco:           CANAL_FOTO_FOCO[canal],
+      pedidos:        count,
+      ventas,
+      ticketPromedio: count ? ventas / count : 0,
+      pct:            totalPedidos ? Math.round((count / totalPedidos) * 100) : 0,
+    }))
+    .sort((a, b) => b.pedidos - a.pedidos)
+}
+
 function calcularHoraPico(pedidos) {
   const conteo = Array(24).fill(0)
   pedidos.forEach(p => {
@@ -159,6 +410,89 @@ function calcularHoraPico(pedidos) {
     pedidos: count,
     esPico: count === maxVal && maxVal > 0,
   }))
+}
+
+const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+function etiquetaMes(claveAnioMes) {
+  const [anio, mes] = claveAnioMes.split('-').map(Number)
+  return `${MESES_CORTOS[mes - 1]} ${String(anio).slice(2)}`
+}
+
+function siguienteClaveMes(claveAnioMes, offset) {
+  const [anio, mes] = claveAnioMes.split('-').map(Number)
+  const d = new Date(anio, mes - 1 + offset, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+function agruparPorMes(pedidos) {
+  const mapa = {}
+  pedidos.forEach(p => {
+    if (!p.fecha_hora) return
+    const clave = String(p.fecha_hora).substring(0, 7) // YYYY-MM
+    mapa[clave] = (mapa[clave] || 0) + parseFloat(p.total || 0)
+  })
+  return Object.entries(mapa)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([clave, total]) => ({ clave, total }))
+}
+
+// Proyección simple por regresión lineal (mínimos cuadrados) sobre ventas mensuales —
+// no es un modelo estadístico avanzado, es una tendencia legible para dar una referencia
+// rápida de hacia dónde apunta el negocio, no una predicción precisa.
+function calcularForecastMensual(porMes, mesesFuturos = 3) {
+  const n = porMes.length
+  if (n < 3) return []
+
+  // El mes en curso va a medias (solo lleva los días transcurridos) — si entra a la
+  // regresión con el mismo peso que un mes completo, su total artificialmente bajo
+  // jala la tendencia hacia abajo. Se excluye del ajuste pero se sigue mostrando como
+  // dato real; su lugar en la línea de tiempo se respeta para proyectar los meses siguientes.
+  const mesActual = `${HOY.getFullYear()}-${String(HOY.getMonth() + 1).padStart(2, '0')}`
+  const completos = porMes.filter(m => m.clave !== mesActual)
+  const nc = completos.length
+  if (nc < 3) return []
+
+  const xs = completos.map((_, i) => i)
+  const ys = completos.map(m => m.total)
+  const xMean = xs.reduce((a, b) => a + b, 0) / nc
+  const yMean = ys.reduce((a, b) => a + b, 0) / nc
+  const num = xs.reduce((s, x, i) => s + (x - xMean) * (ys[i] - yMean), 0)
+  const den = xs.reduce((s, x) => s + (x - xMean) ** 2, 0)
+  const slope = den ? num / den : 0
+  const intercept = yMean - slope * xMean
+
+  const ultimaClaveCompleta = completos[nc - 1].clave
+  const ultimaClave = porMes[n - 1].clave // puede ser el mes parcial en curso
+  // El mes parcial tampoco se dibuja: su total va a medias y crea una caída visual
+  // engañosa justo antes de la proyección. Se construye solo con meses completos.
+  const historico = completos.map(m => ({
+    mes: etiquetaMes(m.clave),
+    real: m.total,
+    proyeccion: m.clave === ultimaClaveCompleta ? m.total : null, // puente visual, desde el último mes completo
+  }))
+  const futuro = Array.from({ length: mesesFuturos }, (_, k) => ({
+    mes: etiquetaMes(siguienteClaveMes(ultimaClave, k + 1)),
+    real: null,
+    proyeccion: Math.max(0, Math.round(intercept + slope * (n + k))),
+  }))
+  return [...historico, ...futuro]
+}
+
+// Visitas de clientes por mes del año (ene-dic, agregado sobre el periodo filtrado) —
+// revela estacionalidad en vez de solo la tendencia del rango seleccionado.
+// `filtro` acota el set de pedidos (ej. solo canal local, solo clientes fidelizados).
+function calcularVisitasPorMes(pedidos, filtro = () => true) {
+  const conteo = Array(12).fill(null).map(() => ({ visitas: 0, monto: 0 }))
+  pedidos.forEach(p => {
+    if (!p.fecha_hora || !filtro(p)) return
+    const d = new Date(p.fecha_hora)
+    if (isNaN(d.getTime())) return
+    const m = d.getMonth()
+    conteo[m].visitas += 1
+    if (p.estado === 'entregado') conteo[m].monto += parseFloat(p.total || 0)
+  })
+  return conteo.map(({ visitas, monto }, i) => ({ mes: MESES_CORTOS[i], visitas, monto }))
 }
 
 // ── Chips de preguntas rápidas ───────────────────────────────────
@@ -187,6 +521,9 @@ export default function Analisis() {
   const TOOLTIP_ITEM_STYLE = { color: '#f0ece8' }
   const chartAccent = TEMA_CHART_PRIMARY[tema] || '#52b788'
   const chartBtn    = TEMA_CHART_BTN[tema]    || '#2d6a4f'
+  // Dinámico por tema — antes era un color fijo (#84cba8, verde de Matcha) que no
+  // cambiaba con el tema activo y quedaba poco legible en temas no-verdes.
+  const TOOLTIP_LABEL_STYLE = { color: chartAccent, fontWeight: '600' }
 
   // Periodo
   const [periodo, setPeriodo]       = useState('semana')
@@ -197,12 +534,50 @@ export default function Analisis() {
   // Datos
   const [kpis, setKpis]               = useState(null)
   const [ventasDia, setVentasDia]     = useState([])
-  const [porCanal, setPorCanal]       = useState([])
   const [tendencia, setTendencia]     = useState([])
   const [pedidos, setPedidos]         = useState([])
   const [rankingProd, setRankingProd] = useState({ top: null, menos: null })
+  const [productosRanking, setProductosRanking] = useState([])
+  const [top5Modo, setTop5Modo] = useState('unidades') // 'unidades' | 'monto'
+  const top5Productos = useMemo(() => (
+    [...productosRanking]
+      .sort((a, b) => top5Modo === 'unidades' ? b.qty - a.qty : b.monto - a.monto)
+      .slice(0, 5)
+  ), [productosRanking, top5Modo])
+  const [canalDetalle, setCanalDetalle] = useState([])
+  const [visitasMesSinRegistro, setVisitasMesSinRegistro] = useState([])
+  const [visitasMesFidelizados, setVisitasMesFidelizados] = useState([])
+  // Comparativo de los dos radares anteriores — mismo eje de meses, valor graficado
+  // es "visitas" en ambos (el monto va solo en el tooltip) para no mezclar unidades
+  // distintas en el mismo radar.
+  const visitasMesComparativo = useMemo(() => (
+    visitasMesSinRegistro.map((m, i) => ({
+      mes: m.mes,
+      sinRegistro: m.visitas,
+      montoSinRegistro: m.monto,
+      fidelizados: visitasMesFidelizados[i]?.visitas || 0,
+      montoFidelizados: visitasMesFidelizados[i]?.monto || 0,
+    }))
+  ), [visitasMesSinRegistro, visitasMesFidelizados])
+  // Visibilidad real de cada radar — igual que con las tarjetas de canal, el número de
+  // columnas se ajusta a cuántos quedan visibles para que no dejen hueco al desaparecer.
+  const sinRegistroVisible = visitasMesSinRegistro.some(m => m.visitas > 0)
+  const fidelizadosVisible = visitasMesFidelizados.some(m => m.visitas > 0)
+  const comparativoVisible = mesesEnRango(fechaDesde, fechaHasta) >= 6 && (sinRegistroVisible || fidelizadosVisible)
+  const radaresVisibles    = [sinRegistroVisible, fidelizadosVisible, comparativoVisible].filter(Boolean).length
+  const [forecast, setForecast]       = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
+
+  // Comparativo de periodos
+  const [compModo, setCompModo] = useState('mes_anio')
+  const [compMesA, setCompMesA] = useState(MESES_COMPARATIVO[0].desde)
+  const [compMesB, setCompMesB] = useState(MESES_COMPARATIVO[1]?.desde ?? MESES_COMPARATIVO[0].desde)
+  const [compAnio, setCompAnio] = useState(ANIOS_COMPARATIVO[0])
+  const [compA, setCompA]       = useState(null)
+  const [compB, setCompB]       = useState(null)
+  const [compLoading, setCompLoading] = useState(false)
+  const [compError, setCompError]     = useState('')
 
   // Chat IA
   const [mensajes, setMensajes]   = useState([])
@@ -224,6 +599,13 @@ export default function Analisis() {
 
       const ranking = calcularRankingProductos(todos)
       setRankingProd(ranking)
+      setProductosRanking(calcularRankingProductosDetalle(todos))
+      setCanalDetalle(calcularPorCanalDetalle(todos))
+      // Ambos radares se acotan a canal local — compras de fidelizados vía didi/rappi/
+      // ubereats entran por ese canal y no cuentan aquí (no son lealtad "del local").
+      setVisitasMesSinRegistro(calcularVisitasPorMes(todos, p => normCanal(p.canal) === 'local' && !p.id_cliente))
+      setVisitasMesFidelizados(calcularVisitasPorMes(todos, p => normCanal(p.canal) === 'local' && !!p.id_cliente))
+      setForecast(calcularForecastMensual(agruparPorMes(entregados)))
 
       // ── KPIs ──
       const totalVentas = entregados.reduce((s, p) => s + parseFloat(p.total || 0), 0)
@@ -247,19 +629,6 @@ export default function Analisis() {
           }))
       )
 
-      // ── Por canal ──
-      const canalMap = {}
-      todos.forEach(p => {
-        const k = p.canal || 'local'
-        canalMap[k] = (canalMap[k] || 0) + 1
-      })
-      setPorCanal(
-        Object.entries(canalMap).map(([canal, count]) => ({
-          name:  canalBadge(canal).label,
-          value: count,
-        }))
-      )
-
       // ── Tendencia acumulada ──
       setTendencia(
         Object.entries(porDia)
@@ -277,6 +646,37 @@ export default function Analisis() {
   }, [fechaDesde, fechaHasta])
 
   useEffect(() => { cargar() }, [cargar])
+
+  // ── Comparativo de periodos — carga independiente del periodo principal ──
+
+  const cargarComparativo = useCallback(async () => {
+    setCompLoading(true); setCompError('')
+    try {
+      let periodoA, periodoB
+      if (compModo === 'anio') {
+        periodoA = periodoAnio(compAnio)
+        periodoB = periodoAnio(compAnio - 1)
+      } else {
+        const mesObjA = MESES_COMPARATIVO.find(m => m.desde === compMesA) ?? MESES_COMPARATIVO[0]
+        periodoA = mesObjA
+        periodoB = compModo === 'mes_mes'
+          ? (MESES_COMPARATIVO.find(m => m.desde === compMesB) ?? MESES_COMPARATIVO[1] ?? mesObjA)
+          : periodoMesAnioAnterior(mesObjA)
+      }
+      const [metricasA, metricasB] = await Promise.all([
+        obtenerMetricasPeriodo(periodoA.desde, periodoA.hasta),
+        obtenerMetricasPeriodo(periodoB.desde, periodoB.hasta),
+      ])
+      setCompA({ label: periodoA.label, ...metricasA })
+      setCompB({ label: periodoB.label, ...metricasB })
+    } catch (err) {
+      setCompError(`Error de conexión: ${err?.message || String(err)}`)
+    } finally {
+      setCompLoading(false)
+    }
+  }, [compModo, compMesA, compMesB, compAnio])
+
+  useEffect(() => { cargarComparativo() }, [cargarComparativo])
 
   // Auto-scroll chat
   useEffect(() => {
@@ -375,8 +775,7 @@ export default function Analisis() {
         <select
           value={mesSel}
           onChange={e => seleccionarMes(e.target.value)}
-          className="input-cafe text-sm"
-          style={{ minWidth: '180px' }}
+          className="input-cafe text-sm w-44"
         >
           <option value="">Todos los registros</option>
           {MESES.map(m => (
@@ -388,7 +787,7 @@ export default function Analisis() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
               ${periodo === key
                 ? 'tab-active-theme'
-                : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
+                : 'btn-ghost-theme'}`}>
             {label}
           </button>
         ))}
@@ -396,25 +795,25 @@ export default function Analisis() {
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
             ${periodo === 'custom'
               ? 'tab-active-theme'
-              : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
+              : 'btn-ghost-theme'}`}>
           Personalizado
         </button>
         {periodo === 'custom' && (
-          <>
+          <div className="flex items-center gap-2">
             <input type="date" value={fechaDesde}
               onChange={e => setFechaDesde(e.target.value)}
-              className="input-cafe text-sm" />
-            <span className="text-cafe-400 text-sm">—</span>
+              className="input-cafe text-sm w-36" />
+            <span className="label-muted">—</span>
             <input type="date" value={fechaHasta}
               onChange={e => setFechaHasta(e.target.value)}
-              className="input-cafe text-sm" />
+              className="input-cafe text-sm w-36" />
             <button onClick={cargar} className="btn-primary text-sm px-4 py-2">
               Aplicar
             </button>
-          </>
+          </div>
         )}
         {loading && (
-          <span className="w-4 h-4 border-2 border-cafe-400 border-t-cafe-700
+          <span className="w-4 h-4 border-2 spinner-theme
                            rounded-full animate-spin" />
         )}
       </div>
@@ -456,26 +855,26 @@ export default function Analisis() {
       {loading && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl h-48 animate-pulse bg-cafe-100 dark:bg-cafe-800" />
-            <div className="rounded-2xl h-48 animate-pulse bg-cafe-100 dark:bg-cafe-800" />
+            <div className="rounded-2xl h-48 animate-pulse skeleton-theme-soft" />
+            <div className="rounded-2xl h-48 animate-pulse skeleton-theme-soft" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 card animate-pulse">
-              <div className="h-4 w-32 rounded-full bg-cafe-200 dark:bg-cafe-700 mb-4" />
-              <div className="h-[220px] rounded-xl bg-cafe-100 dark:bg-cafe-800" />
+              <div className="h-4 w-32 rounded-full skeleton-theme mb-4" />
+              <div className="h-[220px] rounded-xl skeleton-theme-soft" />
             </div>
             <div className="card animate-pulse">
-              <div className="h-4 w-24 rounded-full bg-cafe-200 dark:bg-cafe-700 mb-4" />
-              <div className="h-[200px] rounded-xl bg-cafe-100 dark:bg-cafe-800" />
+              <div className="h-4 w-24 rounded-full skeleton-theme mb-4" />
+              <div className="h-[200px] rounded-xl skeleton-theme-soft" />
             </div>
           </div>
           <div className="card animate-pulse">
-            <div className="h-4 w-40 rounded-full bg-cafe-200 dark:bg-cafe-700 mb-4" />
-            <div className="h-[180px] rounded-xl bg-cafe-100 dark:bg-cafe-800" />
+            <div className="h-4 w-40 rounded-full skeleton-theme mb-4" />
+            <div className="h-[180px] rounded-xl skeleton-theme-soft" />
           </div>
           <div className="modal-surface rounded-xl p-5 shadow-card animate-pulse">
-            <div className="h-4 w-48 rounded-full bg-cafe-200 dark:bg-cafe-700 mb-4" />
-            <div className="h-[200px] rounded-xl bg-cafe-100 dark:bg-cafe-800" />
+            <div className="h-4 w-48 rounded-full skeleton-theme mb-4" />
+            <div className="h-[200px] rounded-xl skeleton-theme-soft" />
           </div>
         </div>
       )}
@@ -543,106 +942,79 @@ export default function Analisis() {
       )}
 
       {/* ── Sección C: Gráficas ── */}
-      {/* GRAFICA_1_BAR */}
+      {/* GRAFICA_1_AREA: ventas por día + promedio móvil 7d, GRAFICA_1B: top 5 productos */}
       {!loading && ventasDia.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 card">
             <h3 className="text-sm font-semibold text-accent-theme mb-4">Ventas por día</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={ventasDia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id={`barHigh${tema}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={chartBtn}    stopOpacity={1}   />
-                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.75} />
-                  </linearGradient>
-                  <linearGradient id={`barMid${tema}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={chartAccent} stopOpacity={0.85} />
-                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.45} />
-                  </linearGradient>
-                  <linearGradient id={`barLow${tema}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={chartAccent} stopOpacity={0.50} />
-                    <stop offset="100%" stopColor={chartAccent} stopOpacity={0.20} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.15} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.12} vertical={false} />
                 <XAxis dataKey="dia" tick={{ fontSize: 10, fill: chartAccent }} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: chartAccent }} tickLine={false}
                   tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={36} />
                 <Tooltip
+                  cursor={{ fill: chartAccent, fillOpacity: 0.08 }}
                   formatter={(value) => [formatMXN(value), 'Ventas']}
                   labelFormatter={(label) => `Día: ${label}`}
                   contentStyle={TOOLTIP_STYLE}
                   itemStyle={TOOLTIP_ITEM_STYLE}
                   labelStyle={TOOLTIP_LABEL_STYLE}
                 />
-                <Bar dataKey="Ventas" radius={[6, 6, 0, 0]} maxBarSize={44}>
-                  {ventasDia.map((entry, i) => {
-                    const max = Math.max(...ventasDia.map(d => d.Ventas))
-                    return (
-                      <Cell key={i} fill={
-                        entry.Ventas > max * 0.66 ? `url(#barHigh${tema})` :
-                        entry.Ventas > max * 0.33 ? `url(#barMid${tema})` :
-                        `url(#barLow${tema})`
-                      } />
-                    )
-                  })}
-                </Bar>
+                <Bar dataKey="Ventas" fill={chartBtn} radius={[4, 4, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      )}
 
-      {/* GRAFICA_2_TREEMAP */}
-      {!loading && porCanal.length > 0 && (
-        <div className="card flex flex-col">
-          <h3 className="text-sm font-semibold text-accent-theme mb-4">Por canal</h3>
-          <ResponsiveContainer width="100%" height={200} className="sm:h-[240px]">
-            <Treemap
-              data={porCanal.map(d => ({ ...d, fill: canalColor(d.name, tema) }))}
-              dataKey="value"
-              aspectRatio={4 / 3}
-              content={(props) => {
-                const { x, y, width, height, name, value, fill } = props
-                const total = porCanal.reduce((s, d) => s + d.value, 0)
-                const pct = total > 0 ? Math.round((value / total) * 100) : 0
-                const showText = width > 48 && height > 32
-                return (
-                  <g>
-                    <rect x={x} y={y} width={width} height={height}
-                      fill={fill} rx={4} ry={4} stroke="#0d1b2a" strokeWidth={2} />
-                    {showText && (
-                      <>
-                        <text x={x + width / 2} y={y + height / 2 - 6}
-                          textAnchor="middle" dominantBaseline="middle"
-                          fill="#ffffff" fontSize={11} fontWeight={600}
-                          style={{ pointerEvents: 'none' }}>
-                          {name}
-                        </text>
-                        <text x={x + width / 2} y={y + height / 2 + 9}
-                          textAnchor="middle" dominantBaseline="middle"
-                          fill="rgba(255,255,255,0.8)" fontSize={10}
-                          style={{ pointerEvents: 'none' }}>
-                          {pct}%
-                        </text>
-                      </>
-                    )}
-                  </g>
-                )
-              }}
-            >
-              <Tooltip
-                formatter={(value, name) => {
-                  const total = porCanal.reduce((s, d) => s + d.value, 0)
-                  const pct = total > 0 ? Math.round((value / total) * 100) : 0
-                  return [`${value} pedidos (${pct}%)`, name]
-                }}
-                contentStyle={{ backgroundColor: '#0d2d1f', border: '1px solid #1a4a34', borderRadius: '8px', color: '#e8f5f0', fontSize: '12px' }}
-                itemStyle={{ color: '#e8f5f0' }}
-                labelStyle={{ color: '#84cba8', fontWeight: '600' }}
-              />
-            </Treemap>
-          </ResponsiveContainer>
+          {top5Productos.length > 0 && (
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-accent-theme">Top 5 productos</h3>
+                <div className="flex gap-1">
+                  <button onClick={() => setTop5Modo('unidades')}
+                    className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all
+                      ${top5Modo === 'unidades' ? 'tab-active-theme' : 'btn-ghost-theme'}`}>
+                    Unidades
+                  </button>
+                  <button onClick={() => setTop5Modo('monto')}
+                    className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all
+                      ${top5Modo === 'monto' ? 'tab-active-theme' : 'btn-ghost-theme'}`}>
+                    Monto
+                  </button>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={top5Productos} layout="vertical" margin={{ top: 4, right: 40, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.15} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: chartAccent }} tickLine={false}
+                    allowDecimals={false}
+                    tickFormatter={v => top5Modo === 'monto' ? `$${(v / 1000).toFixed(0)}k` : v} />
+                  <YAxis type="category" dataKey="nombre" tick={{ fontSize: 10, fill: chartAccent }}
+                    tickLine={false} width={88}
+                    tickFormatter={v => v.length > 13 ? `${v.slice(0, 12)}…` : v} />
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      `${props.payload.qty} unidades · ${formatMXN(props.payload.monto)}`, 'Vendidos',
+                    ]}
+                    contentStyle={TOOLTIP_STYLE}
+                    itemStyle={TOOLTIP_ITEM_STYLE}
+                    labelStyle={TOOLTIP_LABEL_STYLE}
+                  />
+                  <Bar dataKey={top5Modo === 'unidades' ? 'qty' : 'monto'} radius={[0, 6, 6, 0]} maxBarSize={16}>
+                    {top5Productos.map((_, i) => (
+                      <Cell key={i} fill={i === 0 ? chartBtn : chartAccent} fillOpacity={i === 0 ? 1 : 0.85 - i * 0.13} />
+                    ))}
+                    <LabelList
+                      dataKey={top5Modo === 'unidades' ? 'qty' : 'monto'}
+                      position="right"
+                      formatter={v => top5Modo === 'unidades' ? `${v} u.` : formatMXN(v)}
+                      style={{ fontSize: 10, fill: chartAccent }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       )}
 
@@ -670,13 +1042,84 @@ export default function Analisis() {
         </div>
       )}
 
+      {/* ── Sección C-bis: Canales de venta ── (separada de "Destaca del Período" a propósito:
+           dos bloques con fotos consecutivos se sentían monótonos — ahora hay 3 gráficas entre medio) */}
+      {!loading && canalDetalle.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-accent-theme mb-3">Canales de venta</h3>
+          <div className={`grid ${CANAL_GRID_COLS[Math.min(canalDetalle.length, 4)] || CANAL_GRID_COLS[4]} gap-4`}>
+            {canalDetalle.map(c => (
+              <CanalCard key={c.canal} {...c} color={canalColor(c.label, chartBtn)} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Sección C-ter: Comparativo de periodos ── */}
+      <div className="card">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h3 className="text-sm font-semibold text-accent-theme">Comparativo de periodos</h3>
+          <div className="flex gap-1.5 flex-wrap">
+            {COMPARATIVO_MODOS.map(m => (
+              <button key={m.key} onClick={() => setCompModo(m.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                  ${compModo === m.key ? 'tab-active-theme' : 'btn-ghost-theme'}`}>
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          {compModo !== 'anio' && (
+            <select value={compMesA} onChange={e => setCompMesA(e.target.value)} className="input-cafe text-sm">
+              {MESES_COMPARATIVO.map(m => <option key={m.desde} value={m.desde}>{m.label}</option>)}
+            </select>
+          )}
+          {compModo === 'mes_mes' && (
+            <>
+              <span className="label-muted text-xs">vs.</span>
+              <select value={compMesB} onChange={e => setCompMesB(e.target.value)} className="input-cafe text-sm">
+                {MESES_COMPARATIVO.map(m => <option key={m.desde} value={m.desde}>{m.label}</option>)}
+              </select>
+            </>
+          )}
+          {compModo === 'anio' && (
+            <select value={compAnio} onChange={e => setCompAnio(Number(e.target.value))} className="input-cafe text-sm">
+              {ANIOS_COMPARATIVO.map(a => <option key={a} value={a}>{a}</option>)}
+            </select>
+          )}
+          {compLoading && (
+            <span className="w-4 h-4 border-2 spinner-theme rounded-full animate-spin" />
+          )}
+        </div>
+
+        {compError && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800
+                          rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {compError}
+          </div>
+        )}
+
+        {!compError && compA && compB && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <ComparativoCard label="Ventas totales" labelA={compA.label} labelB={compB.label}
+              valueA={compA.totalVentas} valueB={compB.totalVentas} formatter={formatMXN} />
+            <ComparativoCard label="Pedidos" labelA={compA.label} labelB={compB.label}
+              valueA={compA.totalPedidos} valueB={compB.totalPedidos} />
+            <ComparativoCard label="Ticket promedio" labelA={compA.label} labelB={compB.label}
+              valueA={compA.ticketPromedio} valueB={compB.ticketPromedio} formatter={formatMXN} />
+          </div>
+        )}
+      </div>
+
       {/* Estado vacío si no hay datos */}
       {!loading && !error && ventasDia.length === 0 && (
         <div className="card text-center py-12">
-          <svg className="w-10 h-10 mx-auto mb-3 text-cafe-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <svg className="w-10 h-10 mx-auto mb-3 label-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
-          <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+          <p className="text-ink-secondary font-medium">
             Sin datos de ventas en este periodo
           </p>
         </div>
@@ -685,7 +1128,7 @@ export default function Analisis() {
       {/* ── Sección D: Hora pico ── */}
       {!loading && pedidos.length > 0 && (
         <div className="modal-surface rounded-xl p-5 shadow-card">
-          <h3 className="text-sm font-semibold text-cafe-700 dark:text-cafe-300 uppercase tracking-wide mb-4">
+          <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
             Pedidos por hora del día
           </h3>
           <ResponsiveContainer width="100%" height={200}>
@@ -709,11 +1152,128 @@ export default function Analisis() {
         </div>
       )}
 
+      {/* ── Sección D-bis: Visitas de clientes por mes (estacionalidad, solo Local) ── */}
+      {!loading && radaresVisibles > 0 && (
+        <div className={`grid ${RADAR_GRID_COLS[radaresVisibles] || RADAR_GRID_COLS[3]} gap-4`}>
+          {sinRegistroVisible && (
+            <div className="modal-surface rounded-xl p-5 shadow-card">
+              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
+                Clientes sin registro · Local
+              </h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <RadarChart data={visitasMesSinRegistro} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
+                  <PolarGrid stroke={chartAccent} strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: chartAccent }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9, fill: chartAccent }} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(value, name, props) => [`${value} visitas · ${formatMXN(props.payload.monto)}`, 'Sin registro']}
+                    contentStyle={TOOLTIP_STYLE}
+                    itemStyle={TOOLTIP_ITEM_STYLE}
+                    labelStyle={TOOLTIP_LABEL_STYLE}
+                  />
+                  <Radar dataKey="visitas" stroke={chartBtn} fill={chartAccent} fillOpacity={0.35} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {fidelizadosVisible && (
+            <div className="modal-surface rounded-xl p-5 shadow-card">
+              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
+                Clientes fidelizados · Local
+              </h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <RadarChart data={visitasMesFidelizados} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
+                  <PolarGrid stroke={LOYALTY_COLOR} strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: LOYALTY_COLOR }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9, fill: LOYALTY_COLOR }} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(value, name, props) => [`${value} visitas · ${formatMXN(props.payload.monto)}`, 'Fidelizados']}
+                    contentStyle={TOOLTIP_STYLE}
+                    itemStyle={TOOLTIP_ITEM_STYLE}
+                    labelStyle={{ color: LOYALTY_COLOR, fontWeight: '600' }}
+                  />
+                  <Radar dataKey="visitas" stroke={LOYALTY_COLOR} fill={LOYALTY_COLOR} fillOpacity={0.35} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {comparativoVisible && (
+            <div className="modal-surface rounded-xl p-5 shadow-card">
+              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-1">
+                Comparativo · Sin registro vs. Fidelizados (Local)
+              </h3>
+              <p className="text-[11px] text-ink-secondary opacity-70 mb-4">
+                Con rangos cortos las dos series se ven casi iguales — se muestra desde 6 meses de historial.
+              </p>
+              <ResponsiveContainer width="100%" height={280}>
+                <RadarChart data={visitasMesComparativo} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
+                  <PolarGrid stroke={chartAccent} strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: chartAccent }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9, fill: chartAccent }} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(value, name, props) => {
+                      const monto = name === 'Sin registro' ? props.payload.montoSinRegistro : props.payload.montoFidelizados
+                      return [`${value} visitas · ${formatMXN(monto)}`, name]
+                    }}
+                    contentStyle={TOOLTIP_STYLE}
+                    itemStyle={TOOLTIP_ITEM_STYLE}
+                    labelStyle={TOOLTIP_LABEL_STYLE}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11, color: chartAccent }} />
+                  <Radar dataKey="sinRegistro" name="Sin registro" stroke={UNREGISTERED_COLOR} strokeWidth={2}
+                    fill={UNREGISTERED_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: UNREGISTERED_COLOR }} />
+                  <Radar dataKey="fidelizados" name="Fidelizados" stroke={LOYALTY_COLOR} strokeWidth={2}
+                    fill={LOYALTY_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: LOYALTY_COLOR }} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Sección D-ter: Forecast de ventas (proyección 3 meses) ── */}
+      {!loading && forecast.length > 0 && (
+        <div className="modal-surface rounded-xl p-5 shadow-card">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide">
+              Forecast de ventas
+            </h3>
+          </div>
+          <p className="text-[11px] text-ink-secondary opacity-70 mb-4">
+            Proyección por tendencia lineal sobre meses completos del rango seleccionado
+            (el mes en curso no se muestra, va a medias y distorsiona la tendencia) —
+            necesita 3+ meses completos para calcularse; con "Esta semana" o "Este mes"
+            no hay suficiente historial y la tarjeta no aparece.
+          </p>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={forecast} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.12} vertical={false} />
+              <XAxis dataKey="mes" tick={{ fontSize: 10, fill: chartAccent }} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: chartAccent }} tickLine={false}
+                tickFormatter={v => `${(v / 1000).toFixed(0)}k`} width={36} />
+              <Tooltip
+                formatter={(value, name) => [formatMXN(value), name]}
+                contentStyle={TOOLTIP_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
+                labelStyle={TOOLTIP_LABEL_STYLE}
+              />
+              <Legend wrapperStyle={{ fontSize: 11, color: chartAccent }} />
+              <Line type="monotone" dataKey="real" name="Ventas reales" stroke={chartBtn} strokeWidth={2}
+                dot={{ r: 3, fill: chartBtn }} connectNulls={false} />
+              <Line type="monotone" dataKey="proyeccion" name="Proyección" stroke={chartAccent} strokeWidth={2}
+                strokeDasharray="5 4" dot={{ r: 3, fill: chartAccent }} connectNulls={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {/* ── Sección C: Chat IA ── */}
       <div className="modal-surface rounded-xl shadow-card overflow-hidden">
 
         {/* Header */}
-        <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700 flex items-center gap-3">
+        <div className="px-5 py-4 border-b cafe-border-theme flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                style={{ background: 'var(--cafe-btn)', transition: 'background 0.8s ease' }}>
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"
@@ -723,10 +1283,10 @@ export default function Analisis() {
             </svg>
           </div>
           <div>
-            <p className="text-sm font-semibold text-cafe-800 dark:text-crema-100">
+            <p className="text-sm font-semibold text-ink">
               Agente IA — Análisis de ventas
             </p>
-            <p className="text-xs text-cafe-400">
+            <p className="text-xs label-muted">
               Pregunta sobre tus datos del periodo seleccionado
             </p>
           </div>
@@ -737,9 +1297,8 @@ export default function Analisis() {
           {PREGUNTAS_RAPIDAS.map((q, i) => (
             <button key={i} onClick={() => enviarMensaje(q)} disabled={enviando}
               className="px-3 py-1.5 rounded-full text-xs font-medium
-                         bg-crema-100 dark:bg-cafe-700 text-cafe-700 dark:text-crema-200
-                         border border-crema-200 dark:border-cafe-600
-                         hover:bg-crema-200 dark:hover:bg-cafe-600
+                         surface-soft-theme text-ink-secondary
+                         border cafe-border-theme
                          disabled:opacity-50 transition-all">
               {q}
             </button>
@@ -749,7 +1308,7 @@ export default function Analisis() {
         {/* Historial de mensajes */}
         <div className="px-5 py-3 min-h-[160px] max-h-80 overflow-y-auto space-y-3">
           {mensajes.length === 0 && (
-            <p className="text-xs text-cafe-400 text-center py-8">
+            <p className="text-xs label-muted text-center py-8">
               Usa un chip o escribe tu pregunta para empezar
             </p>
           )}
@@ -759,7 +1318,7 @@ export default function Analisis() {
                 className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
                   ${m.role === 'user'
                     ? 'text-white rounded-br-sm'
-                    : 'bg-crema-100 dark:bg-cafe-700 text-cafe-800 dark:text-crema-100 rounded-bl-sm whitespace-pre-line'}`}
+                    : 'surface-soft-theme text-ink rounded-bl-sm whitespace-pre-line'}`}
                 style={m.role === 'user' ? { background: 'var(--cafe-btn)', transition: 'background 0.8s ease' } : undefined}
               >
                 {m.texto}
@@ -769,11 +1328,11 @@ export default function Analisis() {
           {/* Indicador "escribiendo..." */}
           {enviando && (
             <div className="flex justify-start">
-              <div className="bg-crema-100 dark:bg-cafe-700 px-4 py-3
+              <div className="surface-soft-theme px-4 py-3
                               rounded-2xl rounded-bl-sm flex items-center gap-1.5">
                 {[0, 1, 2].map(i => (
                   <span key={i}
-                    className="w-1.5 h-1.5 bg-cafe-400 rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 skeleton-theme rounded-full animate-bounce"
                     style={{ animationDelay: `${i * 150}ms` }} />
                 ))}
               </div>
@@ -783,7 +1342,7 @@ export default function Analisis() {
         </div>
 
         {/* Input */}
-        <div className="px-5 pb-5 pt-2 border-t border-cafe-100 dark:border-cafe-700">
+        <div className="px-5 pb-5 pt-2 border-t cafe-border-theme">
           <div className="flex gap-2">
             <input
               value={inputChat}
