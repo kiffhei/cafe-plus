@@ -48,9 +48,10 @@ function canalColor(name, colorLocal) {
 // Color fijo (independiente del tema) para el radar de clientes fidelizados — dorado,
 // evoca "programa de lealtad" sin competir con el acento del tema activo.
 const LOYALTY_COLOR = '#d4af37'
-// Color fijo (independiente del tema) para "sin registro" SOLO en el radar comparativo —
-// azul, a propósito distante del dorado de arriba y de los verdes del tema activo, para
-// que las dos series se distingan incluso cuando se superponen.
+// Color fijo (independiente del tema) para el segmento "clientes sin registro" — azul,
+// a propósito distante del dorado de arriba, para que ambas categorías se reconozcan
+// siempre igual sin importar el tema activo (mismo criterio que LOYALTY_COLOR, aplica
+// tanto al radar individual como al comparativo).
 const UNREGISTERED_COLOR = '#3b82f6'
 
 // Fotografía de stock genérica por canal — no son fotos de marca, solo ambientación
@@ -212,7 +213,7 @@ function ComparativoCard({ label, labelA, labelB, valueA, valueB, formatter = (v
   const subiendo = delta >= 0
 
   return (
-    <div className="card">
+    <div className="analisis-card modal-surface rounded-xl shadow-card p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-medium label-muted uppercase tracking-wide">{label}</p>
         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -267,19 +268,19 @@ function CanalCard({ label, foto, foco, pedidos, ventas, ticketPromedio, pct, co
           className="absolute inset-0 w-full h-full object-cover scale-110 blur-[2px]"
         />
         <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${color}99, ${color}66)` }} />
-        <span className="relative font-bold text-lg text-white drop-shadow-sm px-2 text-center">
+        <span className="relative font-bold text-2xl text-white drop-shadow-sm px-2 text-center">
           {label}
         </span>
-        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[11px] font-bold text-white bg-black/30">
+        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-xs font-bold text-white bg-black/30">
           {pct}%
         </span>
       </div>
-      <div className="p-3 modal-surface">
-        <div className="flex items-center justify-between text-xs">
+      <div className="analisis-card p-3 modal-surface">
+        <div className="flex items-center justify-between text-sm">
           <span className="label-muted">{pedidos} pedidos</span>
           <span className="font-semibold text-accent-theme">{formatMXN(ventas)}</span>
         </div>
-        <p className="text-xs label-muted mt-0.5">Ticket prom. {formatMXN(ticketPromedio)}</p>
+        <p className="text-sm label-muted mt-0.5">Ticket prom. {formatMXN(ticketPromedio)}</p>
       </div>
     </div>
   )
@@ -859,20 +860,20 @@ export default function Analisis() {
             <div className="rounded-2xl h-48 animate-pulse skeleton-theme-soft" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 card animate-pulse">
+            <div className="lg:col-span-2 analisis-card modal-surface rounded-xl shadow-card p-4 animate-pulse">
               <div className="h-4 w-32 rounded-full skeleton-theme mb-4" />
               <div className="h-[220px] rounded-xl skeleton-theme-soft" />
             </div>
-            <div className="card animate-pulse">
+            <div className="analisis-card modal-surface rounded-xl shadow-card p-4 animate-pulse">
               <div className="h-4 w-24 rounded-full skeleton-theme mb-4" />
               <div className="h-[200px] rounded-xl skeleton-theme-soft" />
             </div>
           </div>
-          <div className="card animate-pulse">
+          <div className="analisis-card modal-surface rounded-xl shadow-card p-4 animate-pulse">
             <div className="h-4 w-40 rounded-full skeleton-theme mb-4" />
             <div className="h-[180px] rounded-xl skeleton-theme-soft" />
           </div>
-          <div className="modal-surface rounded-xl p-5 shadow-card animate-pulse">
+          <div className="analisis-card modal-surface rounded-xl p-5 shadow-card animate-pulse">
             <div className="h-4 w-48 rounded-full skeleton-theme mb-4" />
             <div className="h-[200px] rounded-xl skeleton-theme-soft" />
           </div>
@@ -945,7 +946,7 @@ export default function Analisis() {
       {/* GRAFICA_1_AREA: ventas por día + promedio móvil 7d, GRAFICA_1B: top 5 productos */}
       {!loading && ventasDia.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 card">
+          <div className="lg:col-span-2 analisis-card modal-surface rounded-xl shadow-card p-4">
             <h3 className="text-sm font-semibold text-accent-theme mb-4">Ventas por día</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={ventasDia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
@@ -967,7 +968,7 @@ export default function Analisis() {
           </div>
 
           {top5Productos.length > 0 && (
-            <div className="card">
+            <div className="analisis-card modal-surface rounded-xl shadow-card p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-accent-theme">Top 5 productos</h3>
                 <div className="flex gap-1">
@@ -1020,7 +1021,7 @@ export default function Analisis() {
 
       {/* GRAFICA_3_LINE */}
       {!loading && tendencia.length > 1 && (
-        <div className="card">
+        <div className="analisis-card modal-surface rounded-xl shadow-card p-4">
           <h3 className="text-sm font-semibold text-accent-theme mb-4">Tendencia acumulada</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={tendencia} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
@@ -1056,7 +1057,7 @@ export default function Analisis() {
       )}
 
       {/* ── Sección C-ter: Comparativo de periodos ── */}
-      <div className="card">
+      <div className="analisis-card modal-surface rounded-xl shadow-card p-4">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <h3 className="text-sm font-semibold text-accent-theme">Comparativo de periodos</h3>
           <div className="flex gap-1.5 flex-wrap">
@@ -1115,7 +1116,7 @@ export default function Analisis() {
 
       {/* Estado vacío si no hay datos */}
       {!loading && !error && ventasDia.length === 0 && (
-        <div className="card text-center py-12">
+        <div className="analisis-card modal-surface rounded-xl shadow-card text-center py-12">
           <svg className="w-10 h-10 mx-auto mb-3 label-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
@@ -1127,20 +1128,21 @@ export default function Analisis() {
 
       {/* ── Sección D: Hora pico ── */}
       {!loading && pedidos.length > 0 && (
-        <div className="modal-surface rounded-xl p-5 shadow-card">
+        <div className="analisis-card modal-surface rounded-xl p-5 shadow-card">
           <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
             Pedidos por hora del día
           </h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={calcularHoraPico(pedidos)} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#52b78820" />
-              <XAxis dataKey="hora" tick={{ fontSize: 10, fill: '#84cba8' }}
+              <CartesianGrid strokeDasharray="3 3" stroke={chartAccent} strokeOpacity={0.12} />
+              <XAxis dataKey="hora" tick={{ fontSize: 10, fill: chartAccent }}
                 tickFormatter={v => v.replace(':00', 'h')} interval={3} />
-              <YAxis tick={{ fontSize: 10, fill: '#84cba8' }} allowDecimals={false} />
+              <YAxis tick={{ fontSize: 10, fill: chartAccent }} allowDecimals={false} />
               <Tooltip
                 formatter={(value) => [value + ' pedidos', 'Hora']}
-                contentStyle={{ backgroundColor: '#0d2d1f', border: '1px solid #2d6a4f', borderRadius: '8px', fontSize: '12px' }}
-                labelStyle={{ color: '#84cba8' }}
+                contentStyle={TOOLTIP_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
+                labelStyle={TOOLTIP_LABEL_STYLE}
               />
               <Bar dataKey="pedidos" radius={[3, 3, 0, 0]}>
                 {calcularHoraPico(pedidos).map((entry, i) => (
@@ -1156,32 +1158,36 @@ export default function Analisis() {
       {!loading && radaresVisibles > 0 && (
         <div className={`grid ${RADAR_GRID_COLS[radaresVisibles] || RADAR_GRID_COLS[3]} gap-4`}>
           {sinRegistroVisible && (
-            <div className="modal-surface rounded-xl p-5 shadow-card">
-              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
-                Clientes sin registro · Local
-              </h3>
+            <div className="analisis-card modal-surface rounded-xl p-5 shadow-card">
+              <div className="min-h-[56px] mb-3">
+                <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide">
+                  Clientes sin registro · Local
+                </h3>
+              </div>
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={visitasMesSinRegistro} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
-                  <PolarGrid stroke={chartAccent} strokeOpacity={0.2} />
-                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: chartAccent }} />
-                  <PolarRadiusAxis tick={{ fontSize: 9, fill: chartAccent }} allowDecimals={false} />
+                  <PolarGrid stroke={UNREGISTERED_COLOR} strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: UNREGISTERED_COLOR }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9, fill: UNREGISTERED_COLOR }} allowDecimals={false} />
                   <Tooltip
                     formatter={(value, name, props) => [`${value} visitas · ${formatMXN(props.payload.monto)}`, 'Sin registro']}
                     contentStyle={TOOLTIP_STYLE}
                     itemStyle={TOOLTIP_ITEM_STYLE}
-                    labelStyle={TOOLTIP_LABEL_STYLE}
+                    labelStyle={{ color: UNREGISTERED_COLOR, fontWeight: '600' }}
                   />
-                  <Radar dataKey="visitas" stroke={chartBtn} fill={chartAccent} fillOpacity={0.35} />
+                  <Radar dataKey="visitas" stroke={UNREGISTERED_COLOR} fill={UNREGISTERED_COLOR} fillOpacity={0.35} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
           )}
 
           {fidelizadosVisible && (
-            <div className="modal-surface rounded-xl p-5 shadow-card">
-              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-4">
-                Clientes fidelizados · Local
-              </h3>
+            <div className="analisis-card modal-surface rounded-xl p-5 shadow-card">
+              <div className="min-h-[56px] mb-3">
+                <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide">
+                  Clientes fidelizados · Local
+                </h3>
+              </div>
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={visitasMesFidelizados} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
                   <PolarGrid stroke={LOYALTY_COLOR} strokeOpacity={0.2} />
@@ -1200,34 +1206,36 @@ export default function Analisis() {
           )}
 
           {comparativoVisible && (
-            <div className="modal-surface rounded-xl p-5 shadow-card">
-              <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-1">
-                Comparativo · Sin registro vs. Fidelizados (Local)
-              </h3>
-              <p className="text-[11px] text-ink-secondary opacity-70 mb-4">
-                Con rangos cortos las dos series se ven casi iguales — se muestra desde 6 meses de historial.
-              </p>
-              <ResponsiveContainer width="100%" height={280}>
-                <RadarChart data={visitasMesComparativo} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
-                  <PolarGrid stroke={chartAccent} strokeOpacity={0.2} />
-                  <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: chartAccent }} />
-                  <PolarRadiusAxis tick={{ fontSize: 9, fill: chartAccent }} allowDecimals={false} />
-                  <Tooltip
-                    formatter={(value, name, props) => {
-                      const monto = name === 'Sin registro' ? props.payload.montoSinRegistro : props.payload.montoFidelizados
-                      return [`${value} visitas · ${formatMXN(monto)}`, name]
-                    }}
-                    contentStyle={TOOLTIP_STYLE}
-                    itemStyle={TOOLTIP_ITEM_STYLE}
-                    labelStyle={TOOLTIP_LABEL_STYLE}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 11, color: chartAccent }} />
-                  <Radar dataKey="sinRegistro" name="Sin registro" stroke={UNREGISTERED_COLOR} strokeWidth={2}
-                    fill={UNREGISTERED_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: UNREGISTERED_COLOR }} />
-                  <Radar dataKey="fidelizados" name="Fidelizados" stroke={LOYALTY_COLOR} strokeWidth={2}
-                    fill={LOYALTY_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: LOYALTY_COLOR }} />
-                </RadarChart>
-              </ResponsiveContainer>
+            <div className="analisis-card modal-surface rounded-xl p-5 shadow-card">
+              <div className="min-h-[56px] mb-3">
+                <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide mb-1">
+                  Comparativo · Sin registro vs. Fidelizados (Local)
+                </h3>
+                <p className="text-[11px] text-ink-secondary opacity-70">
+                  Con rangos cortos las dos series se ven casi iguales — se muestra desde 6 meses de historial.
+                </p>
+              </div>
+                <ResponsiveContainer width="100%" height={280}>
+                  <RadarChart data={visitasMesComparativo} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
+                    <PolarGrid stroke={chartAccent} strokeOpacity={0.2} />
+                    <PolarAngleAxis dataKey="mes" tick={{ fontSize: 11, fill: chartAccent }} />
+                    <PolarRadiusAxis tick={{ fontSize: 9, fill: chartAccent }} allowDecimals={false} />
+                    <Tooltip
+                      formatter={(value, name, props) => {
+                        const monto = name === 'Sin registro' ? props.payload.montoSinRegistro : props.payload.montoFidelizados
+                        return [`${value} visitas · ${formatMXN(monto)}`, name]
+                      }}
+                      contentStyle={TOOLTIP_STYLE}
+                      itemStyle={TOOLTIP_ITEM_STYLE}
+                      labelStyle={TOOLTIP_LABEL_STYLE}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, color: chartAccent }} />
+                    <Radar dataKey="sinRegistro" name="Sin registro" stroke={UNREGISTERED_COLOR} strokeWidth={2}
+                      fill={UNREGISTERED_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: UNREGISTERED_COLOR }} />
+                    <Radar dataKey="fidelizados" name="Fidelizados" stroke={LOYALTY_COLOR} strokeWidth={2}
+                      fill={LOYALTY_COLOR} fillOpacity={0.45} dot={{ r: 2, fill: LOYALTY_COLOR }} />
+                  </RadarChart>
+                </ResponsiveContainer>
             </div>
           )}
         </div>
@@ -1235,7 +1243,7 @@ export default function Analisis() {
 
       {/* ── Sección D-ter: Forecast de ventas (proyección 3 meses) ── */}
       {!loading && forecast.length > 0 && (
-        <div className="modal-surface rounded-xl p-5 shadow-card">
+        <div className="analisis-card modal-surface rounded-xl p-5 shadow-card">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-semibold text-ink-secondary uppercase tracking-wide">
               Forecast de ventas
@@ -1270,7 +1278,7 @@ export default function Analisis() {
       )}
 
       {/* ── Sección C: Chat IA ── */}
-      <div className="modal-surface rounded-xl shadow-card overflow-hidden">
+      <div className="analisis-card modal-surface rounded-xl shadow-card overflow-hidden">
 
         {/* Header */}
         <div className="px-5 py-4 border-b cafe-border-theme flex items-center gap-3">

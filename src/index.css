@@ -388,6 +388,16 @@ h1, h2, h3, h4 {
     border-color: rgba(0,0,0,0.08);
   }
 
+  /* Tarjetas de Análisis IA — más traslúcidas que modal-surface estándar, para que
+     se perciba levemente la animación de fondo detrás sin competir con los datos.
+     Mayor especificidad para pisar el !important de arriba. */
+  .analisis-card.modal-surface {
+    background: rgba(20,20,20,0.18) !important;
+  }
+  html:not(.dark) .analisis-card.modal-surface {
+    background: rgba(255,255,255,0.55) !important;
+  }
+
   /* Label secundario — muted y legible en todos los temas */
   .label-muted {
     color: rgba(255,255,255,0.45);
