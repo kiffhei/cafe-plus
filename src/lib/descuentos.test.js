@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { regaloPorVisitas, calcularRegaloDescuento } from './descuentos'
+import { regaloPorVisitas, calcularRegaloDescuento, regaloPorAniversario, calcularRegalosMultiples } from './descuentos'
 
 // Helper para armar items de carrito de forma concisa.
 const item = (precio, categoria, cantidad = 1) => ({
@@ -56,5 +56,88 @@ describe('calcularRegaloDescuento', () => {
   it('precio_venta como string se parsea correctamente', () => {
     const carrito = [item('45', 'café')]
     expect(calcularRegaloDescuento(carrito, regaloPorVisitas(4))).toBe(45)
+  })
+
+  it('categoria como array (aniversario): cualifica pan O sandwich, descuenta el más barato', () => {
+    const regaloAniversario = { categoria: ['pan', 'sandwich'], cantidad: 1 }
+    const carrito = [item(50, 'sandwich'), item(30, 'pan'), item(40, 'café')]
+    expect(calcularRegaloDescuento(carrito, regaloAniversario)).toBe(30)
+  })
+})
+
+describe('regaloPorAniversario', () => {
+  const hoy = new Date('2026-10-02T12:00:00Z')
+
+  it('null si aún no cumple el primer año', () => {
+    expect(regaloPorAniversario('2026-01-05', null, hoy)).toBeNull()
+  })
+
+  it('devuelve el regalo de aniversario 1 cuando ya se cumplió y no se ha canjeado', () => {
+    const regalo = regaloPorAniversario('2025-01-05', null, hoy)
+    expect(regalo).toMatchObject({ categoria: ['pan', 'sandwich'], cantidad: 1, anio: 1 })
+  })
+
+  it('null si el aniversario de este año ya fue canjeado', () => {
+    expect(regaloPorAniversario('2025-01-05', 1, hoy)).toBeNull()
+  })
+
+  it('aplica de nuevo al cumplir el segundo año aunque el primero ya se canjeó', () => {
+    const regalo = regaloPorAniversario('2024-01-05', 1, hoy)
+    expect(regalo).toMatchObject({ anio: 2 })
+  })
+
+  it('null si la fecha de registro es inválida o no existe', () => {
+    expect(regaloPorAniversario(null, null, hoy)).toBeNull()
+    expect(regaloPorAniversario('no-es-fecha', null, hoy)).toBeNull()
+  })
+
+  it('aún no cumple el aniversario de este año si falta para el mes/día', () => {
+    // registrado 2025-11-20 -> hoy (2026-10-02) todavía no llega a noviembre -> 0 años
+    expect(regaloPorAniversario('2025-11-20', null, hoy)).toBeNull()
+  })
+})
+
+describe('calcularRegalosMultiples', () => {
+  it('un solo regalo se comporta igual que calcularRegaloDescuento', () => {
+    const carrito = [item(55, 'café'), item(40, 'café'), item(30, 'pan')]
+    const { total, porRegalo } = calcularRegalosMultiples(carrito, [regaloPorVisitas(4)])
+    expect(total).toBe(40)
+    expect(porRegalo).toEqual([40])
+  })
+
+  it('dos regalos de categorías distintas no interfieren entre sí', () => {
+    const carrito = [item(40, 'café'), item(30, 'pan')]
+    const { total, porRegalo } = calcularRegalosMultiples(carrito, [
+      regaloPorVisitas(4), // café
+      { categoria: ['pan', 'sandwich'], cantidad: 1 },
+    ])
+    expect(porRegalo).toEqual([40, 30])
+    expect(total).toBe(70)
+  })
+
+  it('misma categoría en dos regalos: el segundo no reutiliza la unidad ya tomada por el primero', () => {
+    // un solo pan en el carrito, ambos regalos piden pan -> solo el primero se cobra
+    const carrito = [item(30, 'pan')]
+    const regaloVisitas = { categoria: 'pan', cantidad: 1 }
+    const regaloAniversario = { categoria: ['pan', 'sandwich'], cantidad: 1 }
+    const { total, porRegalo } = calcularRegalosMultiples(carrito, [regaloVisitas, regaloAniversario])
+    expect(porRegalo).toEqual([30, 0])
+    expect(total).toBe(30)
+  })
+
+  it('con dos panes alcanza para ambos regalos', () => {
+    const carrito = [item(30, 'pan', 2)]
+    const regaloVisitas = { categoria: 'pan', cantidad: 1 }
+    const regaloAniversario = { categoria: ['pan', 'sandwich'], cantidad: 1 }
+    const { total, porRegalo } = calcularRegalosMultiples(carrito, [regaloVisitas, regaloAniversario])
+    expect(porRegalo).toEqual([30, 30])
+    expect(total).toBe(60)
+  })
+
+  it('regalo null en la lista no rompe el cálculo', () => {
+    const carrito = [item(40, 'café')]
+    const { total, porRegalo } = calcularRegalosMultiples(carrito, [null, regaloPorVisitas(4)])
+    expect(porRegalo).toEqual([0, 40])
+    expect(total).toBe(40)
   })
 })

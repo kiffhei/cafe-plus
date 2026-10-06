@@ -4,7 +4,7 @@ import { productos as productosApi, clientes as clientesApi, pedidos as pedidosA
          formatMXN } from '../api/api'
 import { useTheme } from '../context/ThemeContext'
 import { getProductImage, handleProductImageError } from '../lib/productImages'
-import { regaloPorVisitas, calcularRegaloDescuento } from '../lib/descuentos'
+import { regaloPorVisitas, regaloPorAniversario, calcularRegalosMultiples } from '../lib/descuentos'
 
 const CANALES = ['local','didi','rappi','ubereats']
 const ESTADOS_CANAL = { local:'Local', didi:'DiDi Food', rappi:'Rappi', ubereats:'Uber Eats' }
@@ -29,18 +29,18 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
   if (clienteSeleccionado) return (
     <div className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'var(--status-ok-bg)', border: '1px solid var(--cafe-accent)' }}>
       <div>
-        <p className="text-sm font-medium text-cafe-800 dark:text-crema-100">
+        <p className="text-sm font-medium text-ink">
           {clienteSeleccionado.nombre} {clienteSeleccionado.apellidos}
           {clienteSeleccionado.es_cumpleanos && <span className="ml-2">🎂</span>}
         </p>
-        <p className="text-xs text-cafe-500 dark:text-cafe-400">
+        <p className="text-xs label-muted">
           {clienteSeleccionado.visitas_acumuladas} visitas ·{' '}
           <span className="font-semibold text-accent-theme">
             {clienteSeleccionado.es_cumpleanos ? '30%' : '5%'} descuento
           </span>
         </p>
       </div>
-      <button onClick={onClear} className="text-cafe-400 hover:text-red-500 text-lg ml-3">×</button>
+      <button onClick={onClear} className="label-muted hover:text-red-500 text-lg ml-3">×</button>
     </div>
   )
 
@@ -51,15 +51,15 @@ function BuscadorCliente({ onSelect, clienteSeleccionado, onClear }) {
         placeholder="Buscar cliente por nombre o teléfono..."
         className="input-cafe w-full" />
       {open && lista.length > 0 && (
-        <div className="absolute z-20 top-full mt-1 w-full bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 rounded-lg shadow-warm overflow-hidden">
+        <div className="absolute z-20 top-full mt-1 w-full modal-surface rounded-lg shadow-warm overflow-hidden">
           {lista.map(c => (
             <button key={c.id_cliente} onMouseDown={() => { onSelect(c); setBuscar(''); setOpen(false) }}
-              className="w-full text-left px-4 py-2.5 hover:bg-crema-50 dark:hover:bg-cafe-700 border-b border-cafe-100 dark:border-cafe-700 last:border-0">
-              <p className="text-sm font-medium text-cafe-800 dark:text-crema-100">
+              className="w-full text-left px-4 py-2.5 surface-row-hover cafe-border-theme border-b last:border-0">
+              <p className="text-sm font-medium text-ink">
                 {c.nombre} {c.apellidos}
                 {c.es_cumpleanos && ' 🎂'}
               </p>
-              <p className="text-xs text-cafe-400">{c.telefono} · {c.visitas_acumuladas} visitas</p>
+              <p className="text-xs label-muted">{c.telefono} · {c.visitas_acumuladas} visitas</p>
             </button>
           ))}
         </div>
@@ -98,11 +98,16 @@ export default function NuevoPedido() {
     s + (parseFloat(item.producto.precio_venta) * item.cantidad), 0)
   const descuento = subtotal * descuentoPct
 
-  // Regalo por visitas (café/muffin gratis en hitos 5/10/15) -> descuento extra
-  // igual a las N unidades cualificantes más baratas del carrito.
-  const regalo          = cliente ? regaloPorVisitas(cliente.visitas_acumuladas) : null
-  const regaloDescuento = calcularRegaloDescuento(carrito, regalo)
-  const total           = Math.max(0, subtotal - descuento - regaloDescuento)
+  // Regalo por visitas (café/muffin gratis en hitos 5/10/15) y obsequio por
+  // aniversario de fidelidad (pan/sandwich a elección, automático en la primera
+  // compra tras cumplir año) -> descuento extra. calcularRegalosMultiples evita
+  // que ambos regalos reutilicen la misma unidad del carrito si piden la misma
+  // categoría (ej. los dos piden 'pan').
+  const regalo             = cliente ? regaloPorVisitas(cliente.visitas_acumuladas) : null
+  const regaloAniversario  = cliente ? regaloPorAniversario(cliente.fecha_registro, cliente.ultimo_aniversario_canjeado) : null
+  const { total: regaloDescuento, porRegalo: [regaloVisitasDescuento, regaloAniversarioDescuento] } =
+    calcularRegalosMultiples(carrito, [regalo, regaloAniversario])
+  const total = Math.max(0, subtotal - descuento - regaloDescuento)
 
   function agregarProducto(prod) {
     setCarrito(c => {
@@ -149,6 +154,14 @@ export default function NuevoPedido() {
       }
       const res = await pedidosApi.create(payload)
       if (!res.ok) { setError(res.message); return }
+      // Marca el aniversario como canjeado solo si el obsequio realmente se
+      // aplicó (hubo pan/sandwich en el carrito) — no bloquea el pedido, ya
+      // confirmado, si esta llamada falla.
+      if (regaloAniversarioDescuento > 0 && cliente) {
+        try {
+          await clientesApi.update({ id_cliente: cliente.id_cliente, ultimo_aniversario_canjeado: regaloAniversario.anio })
+        } catch { /* best-effort */ }
+      }
       setExito(res.data)
       setCarrito([])
       setCliente(null)
@@ -174,9 +187,9 @@ export default function NuevoPedido() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
         </svg>
       </div>
-      <h2 className="text-2xl font-bold text-cafe-800 dark:text-crema-100 mb-2">¡Pedido creado!</h2>
-      <p className="text-cafe-500 mb-1">Folio: <span className="font-mono font-semibold">{exito.id_pedido}</span></p>
-      <p className="text-cafe-500 mb-6">Total: <span className="font-semibold text-cafe-700 dark:text-crema-200">{formatMXN(exito.total)}</span></p>
+      <h2 className="text-2xl font-bold text-ink mb-2">¡Pedido creado!</h2>
+      <p className="label-muted mb-1">Folio: <span className="font-mono font-semibold">{exito.id_pedido}</span></p>
+      <p className="label-muted mb-6">Total: <span className="font-semibold text-ink">{formatMXN(exito.total)}</span></p>
       <div className="flex gap-3 justify-center">
       <button onClick={() => setExito(null)} className="btn-secondary">Nuevo pedido</button>
       <button onClick={() => navigate("/pedidos-hoy")} className="btn-primary">Ver pedidos del día →</button>
@@ -192,22 +205,22 @@ export default function NuevoPedido() {
         <div className="modal-surface rounded-2xl p-5 mb-4 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-xs font-semibold text-cafe-600 dark:text-cafe-400 uppercase tracking-wide mb-2">Canal de venta</label>
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wide mb-2">Canal de venta</label>
               <div className="flex gap-2 flex-wrap">
                 {CANALES.map(c => (
                   <button key={c} onClick={() => setCanal(c)}
                     className={`px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all
                       ${canal === c
                         ? 'tab-active-theme'
-                        : 'bg-crema-100 dark:bg-cafe-700 text-cafe-600 dark:text-cafe-300 hover:bg-crema-200 dark:hover:bg-cafe-600'}`}>
+                        : 'btn-ghost-theme'}`}>
                     {ESTADOS_CANAL[c]}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-cafe-600 dark:text-cafe-400 uppercase tracking-wide mb-2">
-                Cliente Plus <span className="font-normal text-cafe-400">(opcional)</span>
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wide mb-2">
+                Cliente Plus <span className="font-normal label-muted">(opcional)</span>
               </label>
               <BuscadorCliente
                 onSelect={setCliente}
@@ -217,11 +230,21 @@ export default function NuevoPedido() {
             </div>
           </div>
           {regalo && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-xs text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-xs text-yellow-800 dark:text-yellow-300 flex items-center gap-2 mb-2">
               🎁 {regalo.label}
-              {regaloDescuento === 0 && (
+              {regaloVisitasDescuento === 0 && (
                 <span className="opacity-70">
                   · agrega un {regalo.categoria === 'pan' ? 'pan' : 'café'} al carrito para aplicarlo
+                </span>
+              )}
+            </div>
+          )}
+          {regaloAniversario && (
+            <div className="bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-700 rounded-lg px-3 py-2 text-xs text-pink-800 dark:text-pink-300 flex items-center gap-2">
+              🎉 Obsequio — {regaloAniversario.label}, elige un pan o sandwich
+              {regaloAniversarioDescuento === 0 && (
+                <span className="opacity-70">
+                  · agrega un pan o sandwich al carrito para aplicarlo
                 </span>
               )}
             </div>
@@ -231,7 +254,7 @@ export default function NuevoPedido() {
         {/* Filtros catálogo */}
         <div className="flex gap-2 mb-3 flex-wrap">
           <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-cafe-400 text-xs">🔍</span>
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 label-muted text-xs">🔍</span>
             <input value={buscarProd} onChange={e => setBuscarProd(e.target.value)}
               placeholder="Buscar..." className="input-cafe pl-7 py-1.5 text-xs w-40" />
           </div>
@@ -240,7 +263,7 @@ export default function NuevoPedido() {
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all capitalize
                 ${filtroCategoria === cat
                   ? 'tab-active-theme'
-                  : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300'}`}>
+                  : 'modal-surface text-ink-secondary'}`}>
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
@@ -248,8 +271,8 @@ export default function NuevoPedido() {
 
         {/* Grid de productos */}
         {loadingCat ? (
-          <div className="flex items-center justify-center py-12 text-cafe-400">
-            <span className="w-5 h-5 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-2"/>Cargando...
+          <div className="flex items-center justify-center py-12 label-muted">
+            <span className="w-5 h-5 border-2 rounded-full animate-spin mr-2 spinner-theme"/>Cargando...
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -301,34 +324,34 @@ export default function NuevoPedido() {
       {/* Panel derecho — resumen */}
       <div className="w-full lg:w-80 shrink-0">
         <div className="modal-surface rounded-2xl shadow-sm sticky top-0">
-          <div className="px-5 py-4 border-b border-cafe-100 dark:border-cafe-700">
-            <h2 className="font-semibold text-cafe-800 dark:text-crema-100">Resumen del pedido</h2>
-            <p className="text-xs text-cafe-400 mt-0.5">{ESTADOS_CANAL[canal]} · {carrito.length} productos</p>
+          <div className="px-5 py-4 border-b cafe-border-theme">
+            <h2 className="font-semibold text-ink">Resumen del pedido</h2>
+            <p className="text-xs label-muted mt-0.5">{ESTADOS_CANAL[canal]} · {carrito.length} productos</p>
           </div>
 
           {/* Items del carrito */}
           <div className="px-5 py-3 max-h-64 overflow-y-auto space-y-3">
             {carrito.length === 0 ? (
-              <p className="text-cafe-400 text-sm text-center py-6">Selecciona productos del catálogo</p>
+              <p className="label-muted text-sm text-center py-6">Selecciona productos del catálogo</p>
             ) : carrito.map(item => (
               <div key={item.producto.id_producto}>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-cafe-800 dark:text-crema-100 font-medium flex-1 mr-2 leading-tight">
+                  <p className="text-sm text-ink font-medium flex-1 mr-2 leading-tight">
                     {item.producto.nombre}
                   </p>
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => cambiarCantidad(item.producto.id_producto, -1)}
-                      className="w-6 h-6 rounded-full bg-crema-200 dark:bg-cafe-700 text-cafe-700 dark:text-crema-200 text-sm flex items-center justify-center hover:bg-crema-300 dark:hover:bg-cafe-600">−</button>
-                    <span className="w-6 text-center text-sm font-semibold text-cafe-800 dark:text-crema-100">{item.cantidad}</span>
+                      className="w-6 h-6 rounded-full surface-soft-theme text-ink text-sm flex items-center justify-center">−</button>
+                    <span className="w-6 text-center text-sm font-semibold text-ink">{item.cantidad}</span>
                     <button onClick={() => cambiarCantidad(item.producto.id_producto, 1)}
-                      className="w-6 h-6 rounded-full bg-crema-200 dark:bg-cafe-700 text-cafe-700 dark:text-crema-200 text-sm flex items-center justify-center hover:bg-crema-300 dark:hover:bg-cafe-600">+</button>
+                      className="w-6 h-6 rounded-full surface-soft-theme text-ink text-sm flex items-center justify-center">+</button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-0.5">
                   <input value={item.notas} onChange={e => cambiarNotas(item.producto.id_producto, e.target.value)}
                     placeholder="Nota (sin azúcar, etc.)"
-                    className="text-xs text-cafe-400 dark:text-cafe-500 bg-transparent border-0 p-0 focus:outline-none w-full mr-2 placeholder-cafe-300 dark:placeholder-cafe-600" />
-                  <span className="text-xs text-cafe-500 dark:text-cafe-400 shrink-0">
+                    className="text-xs label-muted bg-transparent border-0 p-0 focus:outline-none w-full mr-2 placeholder-theme" />
+                  <span className="text-xs label-muted shrink-0">
                     {formatMXN(item.producto.precio_venta * item.cantidad)}
                   </span>
                 </div>
@@ -346,8 +369,8 @@ export default function NuevoPedido() {
           )}
 
           {/* Totales */}
-          <div className="px-5 py-3 border-t border-cafe-100 dark:border-cafe-700 space-y-1.5">
-            <div className="flex justify-between text-sm text-cafe-600 dark:text-cafe-400">
+          <div className="px-5 py-3 border-t cafe-border-theme space-y-1.5">
+            <div className="flex justify-between text-sm text-ink-secondary">
               <span>Subtotal</span>
               <span>{formatMXN(subtotal)}</span>
             </div>
@@ -357,13 +380,19 @@ export default function NuevoPedido() {
                 <span>−{formatMXN(descuento)}</span>
               </div>
             )}
-            {regaloDescuento > 0 && (
+            {regaloVisitasDescuento > 0 && (
               <div className="flex justify-between text-sm text-accent-theme">
                 <span>🎁 Regalo por visitas</span>
-                <span>−{formatMXN(regaloDescuento)}</span>
+                <span>−{formatMXN(regaloVisitasDescuento)}</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-base text-cafe-800 dark:text-crema-100 pt-1 border-t border-cafe-100 dark:border-cafe-700">
+            {regaloAniversarioDescuento > 0 && (
+              <div className="flex justify-between text-sm text-accent-theme">
+                <span>🎉 Obsequio de aniversario</span>
+                <span>−{formatMXN(regaloAniversarioDescuento)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-base text-ink pt-1 border-t cafe-border-theme">
               <span>Total</span>
               <span className="text-accent-theme">{formatMXN(total)}</span>
             </div>
