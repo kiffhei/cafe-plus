@@ -5,7 +5,7 @@ RUN npm install
 COPY . .
 
 # Cache bust - cambiar valor para forzar rebuild sin cache
-ARG CACHE_BUST=20260629_1
+ARG CACHE_BUST=20261006_2
 
 # Build-time args para Vite
 ARG VITE_CLERK_PUBLISHABLE_KEY
