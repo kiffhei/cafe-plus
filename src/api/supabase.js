@@ -14,8 +14,12 @@ import {
 export { formatMXN, formatFecha, formatFechaHora, canalBadge, estadoBadge, categoriaBadge, generarMeses }
 
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  // Fallback a valores dummy: este módulo se importa siempre (import estático
+  // en api.js), incluso cuando VITE_API_BACKEND no es "supabase" y sus funciones
+  // nunca se invocan. Sin esto, createClient() truena al cargar en cualquier
+  // entorno sin las variables VITE_SUPABASE_* configuradas (ej. producción).
+  import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key',
   {
     // Clerk no se consume por hook aquí (módulo plano, no componente) —
     // se usa la instancia global que @clerk/clerk-react adjunta a window
