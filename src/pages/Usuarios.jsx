@@ -45,12 +45,12 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="modal-surface rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-crema-200">
-          <h2 className="text-lg font-semibold text-cafe-800 dark:text-crema-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b cafe-border-theme">
+          <h2 className="text-lg font-semibold text-ink">
             {esNuevo ? 'Nuevo usuario' : 'Editar usuario'}
           </h2>
           <button onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-crema-100 text-cafe-400 hover:text-cafe-700 transition-colors text-xl">
+            className="w-8 h-8 flex items-center justify-center rounded-full icon-btn-muted transition-colors text-xl">
             ×
           </button>
         </div>
@@ -65,12 +65,12 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Nombre *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Nombre *</label>
               <input value={form.nombre} onChange={e => set('nombre', e.target.value)}
                 className="input-cafe w-full" placeholder="Juan" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Apellidos *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Apellidos *</label>
               <input value={form.apellidos} onChange={e => set('apellidos', e.target.value)}
                 className="input-cafe w-full" placeholder="García López" />
             </div>
@@ -78,12 +78,12 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Edad</label>
+              <label className="block text-xs font-medium label-muted mb-1">Edad</label>
               <input type="number" value={form.edad} onChange={e => set('edad', e.target.value)}
                 className="input-cafe w-full" placeholder="25" min="18" max="80" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Rol *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Rol *</label>
               <select value={form.categoria} onChange={e => set('categoria', e.target.value)}
                 className="input-cafe w-full">
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -92,17 +92,17 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">Usuario *</label>
+            <label className="block text-xs font-medium label-muted mb-1">Usuario *</label>
             <input value={form.usuario} onChange={e => set('usuario', e.target.value)}
               className="input-cafe w-full" placeholder="juan.garcia"
               disabled={!esNuevo} />
             {!esNuevo && (
-              <p className="text-xs text-cafe-400 mt-1">El nombre de usuario no se puede cambiar</p>
+              <p className="text-xs label-muted mt-1">El nombre de usuario no se puede cambiar</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">
+            <label className="block text-xs font-medium label-muted mb-1">
               {esNuevo ? 'Contraseña *' : 'Nueva contraseña (dejar vacío para no cambiar)'}
             </label>
             <input type="password" value={form.password}
@@ -112,7 +112,7 @@ function ModalUsuario({ usuario, onClose, onSaved }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-crema-200 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t cafe-border-theme flex justify-end gap-3">
           <button onClick={onClose}
             className="btn-secondary">
             Cancelar
@@ -167,8 +167,8 @@ export default function Usuarios() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-cafe-800 dark:text-crema-100">Usuarios del sistema</h1>
-          <p className="text-sm text-cafe-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-ink">Usuarios del sistema</h1>
+          <p className="text-sm label-muted mt-0.5">
             {lista.length} usuario{lista.length !== 1 ? 's' : ''} registrado{lista.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -181,7 +181,7 @@ export default function Usuarios() {
 
       {/* Buscador */}
       <div className="relative mb-5">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400 text-sm">🔍</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 label-muted text-sm">🔍</span>
         <input
           value={buscar} onChange={e => setBuscar(e.target.value)}
           placeholder="Buscar por nombre o usuario..."
@@ -198,39 +198,39 @@ export default function Usuarios() {
       {/* Tabla */}
       <div className="table-wrapper">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-cafe-400">
-            <span className="w-6 h-6 border-2 border-cafe-300 border-t-cafe-600 rounded-full animate-spin mr-3" />
+          <div className="flex items-center justify-center py-16 label-muted">
+            <span className="w-6 h-6 border-2 spinner-theme rounded-full animate-spin mr-3" />
             Cargando usuarios...
           </div>
         ) : filtrados.length === 0 ? (
-          <div className="text-center py-16 text-cafe-400">
+          <div className="text-center py-16 label-muted">
             {buscar ? 'No se encontraron usuarios con ese criterio' : 'No hay usuarios registrados'}
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Usuario</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Nombre</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Rol</th>
-                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Registro</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>
+              <tr className="surface-head-row border-b cafe-border-theme">
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Usuario</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Nombre</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Rol</th>
+                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Registro</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Estado</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody>
               {filtrados.map((u, i) => (
                 <tr key={u.id_usuario}
-                  className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
+                  className={`border-b cafe-border-theme surface-row-hover transition-colors ${i % 2 === 0 ? '' : 'surface-row-stripe'}`}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-cafe-100 dark:bg-cafe-700 flex items-center justify-center text-cafe-700 dark:text-crema-200 font-semibold text-sm shrink-0">
+                      <div className="w-8 h-8 rounded-full surface-soft-theme flex items-center justify-center text-ink font-semibold text-sm shrink-0">
                         {u.nombre?.[0]?.toUpperCase()}
                       </div>
-                      <span className="font-mono text-sm text-cafe-700 dark:text-crema-200">{u.usuario}</span>
+                      <span className="font-mono text-sm text-ink">{u.usuario}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-cafe-800 dark:text-crema-100">
+                  <td className="px-5 py-4 text-sm text-ink">
                     {u.nombre} {u.apellidos}
                   </td>
                   <td className="px-5 py-4">
@@ -246,7 +246,7 @@ export default function Usuarios() {
                       {u.categoria}
                     </span>
                   </td>
-                  <td className="hidden sm:table-cell px-5 py-4 text-sm text-cafe-500 dark:text-cafe-400">
+                  <td className="hidden sm:table-cell px-5 py-4 text-sm label-muted">
                     {u.fecha_registro || '—'}
                   </td>
                   <td className="px-5 py-4">
@@ -265,7 +265,7 @@ export default function Usuarios() {
                   <td className="px-5 py-4">
                     <button
                       onClick={() => setModal(u)}
-                      className="text-xs text-cafe-500 hover:text-cafe-800 font-medium hover:underline transition-colors">
+                      className="text-xs link-action-theme font-medium hover:underline transition-colors">
                       Editar
                     </button>
                   </td>

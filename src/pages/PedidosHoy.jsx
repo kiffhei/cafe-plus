@@ -14,15 +14,15 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
       ${pedido.estado === 'preparacion' ? 'border-blue-300 dark:border-blue-700' : ''}
       ${pedido.estado === 'entregado'   ? 'border-green-200 dark:border-green-800' : ''}
       ${pedido.estado === 'cancelado'   ? 'border-red-200 dark:border-red-800 opacity-60' : ''}
-      ${!['pendiente','preparacion','entregado','cancelado'].includes(pedido.estado) ? 'border-cafe-100 dark:border-cafe-700' : ''}
+      ${!['pendiente','preparacion','entregado','cancelado'].includes(pedido.estado) ? 'cafe-border-theme' : ''}
     `}>
       {/* Header */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-cafe-100 dark:border-cafe-700">
+      <div className="px-4 py-3 flex items-center justify-between border-b cafe-border-theme">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-cafe-500 dark:text-cafe-400">#{pedido.id_pedido}</span>
+          <span className="font-mono text-xs label-muted">#{pedido.id_pedido}</span>
           <span className={canal.cls}>{canal.label}</span>
           {pedido.nombre_cliente && (
-            <span className="text-xs text-cafe-600 dark:text-cafe-300 font-medium">· {pedido.nombre_cliente}</span>
+            <span className="text-xs text-ink-secondary font-medium">· {pedido.nombre_cliente}</span>
           )}
         </div>
         <span className={estado.cls}>{estado.label}</span>
@@ -33,24 +33,24 @@ function TarjetaPedido({ pedido, onCambiarEstado, cargando }) {
         <ul className="space-y-1">
           {items.map((item, i) => (
             <li key={i} className="flex justify-between text-sm">
-              <span className="text-cafe-700 dark:text-crema-200">
+              <span className="text-ink">
                 <span className="font-medium">{item.cantidad}×</span> {item.nombre_producto}
-                {item.notas_producto && <span className="text-cafe-400 text-xs ml-1">({item.notas_producto})</span>}
+                {item.notas_producto && <span className="label-muted text-xs ml-1">({item.notas_producto})</span>}
               </span>
-              <span className="text-cafe-500 dark:text-cafe-400 ml-2 shrink-0">{formatMXN(item.precio_unitario * item.cantidad)}</span>
+              <span className="label-muted ml-2 shrink-0">{formatMXN(item.precio_unitario * item.cantidad)}</span>
             </li>
           ))}
         </ul>
         {pedido.notas && (
-          <p className="mt-2 text-xs text-cafe-400 italic">📝 {pedido.notas}</p>
+          <p className="mt-2 text-xs label-muted italic">📝 {pedido.notas}</p>
         )}
       </div>
 
       {/* Footer */}
       <div className="px-4 pb-3 flex items-center justify-between">
         <div>
-          <p className="text-base font-bold text-cafe-800 dark:text-crema-100">{formatMXN(pedido.total)}</p>
-          <p className="text-xs text-cafe-400">
+          <p className="text-base font-bold text-ink">{formatMXN(pedido.total)}</p>
+          <p className="text-xs label-muted">
             {pedido.fecha_hora && pedido.fecha_hora !== '' ? formatFecha(pedido.fecha_hora) : '—'}
           </p>
         </div>
@@ -100,7 +100,7 @@ function SortBtn({ label, campo, sortState, onSort }) {
       className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
         ${activo
           ? 'tab-active-theme'
-          : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}
+          : 'btn-ghost-theme'}`}
     >
       {label}
       <span className="text-[10px] leading-none opacity-70">
@@ -212,7 +212,7 @@ export default function PedidosHoy() {
           { label: 'Venta del día', value: formatMXN(totalVentas), color: 'text-accent-theme', bg: '', bgStyle: { background: 'color-mix(in srgb, var(--cafe-accent) 12%, transparent)', borderColor: 'var(--cafe-border)' } },
         ].map(m => (
           <div key={m.label} className={`rounded-xl border p-4 ${m.bg}`} style={m.bgStyle}>
-            <p className="text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">{m.label}</p>
+            <p className="text-xs font-medium label-muted mb-1">{m.label}</p>
             <p className={`text-2xl font-bold ${m.color}`} style={m.colorStyle}>{m.value}</p>
           </div>
         ))}
@@ -226,10 +226,10 @@ export default function PedidosHoy() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all
                 ${filtro === e
                   ? 'tab-active-theme'
-                  : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300'}`}>
+                  : 'btn-ghost-theme'}`}>
               {e === 'todos' ? 'Todos' : estadoBadge(e).label}
               {e !== 'todos' && (
-                <span className="ml-1.5 text-cafe-400">
+                <span className="ml-1.5 label-muted">
                   ({pedidos.filter(p => p.estado === e).length})
                 </span>
               )}
@@ -237,13 +237,13 @@ export default function PedidosHoy() {
           ))}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs text-cafe-400 dark:text-cafe-500">Ordenar:</span>
+          <span className="text-xs label-muted">Ordenar:</span>
           <SortBtn label="# Pedido" campo="id_pedido"  sortState={orden} onSort={toggleOrden} />
           <SortBtn label="Total"    campo="total"       sortState={orden} onSort={toggleOrden} />
           <SortBtn label="Hora"     campo="fecha_hora"  sortState={orden} onSort={toggleOrden} />
         </div>
         <button onClick={cargar} disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700 transition-all disabled:opacity-50">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium btn-ghost-theme transition-all disabled:opacity-50">
           <svg className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
@@ -258,21 +258,21 @@ export default function PedidosHoy() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="modal-surface rounded-xl border border-cafe-100 dark:border-cafe-700">
-              <div className="px-4 py-3 flex items-center justify-between border-b border-cafe-100 dark:border-cafe-700">
+            <div key={i} className="modal-surface rounded-xl border cafe-border-theme">
+              <div className="px-4 py-3 flex items-center justify-between border-b cafe-border-theme">
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-10 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
-                  <div className="h-4 w-16 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                  <div className="h-3 w-10 rounded-full animate-pulse skeleton-theme" />
+                  <div className="h-4 w-16 rounded-full animate-pulse skeleton-theme" />
                 </div>
-                <div className="h-4 w-16 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                <div className="h-4 w-16 rounded-full animate-pulse skeleton-theme" />
               </div>
               <div className="px-4 py-3 space-y-2">
-                <div className="h-3 w-3/4 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
-                <div className="h-3 w-1/2 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                <div className="h-3 w-3/4 rounded-full animate-pulse skeleton-theme" />
+                <div className="h-3 w-1/2 rounded-full animate-pulse skeleton-theme" />
               </div>
               <div className="px-4 pb-3 flex items-center justify-between">
-                <div className="h-5 w-20 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" />
-                <div className="h-7 w-24 rounded-lg animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                <div className="h-5 w-20 rounded-full animate-pulse skeleton-theme" />
+                <div className="h-7 w-24 rounded-lg animate-pulse skeleton-theme" />
               </div>
             </div>
           ))}
@@ -280,7 +280,7 @@ export default function PedidosHoy() {
       ) : filtrados.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-4xl mb-3">☕</p>
-          <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+          <p className="label-muted font-medium">
             {filtro === 'todos' ? 'Sin pedidos hoy todavía' : `No hay pedidos en estado "${estadoBadge(filtro).label}"`}
           </p>
         </div>

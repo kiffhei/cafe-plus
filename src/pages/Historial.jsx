@@ -25,14 +25,14 @@ function ThSort({ children, campo, sortState, onSort, className = '' }) {
   return (
     <th
       onClick={() => onSort(campo)}
-      className={`px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide
-                  cursor-pointer select-none hover:text-cafe-700 dark:hover:text-crema-300
+      className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide
+                  cursor-pointer select-none link-action-theme
                   transition-colors group ${className}`}
     >
       <span className="flex items-center gap-1">
         {children}
         <span className={`text-[10px] leading-none transition-opacity
-          ${activo ? 'opacity-100 text-cafe-700 dark:text-crema-200' : 'opacity-30 group-hover:opacity-60'}`}>
+          ${activo ? 'opacity-100 text-ink' : 'opacity-30 group-hover:opacity-60'}`}>
           {activo ? (sortState.dir === 'asc' ? '↑' : '↓') : '↕'}
         </span>
       </span>
@@ -168,18 +168,17 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
         {/* Header */}
         <div className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 modal-surface" style={{ borderBottom: '1px solid var(--cafe-border)' }}>
           <div>
-            <h3 className="font-semibold text-cafe-800 dark:text-crema-100">
+            <h3 className="font-semibold text-ink">
               Pedido <span className="font-mono">#{pedido.id_pedido}</span>
             </h3>
-            <p className="text-xs text-cafe-400 mt-0.5">
+            <p className="text-xs label-muted mt-0.5">
               {pedido.fecha_hora && pedido.fecha_hora !== '' ? formatFecha(pedido.fecha_hora) : '—'}
             </p>
           </div>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg
-                       text-cafe-400 hover:text-cafe-700 dark:hover:text-crema-200
-                       hover:bg-crema-100 dark:hover:bg-cafe-700 transition-all"
+                       icon-btn-muted transition-all"
           >
             ✕
           </button>
@@ -191,44 +190,44 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
             <span className={canal.cls}>{canal.label}</span>
             <span className={estado.cls}>{estado.label}</span>
             {pedido.nombre_cliente && (
-              <span className="text-xs text-cafe-600 dark:text-cafe-300 font-medium bg-crema-100 dark:bg-cafe-700 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-ink-secondary font-medium surface-soft-theme px-2 py-0.5 rounded-full">
                 👤 {pedido.nombre_cliente}
               </span>
             )}
           </div>
-          <p className="text-xs text-cafe-500 dark:text-cafe-400">
+          <p className="text-xs label-muted">
             Cajero: <span className="font-medium">{pedido.nombre_cajero || '—'}</span>
           </p>
 
           {/* Tabla de productos */}
-          <div className="rounded-xl border border-cafe-100 dark:border-cafe-700 overflow-hidden">
+          <div className="rounded-xl border cafe-border-theme overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-crema-50 dark:bg-cafe-900/50 border-b border-cafe-100 dark:border-cafe-700">
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase">Producto</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-cafe-500 uppercase">Cat.</th>
-                  <th className="text-center px-3 py-2 text-xs font-semibold text-cafe-500 uppercase">Cant.</th>
-                  <th className="text-right px-3 py-2 text-xs font-semibold text-cafe-500 uppercase">Subtotal</th>
+                <tr className="surface-head-row border-b cafe-border-theme">
+                  <th className="text-left px-3 py-2 text-xs font-semibold label-muted uppercase">Producto</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold label-muted uppercase">Cat.</th>
+                  <th className="text-center px-3 py-2 text-xs font-semibold label-muted uppercase">Cant.</th>
+                  <th className="text-right px-3 py-2 text-xs font-semibold label-muted uppercase">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, i) => {
                   const cat = item.categoria ? categoriaBadge(item.categoria) : null
                   return (
-                    <tr key={i} className="border-b border-cafe-100 dark:border-cafe-700 last:border-0">
-                      <td className="px-3 py-2 text-cafe-700 dark:text-crema-200">
+                    <tr key={i} className="border-b cafe-border-theme last:border-0">
+                      <td className="px-3 py-2 text-ink">
                         {item.nombre_producto}
                         {item.notas_producto && (
-                          <p className="text-xs text-cafe-400 italic">{item.notas_producto}</p>
+                          <p className="text-xs label-muted italic">{item.notas_producto}</p>
                         )}
                       </td>
                       <td className="px-3 py-2">
-                        {cat ? <span className={cat.cls}>{cat.label}</span> : <span className="text-cafe-300 dark:text-cafe-600">—</span>}
+                        {cat ? <span className={cat.cls}>{cat.label}</span> : <span className="label-muted">—</span>}
                       </td>
-                      <td className="px-3 py-2 text-center text-cafe-600 dark:text-cafe-300">
+                      <td className="px-3 py-2 text-center text-ink-secondary">
                         {item.cantidad}
                       </td>
-                      <td className="px-3 py-2 text-right text-cafe-600 dark:text-cafe-300">
+                      <td className="px-3 py-2 text-right text-ink-secondary">
                         {formatMXN(item.precio_unitario * item.cantidad)}
                       </td>
                     </tr>
@@ -239,15 +238,15 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
           </div>
 
           {pedido.notas && (
-            <p className="text-xs text-cafe-400 italic bg-crema-50 dark:bg-cafe-900/50 rounded-lg px-3 py-2">
+            <p className="text-xs label-muted italic surface-head-row rounded-lg px-3 py-2">
               📝 {pedido.notas}
             </p>
           )}
         </div>
 
         {/* Totales */}
-        <div className="px-6 py-4 border-t border-cafe-100 dark:border-cafe-700 space-y-1.5">
-          <div className="flex justify-between text-sm text-cafe-600 dark:text-cafe-400">
+        <div className="px-6 py-4 border-t cafe-border-theme space-y-1.5">
+          <div className="flex justify-between text-sm text-ink-secondary">
             <span>Subtotal</span><span>{formatMXN(pedido.subtotal)}</span>
           </div>
           {parseFloat(pedido.descuento) > 0 && (
@@ -255,7 +254,7 @@ function ModalDetalle({ pedido, onClose, onTicket }) {
               <span>Descuento</span><span>−{formatMXN(pedido.descuento)}</span>
             </div>
           )}
-          <div className="flex justify-between font-bold text-base text-cafe-800 dark:text-crema-100 pt-1 border-t border-cafe-100 dark:border-cafe-700">
+          <div className="flex justify-between font-bold text-base text-ink pt-1 border-t cafe-border-theme">
             <span>Total</span>
             <span className="text-accent-theme">{formatMXN(pedido.total)}</span>
           </div>
@@ -418,15 +417,15 @@ export default function Historial() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total pedidos',   value: totalRegistros,           sub: 'en el rango',    color: 'text-cafe-700 dark:text-crema-200' },
+          { label: 'Total pedidos',   value: totalRegistros,           sub: 'en el rango',    color: 'text-ink' },
           { label: 'Entregados',      value: entregados.length,        sub: 'completados',    color: 'text-accent-theme' },
           { label: 'Venta del rango', value: formatMXN(ventasTotal),   sub: 'solo entregados',color: 'text-accent-theme' },
-          { label: 'Ticket promedio', value: formatMXN(ticketPromedio),sub: 'por pedido',     color: 'text-cafe-700 dark:text-crema-200' },
+          { label: 'Ticket promedio', value: formatMXN(ticketPromedio),sub: 'por pedido',     color: 'text-ink' },
         ].map(k => (
           <div key={k.label} className="card">
-            <p className="text-xs font-medium text-cafe-400 mb-1">{k.label}</p>
+            <p className="text-xs font-medium label-muted mb-1">{k.label}</p>
             <p className={`text-xl font-bold ${k.color}`}>{k.value}</p>
-            <p className="text-xs text-cafe-400 mt-0.5">{k.sub}</p>
+            <p className="text-xs label-muted mt-0.5">{k.sub}</p>
           </div>
         ))}
       </div>
@@ -448,19 +447,19 @@ export default function Historial() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
           <div>
-            <label className="block text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">Desde</label>
+            <label className="block text-xs font-medium label-muted mb-1">Desde</label>
             <input type="date" value={filtros.fecha_desde}
               onChange={e => setFiltro('fecha_desde', e.target.value)}
               className="input-cafe text-sm w-full" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">Hasta</label>
+            <label className="block text-xs font-medium label-muted mb-1">Hasta</label>
             <input type="date" value={filtros.fecha_hasta}
               onChange={e => setFiltro('fecha_hasta', e.target.value)}
               className="input-cafe text-sm w-full" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">Canal</label>
+            <label className="block text-xs font-medium label-muted mb-1">Canal</label>
             <select value={filtros.canal} onChange={e => setFiltro('canal', e.target.value)}
               className="input-cafe text-sm w-full">
               <option value="">Todos los canales</option>
@@ -470,7 +469,7 @@ export default function Historial() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-cafe-500 dark:text-cafe-400 mb-1">Estado</label>
+            <label className="block text-xs font-medium label-muted mb-1">Estado</label>
             <select value={filtros.estado} onChange={e => setFiltro('estado', e.target.value)}
               className="input-cafe text-sm w-full">
               <option value="">Todos los estados</option>
@@ -525,10 +524,10 @@ export default function Historial() {
           <table className="w-full">
             <tbody>
               {Array.from({ length: 6 }).map((_, i) => (
-                <tr key={i} className="border-b border-cafe-100 dark:border-cafe-700">
+                <tr key={i} className="border-b cafe-border-theme">
                   {[28, 80, 90, 90, 60, 50, 60].map((w, j) => (
                     <td key={j} className="px-4 py-4">
-                      <div className="h-3 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" style={{ width: `${w}%` }} />
+                      <div className="h-3 rounded-full animate-pulse skeleton-theme" style={{ width: `${w}%` }} />
                     </td>
                   ))}
                 </tr>
@@ -538,21 +537,21 @@ export default function Historial() {
         ) : registrosPag.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-3">📋</p>
-            <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+            <p className="label-muted font-medium">
               Sin pedidos en el rango seleccionado
             </p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 dark:bg-cafe-900/50 border-b border-cafe-100 dark:border-cafe-700">
+              <tr className="surface-head-row border-b cafe-border-theme">
                 <ThSort campo="id_pedido" sortState={orden} onSort={toggleOrden} className="text-left">#</ThSort>
                 <ThSort campo="fecha_hora" sortState={orden} onSort={toggleOrden} className="text-left">Fecha</ThSort>
-                <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Cajero</th>
-                <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Cliente</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Canal</th>
-                <th className="hidden md:table-cell text-center px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Productos</th>
-                <th className="hidden md:table-cell text-right px-4 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Descuento</th>
+                <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Cajero</th>
+                <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Cliente</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Canal</th>
+                <th className="hidden md:table-cell text-center px-4 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Productos</th>
+                <th className="hidden md:table-cell text-right px-4 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Descuento</th>
                 <ThSort campo="total" sortState={orden} onSort={toggleOrden} className="text-right">Total</ThSort>
                 <ThSort campo="estado" sortState={orden} onSort={toggleOrden} className="hidden sm:table-cell text-left">Estado</ThSort>
                 <th className="px-4 py-3" />
@@ -566,30 +565,30 @@ export default function Historial() {
                 const nItems = items.reduce((s, it) => s + (it.cantidad || 1), 0)
                 return (
                   <tr key={p.id_pedido}
-                    className={`border-b border-cafe-100 dark:border-cafe-700 hover:bg-crema-50/60 dark:hover:bg-cafe-700/30 transition-colors
-                      ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
-                    <td className="px-4 py-3 font-mono text-xs text-cafe-400 dark:text-cafe-500 whitespace-nowrap">
+                    className={`border-b cafe-border-theme surface-row-hover transition-colors
+                      ${i % 2 === 0 ? '' : 'surface-row-stripe'}`}>
+                    <td className="px-4 py-3 font-mono text-xs label-muted whitespace-nowrap">
                       #{p.id_pedido}
                     </td>
-                    <td className="px-4 py-3 text-sm text-cafe-700 dark:text-crema-200 whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm text-ink whitespace-nowrap">
                       {p.fecha_hora && p.fecha_hora !== '' ? formatFecha(p.fecha_hora) : '—'}
                     </td>
-                    <td className="hidden sm:table-cell px-4 py-3 text-sm text-cafe-600 dark:text-cafe-300 truncate max-w-[120px]">
+                    <td className="hidden sm:table-cell px-4 py-3 text-sm text-ink-secondary truncate max-w-[120px]">
                       {p.nombre_cajero || '—'}
                     </td>
-                    <td className="hidden sm:table-cell px-4 py-3 text-sm text-cafe-600 dark:text-cafe-300 truncate max-w-[120px]">
-                      {p.nombre_cliente || <span className="text-cafe-300 dark:text-cafe-600">—</span>}
+                    <td className="hidden sm:table-cell px-4 py-3 text-sm text-ink-secondary truncate max-w-[120px]">
+                      {p.nombre_cliente || <span className="label-muted">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={canal.cls}>{canal.label}</span>
                     </td>
-                    <td className="hidden md:table-cell px-4 py-3 text-center text-sm text-cafe-500 dark:text-cafe-400">
+                    <td className="hidden md:table-cell px-4 py-3 text-center text-sm label-muted">
                       {nItems > 0 ? `${nItems} item${nItems !== 1 ? 's' : ''}` : '—'}
                     </td>
                     <td className="hidden md:table-cell px-4 py-3 text-right text-sm text-accent-theme">
                       {parseFloat(p.descuento) > 0 ? `−${formatMXN(p.descuento)}` : '—'}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-semibold text-cafe-800 dark:text-crema-100 whitespace-nowrap">
+                    <td className="px-4 py-3 text-right text-sm font-semibold text-ink whitespace-nowrap">
                       {formatMXN(p.total)}
                     </td>
                     <td className="hidden sm:table-cell px-4 py-3">
@@ -600,7 +599,7 @@ export default function Historial() {
                         <button
                           onClick={() => verDetalle(p)}
                           disabled={detalleLoading === p.id_pedido}
-                          className="text-xs text-cafe-500 hover:text-cafe-800 dark:hover:text-crema-200 font-medium hover:underline transition-colors whitespace-nowrap disabled:opacity-50"
+                          className="text-xs link-action-theme font-medium hover:underline transition-colors whitespace-nowrap disabled:opacity-50"
                         >
                           {detalleLoading === p.id_pedido ? '…' : 'Ver'}
                         </button>
@@ -608,7 +607,7 @@ export default function Historial() {
                           onClick={() => descargarTicket(p)}
                           disabled={detalleLoading === p.id_pedido}
                           title="Descargar ticket PDF"
-                          className="p-1 rounded text-cafe-400 hover:text-cafe-700 dark:hover:text-crema-200 hover:bg-crema-100 dark:hover:bg-cafe-700 transition-all disabled:opacity-50"
+                          className="p-1 rounded icon-btn-muted transition-all disabled:opacity-50"
                         >
                           <svg className={`w-3.5 h-3.5 ${detalleLoading === p.id_pedido ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round"
@@ -628,14 +627,14 @@ export default function Historial() {
       {/* Paginación */}
       {totalPaginas > 1 && (
         <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
-          <p className="text-xs text-cafe-400">
+          <p className="text-xs label-muted">
             Mostrando {(paginaSegura - 1) * POR_PAGINA + 1}–{Math.min(paginaSegura * POR_PAGINA, totalRegistros)} de {totalRegistros} pedidos
           </p>
           <div className="flex gap-1">
             <button
               onClick={() => setPagina(p => Math.max(1, p - 1))}
               disabled={paginaSegura === 1}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 disabled:opacity-40 hover:bg-crema-50 dark:hover:bg-cafe-700 transition-all">
+              className="px-3 py-1.5 rounded-lg text-xs font-medium btn-ghost-theme disabled:opacity-40 transition-all">
               ← Anterior
             </button>
             {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
@@ -646,7 +645,7 @@ export default function Historial() {
                   className={`w-8 h-8 rounded-lg text-xs font-medium transition-all
                     ${paginaSegura === num
                       ? 'tab-active-theme'
-                      : 'bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 hover:bg-crema-50 dark:hover:bg-cafe-700'}`}>
+                      : 'btn-ghost-theme'}`}>
                   {num}
                 </button>
               )
@@ -654,7 +653,7 @@ export default function Historial() {
             <button
               onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
               disabled={paginaSegura === totalPaginas}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-cafe-800 border border-cafe-200 dark:border-cafe-600 text-cafe-600 dark:text-cafe-300 disabled:opacity-40 hover:bg-crema-50 dark:hover:bg-cafe-700 transition-all">
+              className="px-3 py-1.5 rounded-lg text-xs font-medium btn-ghost-theme disabled:opacity-40 transition-all">
               Siguiente →
             </button>
           </div>

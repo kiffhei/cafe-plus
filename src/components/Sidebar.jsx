@@ -30,13 +30,14 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user, logout, isAdmin } = useAuth()
-  const { tema, setTema, darkMode } = useTheme()
+  const { tema, setTema } = useTheme()
   const navigate = useNavigate()
   const [temaOpen, setTemaOpen] = useState(false)
 
   function handleLogout() { logout(); navigate('/login') }
 
   const items = NAV_ITEMS.filter(i => i.roles.includes(user?.categoria))
+  const temaActual = TEMAS.find(t => t.id === tema) ?? TEMAS[0]
 
   return (
     <aside className={`
@@ -48,19 +49,19 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       ${collapsed ? 'w-16' : 'w-60'}
     `}>
-      <div className="relative flex items-center gap-3 px-4 py-5 border-b border-cafe-700">
+      <div className="relative flex items-center gap-3 px-4 py-5 border-b cafe-border-theme">
         <div className="w-8 h-8 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
           <span className="text-white font-bold text-sm">C+</span>
         </div>
         {!collapsed && (
           <div className="animate-fade-in overflow-hidden">
             <p className="font-semibold text-crema-100 text-sm leading-tight">Café Plus</p>
-            <p className="text-cafe-400 text-xs">{isAdmin ? 'Administrador' : 'Cajero'}</p>
+            <p className="text-white/50 text-xs">{isAdmin ? 'Administrador' : 'Cajero'}</p>
           </div>
         )}
         <button
           className="lg:hidden absolute top-4 right-4 p-1.5 rounded-lg
-                     text-cafe-400 hover:text-crema-200 hover:bg-cafe-700 transition-colors"
+                     text-white/50 hover:text-crema-200 hover:bg-white/10 transition-colors"
           onClick={onMobileClose}
           aria-label="Cerrar menú"
         >
@@ -74,15 +75,15 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         {items.map(item => (
           <div key={item.path}>
             {item.adminSection && !collapsed && (
-              <p className="text-cafe-500 text-xs uppercase tracking-wider px-2 pt-4 pb-1">Administración</p>
+              <p className="text-white/50 text-xs uppercase tracking-wider px-2 pt-4 pb-1">Administración</p>
             )}
-            {item.adminSection && collapsed && <div className="border-t border-cafe-700 my-2" />}
+            {item.adminSection && collapsed && <div className="border-t cafe-border-theme my-2" />}
             <NavLink
               to={item.path}
               title={collapsed ? item.label : undefined}
               className={({ isActive }) =>
                 `relative flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-150
-                ${isActive ? '' : 'text-cafe-300 hover:bg-white/[0.06] hover:text-crema-200'}
+                ${isActive ? '' : 'text-white/60 hover:bg-white/[0.06] hover:text-crema-200'}
                 ${collapsed ? 'justify-center' : ''}`
               }
               style={({ isActive }) => isActive ? { background: 'rgba(255,255,255,0.12)' } : undefined}
@@ -123,14 +124,26 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           onClick={() => setTemaOpen(prev => !prev)}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors
             ${collapsed ? 'justify-center' : ''}`}
-          title="Temas"
+          title={`Tema: ${temaActual.label}`}
         >
           <span
-            className="w-3.5 h-3.5 rounded-full flex-shrink-0 border-2 border-white/20"
+            className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 border-2 border-white/20"
             style={{ background: 'var(--cafe-accent)', transition: 'background 0.8s ease' }}
-          />
+          >
+            {temaActual.icon}
+          </span>
           {!collapsed && (
-            <span className="text-xs text-white/55 whitespace-nowrap overflow-hidden">Temas</span>
+            <>
+              <span className="text-xs text-white/70 whitespace-nowrap overflow-hidden flex-1 text-left">
+                {temaActual.label}
+              </span>
+              <svg
+                className={`w-3.5 h-3.5 text-white/40 shrink-0 transition-transform duration-200 ${temaOpen ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </>
           )}
         </button>
 
@@ -154,28 +167,26 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         )}
       </div>
 
-      <div className="border-t border-cafe-700 p-3 flex-shrink-0">
+      <div className="border-t cafe-border-theme p-3 flex-shrink-0">
         {!collapsed && (
           <div className="mb-2 px-1">
-            <p className="text-xs font-medium truncate"
-               style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : 'var(--cafe-accent)' }}>
+            <p className="text-xs font-medium truncate text-white/85">
               {user?.nombre}
             </p>
-            <p className="text-xs truncate"
-               style={{ color: darkMode ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)' }}>
+            <p className="text-xs truncate text-white/50">
               {user?.usuario}
             </p>
           </div>
         )}
         <button onClick={handleLogout}
-          className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg text-cafe-400 hover:bg-cafe-700 hover:text-red-400 transition-all text-sm ${collapsed ? 'justify-center' : ''}`}>
+          className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg text-white/50 hover:bg-white/10 hover:text-red-400 transition-all text-sm ${collapsed ? 'justify-center' : ''}`}>
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
           </svg>
           {!collapsed && <span>Cerrar sesión</span>}
         </button>
         <button onClick={onToggle}
-          className="flex items-center justify-center w-full px-2 py-2 rounded-lg text-cafe-500 hover:bg-cafe-700 hover:text-cafe-300 transition-all mt-1">
+          className="flex items-center justify-center w-full px-2 py-2 rounded-lg text-white/50 hover:bg-white/10 hover:text-white/70 transition-all mt-1">
           <svg className={`w-4 h-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
           </svg>

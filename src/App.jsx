@@ -9,7 +9,8 @@ import Historial   from './pages/Historial'
 import Clientes    from './pages/Clientes'
 import Analisis    from './pages/Analisis'
 import Productos   from './pages/Productos'
-import Usuarios    from './pages/Usuarios'
+// Usuarios: ruta oculta temporalmente (demo con data fake sembrada) — ver pending-blockers.md
+// import Usuarios    from './pages/Usuarios'
 
 export default function App() {
   return (
@@ -25,7 +26,7 @@ export default function App() {
             <Route path="clientes"    element={<Clientes />} />
             <Route path="analisis"    element={<Analisis />} />
             <Route path="productos"   element={<ProtectedRoute adminOnly><Productos /></ProtectedRoute>} />
-            <Route path="usuarios"    element={<ProtectedRoute adminOnly><Usuarios /></ProtectedRoute>} />
+            {/* <Route path="usuarios" element={<ProtectedRoute adminOnly><Usuarios /></ProtectedRoute>} /> */}
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

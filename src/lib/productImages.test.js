@@ -24,8 +24,8 @@ describe('getProductImage', () => {
     it('distingue Muffin Chocolate de Muffin Blueberry', () => {
       const choco = photoId(getProductImage('Muffin Chocolate', 'pan'))
       const blue = photoId(getProductImage('Muffin Blueberry', 'pan'))
-      expect(choco).toBe('photo-1571115177098-24ec42ed204d')
-      expect(blue).toBe('photo-1607478900766-efe13248b125')
+      expect(choco).toBe('photo-1685100979994-b6f8384c345c')
+      expect(blue).toBe('photo-1722251172903-cc8774501df7')
       expect(choco).not.toBe(blue)
     })
 
@@ -50,13 +50,13 @@ describe('getProductImage', () => {
     it('usa keyword cuando el nombre no está en EXACT_MATCH', () => {
       // "Mocha Grande" no es exact; keyword "mocha"
       expect(photoId(getProductImage('Mocha Grande', 'cafe')))
-        .toBe('photo-1578374173705-969cbe6f2d6b')
+        .toBe('photo-1596078841242-12f73dc697c6')
     })
 
     it('respeta el orden: blueberry específico antes que muffin genérico', () => {
       // "Muffin de Arándano" no es exact; keyword "arándano" gana al genérico "muffin"
       expect(photoId(getProductImage('Muffin de Arándano', 'pan')))
-        .toBe('photo-1607478900766-efe13248b125')
+        .toBe('photo-1722251172903-cc8774501df7')
     })
   })
 

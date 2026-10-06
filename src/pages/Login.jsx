@@ -1,20 +1,22 @@
 import { SignIn } from '@clerk/clerk-react'
 import { clerkTheme } from '../lib/clerkTheme'
+import ShaderBackground from '../components/ui/ShaderBackground'
 
 export default function Login() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fffe] via-[#e8f5f0] to-[#d4ede4] dark:from-[#0d1b2a] dark:via-[#0d2d1f] dark:to-[#0a1a12] px-4">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4">
+      <ShaderBackground />
 
-      <div className="mb-6 flex flex-col items-center gap-1">
-        <span className="font-display text-5xl font-bold text-cafe-500 dark:text-cafe-300 tracking-tight">
+      <div className="relative z-10 mb-6 flex flex-col items-center gap-1">
+        <span className="font-display text-5xl font-bold cafe-accent-text tracking-tight">
           Café+
         </span>
-        <span className="font-body text-sm text-gray-500 dark:text-gray-400 tracking-wide">
+        <span className="font-body text-sm text-black/60 dark:text-white/50 tracking-wide">
           Sistema de gestión · Cuautitlán
         </span>
       </div>
 
-      <div className="w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md">
         <SignIn
           appearance={clerkTheme}
           afterSignInUrl="/"
@@ -22,7 +24,7 @@ export default function Login() {
         />
       </div>
 
-      <p className="mt-8 font-body text-xs text-gray-400 dark:text-gray-600">
+      <p className="relative z-10 mt-8 font-body text-xs text-black/60 dark:text-white/50">
         © 2026 Café+ · Todos los derechos reservados
       </p>
     </div>

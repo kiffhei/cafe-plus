@@ -232,10 +232,15 @@ h1, h2, h3, h4 {
     transform: scale(0.98);
   }
   .btn-secondary {
-    @apply bg-crema-100 text-cafe-700 font-medium px-4 py-2 rounded-lg
-           border border-cafe-200 hover:bg-crema-200
+    @apply font-medium px-4 py-2 rounded-lg border
            hover:-translate-y-px hover:shadow-warm
            transition-all duration-200;
+    background: rgba(0,0,0,0.04);
+    color: var(--cafe-accent-ink, var(--cafe-accent));
+    border-color: var(--cafe-border);
+  }
+  .btn-secondary:hover {
+    background: rgba(0,0,0,0.07);
   }
   .dark .btn-secondary {
     background: rgba(255,255,255,0.08);
@@ -252,10 +257,14 @@ h1, h2, h3, h4 {
   }
   .input-cafe {
     @apply w-full bg-white rounded-lg px-3 py-2
-           text-sm text-cafe-900 placeholder-cafe-300
+           text-sm
            focus:outline-none
            transition-all duration-150;
     border: 1px solid var(--cafe-border);
+    color: rgba(0,0,0,0.85);
+  }
+  .input-cafe::placeholder {
+    color: rgba(0,0,0,0.30);
   }
   .dark .input-cafe {
     background: rgba(255,255,255,0.08);
@@ -424,6 +433,105 @@ h1, h2, h3, h4 {
     color: var(--cafe-accent-ink, var(--cafe-accent)) !important;
     transition: color 0.8s ease;
   }
+
+  /* ── Jerarquía de texto reactiva al tema — reemplaza text-cafe-NNN estáticos ── */
+  .text-ink {
+    color: rgba(0,0,0,0.85);
+    transition: color 0.8s ease;
+  }
+  .dark .text-ink { color: rgba(255,255,255,0.92); }
+
+  .text-ink-secondary {
+    color: rgba(0,0,0,0.62);
+    transition: color 0.8s ease;
+  }
+  .dark .text-ink-secondary { color: rgba(255,255,255,0.65); }
+
+  /* Número/valor destacado (KPIs) — usa el acento del tema */
+  .kpi-value-theme {
+    color: var(--cafe-kpi-val) !important;
+    transition: color 0.8s ease;
+  }
+
+  /* ── Superficies de tabla reactivas ── */
+  .surface-head-row {
+    background: rgba(0,0,0,0.03);
+    transition: background-color 0.8s ease;
+  }
+  .dark .surface-head-row { background: rgba(255,255,255,0.06); }
+
+  .surface-row-hover {
+    transition: background-color 0.2s ease;
+  }
+  .surface-row-hover:hover { background: rgba(0,0,0,0.03); }
+  .dark .surface-row-hover:hover { background: rgba(255,255,255,0.05); }
+
+  .surface-row-stripe {
+    background: rgba(0,0,0,0.02);
+  }
+  .dark .surface-row-stripe { background: rgba(255,255,255,0.03); }
+
+  /* ── Botón ghost (filtros, paginación) ── */
+  .btn-ghost-theme {
+    background: #fff;
+    border: 1px solid var(--cafe-border);
+    color: rgba(0,0,0,0.65);
+    transition: background 0.2s ease, color 0.8s ease, border-color 0.8s ease;
+  }
+  .btn-ghost-theme:hover { background: rgba(0,0,0,0.04); }
+  .dark .btn-ghost-theme {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.70);
+  }
+  .dark .btn-ghost-theme:hover { background: rgba(255,255,255,0.09); }
+
+  /* ── Botón-ícono muted (editar, borrar, cerrar) ── */
+  .icon-btn-muted {
+    color: rgba(0,0,0,0.45);
+    transition: color 0.8s ease, background-color 0.2s ease;
+  }
+  .icon-btn-muted:hover { color: rgba(0,0,0,0.80); background: rgba(0,0,0,0.05); }
+  .dark .icon-btn-muted { color: rgba(255,255,255,0.45); }
+  .dark .icon-btn-muted:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+
+  /* ── Skeleton de carga ── */
+  .skeleton-theme {
+    background: rgba(0,0,0,0.08);
+  }
+  .dark .skeleton-theme { background: rgba(255,255,255,0.10); }
+
+  .skeleton-theme-soft {
+    background: rgba(0,0,0,0.05);
+  }
+  .dark .skeleton-theme-soft { background: rgba(255,255,255,0.06); }
+
+  /* ── Spinner de carga ── */
+  .spinner-theme {
+    border-color: var(--cafe-border);
+    border-top-color: var(--cafe-accent);
+  }
+
+  /* ── Placeholder muted para inputs sin fondo (notas inline) ── */
+  .placeholder-theme::placeholder { color: rgba(0,0,0,0.30); }
+  .dark .placeholder-theme::placeholder { color: rgba(255,255,255,0.30); }
+
+  /* ── Link de acción (editar/ver en tablas) con hover reactivo ── */
+  .link-action-theme {
+    color: rgba(0,0,0,0.55);
+    transition: color 0.8s ease;
+  }
+  .link-action-theme:hover { color: rgba(0,0,0,0.90); text-decoration: underline; }
+  .dark .link-action-theme { color: rgba(255,255,255,0.55); }
+  .dark .link-action-theme:hover { color: rgba(255,255,255,0.95); }
+
+  /* ── Superficie suave reactiva (chips, badges, steppers, avatares) ── */
+  .surface-soft-theme {
+    background: rgba(0,0,0,0.06);
+    transition: background-color 0.2s ease;
+  }
+  .surface-soft-theme:hover { background: rgba(0,0,0,0.10); }
+  .dark .surface-soft-theme { background: rgba(255,255,255,0.08); }
+  .dark .surface-soft-theme:hover { background: rgba(255,255,255,0.14); }
 }
 
 /* ── Fondo animado — orbes por tema ── */
@@ -461,23 +569,6 @@ h1, h2, h3, h4 {
   transition: background 0.8s ease, border-color 0.8s ease;
 }
 
-/* Light mode: textos del sidebar que son blancos en dark, necesitan color oscuro */
-html:not(.dark) .cafe-sidebar-surface .text-crema-100,
-html:not(.dark) .cafe-sidebar-surface .text-white\/90,
-html:not(.dark) .cafe-sidebar-surface .text-white\/80 {
-  color: var(--cafe-accent) !important;
-}
-html:not(.dark) .cafe-sidebar-surface .text-white\/40,
-html:not(.dark) .cafe-sidebar-surface .text-cafe-400 {
-  color: rgba(0,0,0,0.45) !important;
-}
-html:not(.dark) .cafe-sidebar-surface .text-crema-200 {
-  color: color-mix(in srgb, var(--cafe-accent) 80%, #000) !important;
-}
-/* Nav links activos en light mode */
-html:not(.dark) .cafe-sidebar-surface a[aria-current="page"] {
-  background: rgba(0,0,0,0.08) !important;
-}
 .cafe-main-surface {
   background: var(--cafe-main-bg) !important;
   backdrop-filter: blur(12px);

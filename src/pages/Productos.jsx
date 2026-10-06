@@ -76,11 +76,11 @@ function ModalProducto({ producto, onClose, onSaved }) {
         )}
         <div className={`flex items-center justify-between px-6 py-4 sticky top-0 z-10 modal-surface ${!esNuevo ? 'hidden' : ''}`}
              style={{ borderBottom: '1px solid var(--cafe-border)' }}>
-          <h2 className="text-lg font-semibold text-cafe-800">
+          <h2 className="text-lg font-semibold text-ink">
             {esNuevo ? 'Nuevo producto' : 'Editar producto'}
           </h2>
           <button onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-crema-100 text-cafe-400 hover:text-cafe-700 transition-colors text-xl">
+            className="w-8 h-8 flex items-center justify-center rounded-full icon-btn-muted transition-colors text-xl">
             ×
           </button>
         </div>
@@ -95,12 +95,12 @@ function ModalProducto({ producto, onClose, onSaved }) {
           {/* Nombre + Categoría */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Nombre *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Nombre *</label>
               <input value={form.nombre} onChange={e => set('nombre', e.target.value)}
                 className="input-cafe w-full" placeholder="Café americano" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Categoría *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Categoría *</label>
               <select value={form.categoria} onChange={e => set('categoria', e.target.value)}
                 className="input-cafe w-full">
                 {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
@@ -110,7 +110,7 @@ function ModalProducto({ producto, onClose, onSaved }) {
 
           {/* Descripción */}
           <div>
-            <label className="block text-xs font-medium text-cafe-600 mb-1">Descripción</label>
+            <label className="block text-xs font-medium label-muted mb-1">Descripción</label>
             <textarea value={form.descripcion} onChange={e => set('descripcion', e.target.value)}
               className="input-cafe w-full resize-none" rows={2}
               placeholder="Descripción breve del producto..." />
@@ -119,13 +119,13 @@ function ModalProducto({ producto, onClose, onSaved }) {
           {/* Precios */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Costo $</label>
+              <label className="block text-xs font-medium label-muted mb-1">Costo $</label>
               <input type="number" value={form.costo}
                 onChange={e => set('costo', e.target.value)}
                 className="input-cafe w-full" placeholder="0.00" min="0" step="0.50" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Precio venta $ *</label>
+              <label className="block text-xs font-medium label-muted mb-1">Precio venta $ *</label>
               <input type="number" value={form.precio_venta}
                 onChange={e => set('precio_venta', e.target.value)}
                 className="input-cafe w-full" placeholder="0.00" min="0" step="0.50" />
@@ -146,18 +146,18 @@ function ModalProducto({ producto, onClose, onSaved }) {
           {/* Stock + Unidad */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Stock</label>
+              <label className="block text-xs font-medium label-muted mb-1">Stock</label>
               <input type="number" value={form.cantidad_stock}
                 onChange={e => set('cantidad_stock', e.target.value)}
                 className="input-cafe w-full" placeholder="0" min="0" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Peso/Vol</label>
+              <label className="block text-xs font-medium label-muted mb-1">Peso/Vol</label>
               <input value={form.peso_volumen} onChange={e => set('peso_volumen', e.target.value)}
                 className="input-cafe w-full" placeholder="250" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Unidad</label>
+              <label className="block text-xs font-medium label-muted mb-1">Unidad</label>
               <select value={form.unidad} onChange={e => set('unidad', e.target.value)}
                 className="input-cafe w-full">
                 <option value="g">g</option>
@@ -171,12 +171,12 @@ function ModalProducto({ producto, onClose, onSaved }) {
           {/* Empaque */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Empaque local</label>
+              <label className="block text-xs font-medium label-muted mb-1">Empaque local</label>
               <input value={form.empaque_local} onChange={e => set('empaque_local', e.target.value)}
                 className="input-cafe w-full" placeholder="Taza cerámica" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-cafe-600 mb-1">Empaque deliver</label>
+              <label className="block text-xs font-medium label-muted mb-1">Empaque deliver</label>
               <input value={form.empaque_deliver} onChange={e => set('empaque_deliver', e.target.value)}
                 className="input-cafe w-full" placeholder="Vaso desechable 12oz" />
             </div>
@@ -245,8 +245,8 @@ export default function Productos() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-cafe-800 dark:text-crema-100">Productos</h1>
-          <p className="text-sm text-cafe-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-ink">Productos</h1>
+          <p className="text-sm label-muted mt-0.5">
             {lista.filter(p => p.activo).length} activos · {lista.length} total
           </p>
         </div>
@@ -262,7 +262,7 @@ export default function Productos() {
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-5">
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cafe-400 text-sm">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 label-muted text-sm">🔍</span>
           <input value={buscar} onChange={e => setBuscar(e.target.value)}
             placeholder="Buscar producto..."
             className="input-cafe pl-9 w-56" />
@@ -273,7 +273,7 @@ export default function Productos() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize
                 ${filtroCategoria === c
                   ? 'tab-active-theme'
-                  : 'bg-white border border-crema-200 text-cafe-600 hover:bg-crema-50'}`}>
+                  : 'btn-ghost-theme'}`}>
               {c} {c !== 'todas' && categoriasCounts[c] > 0 && `(${categoriasCounts[c]})`}
             </button>
           ))}
@@ -292,13 +292,13 @@ export default function Productos() {
           <table className="w-full">
             <tbody>
               {Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-crema-100 dark:border-cafe-700">
+                <tr key={i} className="border-b cafe-border-theme">
                   <td className="px-3 py-3">
-                    <div className="w-10 h-10 rounded-lg animate-pulse bg-cafe-200 dark:bg-cafe-700" />
+                    <div className="w-10 h-10 rounded-lg animate-pulse skeleton-theme" />
                   </td>
                   {[55, 30, 25, 20, 18].map((w, j) => (
                     <td key={j} className="px-5 py-4">
-                      <div className="h-3 rounded-full animate-pulse bg-cafe-200 dark:bg-cafe-700" style={{ width: `${w}%` }} />
+                      <div className="h-3 rounded-full animate-pulse skeleton-theme" style={{ width: `${w}%` }} />
                     </td>
                   ))}
                 </tr>
@@ -307,26 +307,26 @@ export default function Productos() {
           </table>
         ) : filtrados.length === 0 ? (
           <div className="text-center py-16">
-            <svg className="w-12 h-12 mx-auto mb-3 text-cafe-300 dark:text-cafe-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+            <svg className="w-12 h-12 mx-auto mb-3 label-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
-            <p className="text-cafe-500 dark:text-cafe-400 font-medium">
+            <p className="label-muted font-medium">
               {buscar || filtroCategoria !== 'todas' ? 'Sin productos con ese filtro' : 'Aún no hay productos en el catálogo'}
             </p>
-            {!buscar && filtroCategoria === 'todas' && <p className="text-cafe-400 dark:text-cafe-500 text-xs mt-1">Usa el botón "+ Producto" para agregar el primero</p>}
+            {!buscar && filtroCategoria === 'todas' && <p className="label-muted text-xs mt-1">Usa el botón "+ Producto" para agregar el primero</p>}
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-crema-50 dark:bg-cafe-900 border-b border-crema-200 dark:border-cafe-700">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide w-10" />
-                <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Producto</th>
-                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Categoría</th>
-                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Costo</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Precio</th>
-                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Margen</th>
-                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Stock</th>
-                {esAdmin && <th className="text-left px-5 py-3 text-xs font-semibold text-cafe-500 uppercase tracking-wide">Estado</th>}
+              <tr className="surface-head-row border-b cafe-border-theme">
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide w-10" />
+                <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Producto</th>
+                <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Categoría</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Costo</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Precio</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Margen</th>
+                <th className="hidden sm:table-cell text-right px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Stock</th>
+                {esAdmin && <th className="text-left px-5 py-3 text-xs font-semibold label-muted uppercase tracking-wide">Estado</th>}
                 {esAdmin && <th className="px-5 py-3" />}
               </tr>
             </thead>
@@ -337,9 +337,9 @@ export default function Productos() {
                   : null
                 return (
                   <tr key={p.id_producto}
-                    className={`border-b border-crema-100 dark:border-cafe-700 hover:bg-crema-50/50 dark:hover:bg-cafe-700/30 transition-colors
+                    className={`border-b cafe-border-theme surface-row-hover transition-colors
                       ${!p.activo ? 'opacity-50' : ''}
-                      ${i % 2 === 0 ? '' : 'bg-crema-50/20 dark:bg-cafe-800/40'}`}>
+                      ${i % 2 === 0 ? '' : 'surface-row-stripe'}`}>
                     <td className="px-3 py-2">
                       <img
                         src={getProductImage(p.nombre, p.categoria, 80)}
@@ -350,18 +350,18 @@ export default function Productos() {
                       />
                     </td>
                     <td className="px-5 py-4">
-                      <div className="font-medium text-cafe-800 dark:text-crema-100 text-sm">{p.nombre}</div>
+                      <div className="font-medium text-ink text-sm">{p.nombre}</div>
                       {p.descripcion && (
-                        <div className="text-xs text-cafe-400 mt-0.5 truncate max-w-xs">{p.descripcion}</div>
+                        <div className="text-xs label-muted mt-0.5 truncate max-w-xs">{p.descripcion}</div>
                       )}
                     </td>
                     <td className="hidden sm:table-cell px-5 py-4">
                       {(({ cls, label }) => <span className={cls}>{label}</span>)(categoriaBadge(p.categoria))}
                     </td>
-                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-cafe-600 dark:text-cafe-400">
+                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-ink-secondary">
                       {p.costo ? `$${parseFloat(p.costo).toFixed(2)}` : '—'}
                     </td>
-                    <td className="px-5 py-4 text-right text-sm font-semibold text-cafe-800 dark:text-crema-100">
+                    <td className="px-5 py-4 text-right text-sm font-semibold text-ink">
                       ${parseFloat(p.precio_venta || 0).toFixed(2)}
                     </td>
                     <td className="hidden sm:table-cell px-5 py-4 text-right">
@@ -373,7 +373,7 @@ export default function Productos() {
                         </span>
                       )}
                     </td>
-                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-cafe-600 dark:text-cafe-400">
+                    <td className="hidden sm:table-cell px-5 py-4 text-right text-sm text-ink-secondary">
                       {p.cantidad_stock ?? '—'}
                     </td>
                     {esAdmin && (
@@ -391,7 +391,7 @@ export default function Productos() {
                     {esAdmin && (
                       <td className="px-5 py-4">
                         <button onClick={() => setModal(p)}
-                          className="text-xs text-cafe-500 hover:text-cafe-800 font-medium hover:underline transition-colors">
+                          className="text-xs link-action-theme font-medium hover:underline transition-colors">
                           Editar
                         </button>
                       </td>

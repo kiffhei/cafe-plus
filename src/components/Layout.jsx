@@ -24,7 +24,7 @@ export default function Layout() {
   const title = PAGE_TITLES[location.pathname] || 'Café Plus'
 
   return (
-    <div className="relative flex min-h-screen">
+    <div className="relative flex h-screen overflow-hidden">
 
       {/* Fondo WebGL shader — temático y responsive */}
       <ShaderBackground />

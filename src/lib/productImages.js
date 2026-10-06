@@ -12,20 +12,20 @@ const EXACT_MATCH = {
   'cappuccino':          'photo-1534040385115-33dcb3acba5b',
   'cafe frio':           'photo-1461023058943-07fcbe16d735',
   'cafe espresso':       'photo-1514432324607-a09d9b4aefdd',
-  'frappe caramelo':     'photo-1582196016295-f8c8bd4b3a99',
+  'frappe caramelo':     'photo-1637178035575-b0dcbd28a09b',
   // Bebidas
   'chocolate caliente':  'photo-1542990253-0d0f5be5f0ed',
   'te verde':            'photo-1556679343-c7306c1976bc',
   'agua natural 500ml':  'photo-1548839140-29a749e1cf4d',
   // Panadería
   'croissant':           'photo-1555507036-ab1f4038808a',
-  'muffin chocolate':    'photo-1571115177098-24ec42ed204d',
-  'muffin blueberry':    'photo-1607478900766-efe13248b125',
+  'muffin chocolate':    'photo-1685100979994-b6f8384c345c',
+  'muffin blueberry':    'photo-1722251172903-cc8774501df7',
   'pan de elote':        'photo-1565299624946-b28f40a0ae38',
   'pan de nuez':         'photo-1509440159596-0249088772ff',
   // Sándwiches
   'sandwich jamon':      'photo-1528735602780-2552fd46c7af',
-  'sandwich caprese':    'photo-1604328698692-f76ea9498e76',
+  'sandwich caprese':    'photo-1668832371334-23e25325045a',
   'club sandwich':       'photo-1481070414801-51fd732d7184',
   'sandwich pollo bbq':  'photo-1598515214211-89d3c73ae83b',
 }
@@ -41,7 +41,7 @@ const KEYWORD_MAP = [
     'photo-1461023058943-07fcbe16d735'],
   // Frappé / caramelo
   [['frappé', 'frappe', 'frapé', 'caramelo'],
-    'photo-1582196016295-f8c8bd4b3a99'],
+    'photo-1637178035575-b0dcbd28a09b'],
   // Americano
   [['americano'],
     'photo-1497935586351-b67a49e012bf'],
@@ -53,7 +53,7 @@ const KEYWORD_MAP = [
     'photo-1534040385115-33dcb3acba5b'],
   // Mocha
   [['mocha', 'moka', 'mocca'],
-    'photo-1578374173705-969cbe6f2d6b'],
+    'photo-1596078841242-12f73dc697c6'],
   // Macchiato
   [['macchiato'],
     'photo-1521302080334-4bebac2763a6'],
@@ -86,10 +86,10 @@ const KEYWORD_MAP = [
     'photo-1555507036-ab1f4038808a'],
   // Muffin blueberry / arándano (ANTES del genérico muffin)
   [['blueberry', 'arándano', 'arandano'],
-    'photo-1607478900766-efe13248b125'],
+    'photo-1722251172903-cc8774501df7'],
   // Muffin chocolate (ANTES del genérico muffin)
   [['muffin chocolate', 'esponjoso'],
-    'photo-1571115177098-24ec42ed204d'],
+    'photo-1685100979994-b6f8384c345c'],
   // Muffin genérico
   [['muffin', 'cupcake', 'panqué'],
     'photo-1558961363-fa8fdf82db35'],
@@ -122,7 +122,7 @@ const KEYWORD_MAP = [
     'photo-1481070414801-51fd732d7184'],
   // Caprese (ANTES del genérico sándwich)
   [['caprese', 'mozzarella', 'jitomate', 'albahaca', 'ciabatta'],
-    'photo-1604328698692-f76ea9498e76'],
+    'photo-1668832371334-23e25325045a'],
   // Pollo BBQ
   [['pollo bbq', 'bbq', 'plancha', 'pollo'],
     'photo-1598515214211-89d3c73ae83b'],
