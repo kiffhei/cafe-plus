@@ -1,0 +1,50 @@
+# Café Plus — analytics/config.yaml
+# Parámetros del ejercicio de forecast/simulación. Todo lo marcado SUPUESTO es una
+# decisión editorial del ejercicio, no un dato real del negocio (es ficticio).
+# Los valores bajo `medido` vienen de bd_ventas/bd_detalle_pedidos (es_sintetico=false,
+# excluyendo el lote 2026-10-06..2026-10-12) — ver analytics/out/fase0_reconocimiento.md.
+
+economia:
+  empleados: 2
+  sueldo_mensual_por_empleado: 11000     # SUPUESTO (≈1.15× salario mínimo 2026; mínimo verificado: 315.04 MXN/día × 30.4 = 9,577)
+  factor_carga_social: 1.35              # SUPUESTO: IMSS/INFONAVIT/SAR, aguinaldo, vacaciones, prima
+  renta_mensual: 12000                   # SUPUESTO local pequeño en el centro de Cuautitlán
+  servicios_mensual: 6000                # SUPUESTO luz, gas, agua, internet
+  otros_fijos_mensual: 5000              # SUPUESTO contador, permisos, mantenimiento
+  utilidad_objetivo_mensual: 22000       # SUPUESTO utilidad operativa antes de impuestos
+  merma_pct: 0.04                        # SUPUESTO
+  comision_delivery_pct: 0.27            # SUPUESTO ilustrativo, reemplazar con liquidaciones reales
+  empaque_delivery_por_pedido: 4         # SUPUESTO
+  pct_pagos_tarjeta: 0.60                # SUPUESTO
+  comision_tarjeta_pct: 0.036            # SUPUESTO
+  crecimiento_anual: 0.06                # SUPUESTO
+
+# Valores medidos en Fase 0 (es_sintetico=false, 2,484 pedidos, 2025-01-01..2026-10-02).
+# economia.py los lee para calcular contribución/equilibrio/objetivo — no son SUPUESTO,
+# son continuidad estadística del histórico de ejemplo.
+medido:
+  n_pedidos: 2484
+  n_entregados: 2452
+  ticket_promedio_total: 131.83          # avg(total) where estado='entregado'
+  ticket_promedio_subtotal: 132.76       # avg(subtotal) where estado='entregado'
+  costo_pct_ponderado: 0.4101            # sum(cantidad*costo) / sum(cantidad*precio_venta)
+  descuento_pct_ponderado: 0.0070        # sum(descuento)/sum(subtotal), entregados
+  pct_con_descuento: 0.1224              # fracción de pedidos con descuento>0
+  pct_con_cliente: 0.4400                # fracción de pedidos con id_cliente no nulo
+  lineas_por_pedido: 2.0004
+  pct_cancelado_global: 0.0129
+  mix_canal:
+    local: { pct: 0.553, pct_cancelado: 0.0102 }
+    rappi: { pct: 0.317, pct_cancelado: 0.0063 }
+    ubereats: { pct: 0.103, pct_cancelado: 0.0272 }
+    didi: { pct: 0.027, pct_cancelado: 0.0909 }   # muestra pequeña (n=66) — aplicar shrinkage hacia 0.0129
+  mix_delivery: 0.447                    # 1 - mix_canal.local.pct
+
+# Perfil operativo (Fase 2) — horario y turnos dados por el dueño.
+operacion:
+  horario_apertura: "06:00"
+  horario_cierre: "21:00"
+  turno_matutino: { cajero: "USR-002", inicio: "06:00", fin: "14:00" }
+  turno_vespertino: { cajero: "USR-003", inicio: "13:00", fin: "21:00" }
+  tiempo_servicio_medio_min: 3.5          # SUPUESTO, lognormal, para SimPy (Fase 6.5)
+  sla_espera_umbral_min: 5                # SUPUESTO

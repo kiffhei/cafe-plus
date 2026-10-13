@@ -52,3 +52,9 @@ Codigo.gs
 
 # Descargas de material de terceros para auditorías (no ejecutar, no commitear)
 descargas/
+
+# analytics/ — ejercicio de forecast/simulación (rama feat/analytics-sim)
+analytics/.venv/
+analytics/__pycache__/
+**/__pycache__/
+.pytest_cache/

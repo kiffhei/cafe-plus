@@ -1,0 +1,269 @@
+{
+  "origen": "simulado",
+  "supuestos": {
+    "sueldo_mensual_por_empleado": 11000,
+    "salario_minimo_mensual_2026": 9577.22,
+    "sueldo_cumple_minimo": true,
+    "factor_carga_social": 1.35,
+    "renta_mensual": 12000,
+    "servicios_mensual": 6000,
+    "otros_fijos_mensual": 5000,
+    "utilidad_objetivo_mensual": 22000,
+    "merma_pct": 0.04,
+    "comision_delivery_pct": 0.27,
+    "empaque_delivery_por_pedido": 4,
+    "pct_pagos_tarjeta": 0.6,
+    "comision_tarjeta_pct": 0.036,
+    "crecimiento_anual": 0.06
+  },
+  "medido": {
+    "ticket_promedio_subtotal": 132.76,
+    "costo_pct_ponderado": 0.4101,
+    "descuento_pct_ponderado": 0.007,
+    "mix_delivery": 0.447
+  },
+  "resultado": {
+    "costos_fijos_mensuales": 52700.0,
+    "contribucion_pct": 0.3871,
+    "contribucion_dollar_por_pedido": 51.4,
+    "equilibrio_pedidos_dia": 33.7,
+    "equilibrio_pedidos_mes": 1025.4,
+    "objetivo_pedidos_dia": 47.8,
+    "objetivo_pedidos_mes": 1453.4,
+    "ventas_mensuales_objetivo": 191601.75,
+    "margen_operativo_pct": 0.1148
+  },
+  "referencia_usuario": {
+    "equilibrio_pedidos_dia_esperado": 34,
+    "objetivo_pedidos_dia_esperado": 48,
+    "ventas_mensuales_esperadas": 190000,
+    "margen_operativo_esperado_pct": 0.11
+  },
+  "sensibilidad": [
+    {
+      "ticket_subtotal": 119.48,
+      "comision_delivery_pct": 0.17,
+      "contribucion_pct": 0.4303,
+      "contribucion_dollar": 51.42,
+      "equilibrio_pedidos_dia": 33.7,
+      "objetivo_pedidos_dia": 47.8,
+      "utilidad_mensual_al_volumen_objetivo_base": 22032.61
+    },
+    {
+      "ticket_subtotal": 119.48,
+      "comision_delivery_pct": 0.22,
+      "contribucion_pct": 0.408,
+      "contribucion_dollar": 48.75,
+      "equilibrio_pedidos_dia": 35.6,
+      "objetivo_pedidos_dia": 50.4,
+      "utilidad_mensual_al_volumen_objetivo_base": 18151.37
+    },
+    {
+      "ticket_subtotal": 119.48,
+      "comision_delivery_pct": 0.27,
+      "contribucion_pct": 0.3856,
+      "contribucion_dollar": 46.08,
+      "equilibrio_pedidos_dia": 37.6,
+      "objetivo_pedidos_dia": 53.3,
+      "utilidad_mensual_al_volumen_objetivo_base": 14270.13
+    },
+    {
+      "ticket_subtotal": 119.48,
+      "comision_delivery_pct": 0.32,
+      "contribucion_pct": 0.3633,
+      "contribucion_dollar": 43.41,
+      "equilibrio_pedidos_dia": 39.9,
+      "objetivo_pedidos_dia": 56.6,
+      "utilidad_mensual_al_volumen_objetivo_base": 10388.9
+    },
+    {
+      "ticket_subtotal": 119.48,
+      "comision_delivery_pct": 0.37,
+      "contribucion_pct": 0.3409,
+      "contribucion_dollar": 40.74,
+      "equilibrio_pedidos_dia": 42.6,
+      "objetivo_pedidos_dia": 60.3,
+      "utilidad_mensual_al_volumen_objetivo_base": 6507.66
+    },
+    {
+      "ticket_subtotal": 126.12,
+      "comision_delivery_pct": 0.17,
+      "contribucion_pct": 0.4311,
+      "contribucion_dollar": 54.38,
+      "equilibrio_pedidos_dia": 31.9,
+      "objetivo_pedidos_dia": 45.2,
+      "utilidad_mensual_al_volumen_objetivo_base": 26328.79
+    },
+    {
+      "ticket_subtotal": 126.12,
+      "comision_delivery_pct": 0.22,
+      "contribucion_pct": 0.4088,
+      "contribucion_dollar": 51.56,
+      "equilibrio_pedidos_dia": 33.6,
+      "objetivo_pedidos_dia": 47.7,
+      "utilidad_mensual_al_volumen_objetivo_base": 22231.93
+    },
+    {
+      "ticket_subtotal": 126.12,
+      "comision_delivery_pct": 0.27,
+      "contribucion_pct": 0.3864,
+      "contribucion_dollar": 48.74,
+      "equilibrio_pedidos_dia": 35.6,
+      "objetivo_pedidos_dia": 50.4,
+      "utilidad_mensual_al_volumen_objetivo_base": 18135.07
+    },
+    {
+      "ticket_subtotal": 126.12,
+      "comision_delivery_pct": 0.32,
+      "contribucion_pct": 0.3641,
+      "contribucion_dollar": 45.92,
+      "equilibrio_pedidos_dia": 37.8,
+      "objetivo_pedidos_dia": 53.5,
+      "utilidad_mensual_al_volumen_objetivo_base": 14038.2
+    },
+    {
+      "ticket_subtotal": 126.12,
+      "comision_delivery_pct": 0.37,
+      "contribucion_pct": 0.3417,
+      "contribucion_dollar": 43.1,
+      "equilibrio_pedidos_dia": 40.2,
+      "objetivo_pedidos_dia": 57.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 9941.34
+    },
+    {
+      "ticket_subtotal": 132.76,
+      "comision_delivery_pct": 0.17,
+      "contribucion_pct": 0.4318,
+      "contribucion_dollar": 57.33,
+      "equilibrio_pedidos_dia": 30.2,
+      "objetivo_pedidos_dia": 42.9,
+      "utilidad_mensual_al_volumen_objetivo_base": 30624.97
+    },
+    {
+      "ticket_subtotal": 132.76,
+      "comision_delivery_pct": 0.22,
+      "contribucion_pct": 0.4095,
+      "contribucion_dollar": 54.36,
+      "equilibrio_pedidos_dia": 31.9,
+      "objetivo_pedidos_dia": 45.2,
+      "utilidad_mensual_al_volumen_objetivo_base": 26312.49
+    },
+    {
+      "ticket_subtotal": 132.76,
+      "comision_delivery_pct": 0.27,
+      "contribucion_pct": 0.3871,
+      "contribucion_dollar": 51.4,
+      "equilibrio_pedidos_dia": 33.7,
+      "objetivo_pedidos_dia": 47.8,
+      "utilidad_mensual_al_volumen_objetivo_base": 22000.0
+    },
+    {
+      "ticket_subtotal": 132.76,
+      "comision_delivery_pct": 0.32,
+      "contribucion_pct": 0.3648,
+      "contribucion_dollar": 48.43,
+      "equilibrio_pedidos_dia": 35.8,
+      "objetivo_pedidos_dia": 50.7,
+      "utilidad_mensual_al_volumen_objetivo_base": 17687.51
+    },
+    {
+      "ticket_subtotal": 132.76,
+      "comision_delivery_pct": 0.37,
+      "contribucion_pct": 0.3424,
+      "contribucion_dollar": 45.46,
+      "equilibrio_pedidos_dia": 38.1,
+      "objetivo_pedidos_dia": 54.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 13375.03
+    },
+    {
+      "ticket_subtotal": 139.4,
+      "comision_delivery_pct": 0.17,
+      "contribucion_pct": 0.4325,
+      "contribucion_dollar": 60.29,
+      "equilibrio_pedidos_dia": 28.8,
+      "objetivo_pedidos_dia": 40.8,
+      "utilidad_mensual_al_volumen_objetivo_base": 34921.15
+    },
+    {
+      "ticket_subtotal": 139.4,
+      "comision_delivery_pct": 0.22,
+      "contribucion_pct": 0.4101,
+      "contribucion_dollar": 57.17,
+      "equilibrio_pedidos_dia": 30.3,
+      "objetivo_pedidos_dia": 43.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 30393.04
+    },
+    {
+      "ticket_subtotal": 139.4,
+      "comision_delivery_pct": 0.27,
+      "contribucion_pct": 0.3878,
+      "contribucion_dollar": 54.06,
+      "equilibrio_pedidos_dia": 32.1,
+      "objetivo_pedidos_dia": 45.5,
+      "utilidad_mensual_al_volumen_objetivo_base": 25864.93
+    },
+    {
+      "ticket_subtotal": 139.4,
+      "comision_delivery_pct": 0.32,
+      "contribucion_pct": 0.3654,
+      "contribucion_dollar": 50.94,
+      "equilibrio_pedidos_dia": 34.0,
+      "objetivo_pedidos_dia": 48.2,
+      "utilidad_mensual_al_volumen_objetivo_base": 21336.82
+    },
+    {
+      "ticket_subtotal": 139.4,
+      "comision_delivery_pct": 0.37,
+      "contribucion_pct": 0.3431,
+      "contribucion_dollar": 47.83,
+      "equilibrio_pedidos_dia": 36.2,
+      "objetivo_pedidos_dia": 51.4,
+      "utilidad_mensual_al_volumen_objetivo_base": 16808.71
+    },
+    {
+      "ticket_subtotal": 146.04,
+      "comision_delivery_pct": 0.17,
+      "contribucion_pct": 0.4331,
+      "contribucion_dollar": 63.24,
+      "equilibrio_pedidos_dia": 27.4,
+      "objetivo_pedidos_dia": 38.9,
+      "utilidad_mensual_al_volumen_objetivo_base": 39217.34
+    },
+    {
+      "ticket_subtotal": 146.04,
+      "comision_delivery_pct": 0.22,
+      "contribucion_pct": 0.4107,
+      "contribucion_dollar": 59.98,
+      "equilibrio_pedidos_dia": 28.9,
+      "objetivo_pedidos_dia": 41.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 34473.6
+    },
+    {
+      "ticket_subtotal": 146.04,
+      "comision_delivery_pct": 0.27,
+      "contribucion_pct": 0.3884,
+      "contribucion_dollar": 56.72,
+      "equilibrio_pedidos_dia": 30.6,
+      "objetivo_pedidos_dia": 43.3,
+      "utilidad_mensual_al_volumen_objetivo_base": 29729.87
+    },
+    {
+      "ticket_subtotal": 146.04,
+      "comision_delivery_pct": 0.32,
+      "contribucion_pct": 0.366,
+      "contribucion_dollar": 53.45,
+      "equilibrio_pedidos_dia": 32.4,
+      "objetivo_pedidos_dia": 46.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 24986.13
+    },
+    {
+      "ticket_subtotal": 146.04,
+      "comision_delivery_pct": 0.37,
+      "contribucion_pct": 0.3437,
+      "contribucion_dollar": 50.19,
+      "equilibrio_pedidos_dia": 34.5,
+      "objetivo_pedidos_dia": 49.0,
+      "utilidad_mensual_al_volumen_objetivo_base": 20242.4
+    }
+  ]
+}

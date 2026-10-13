@@ -1,0 +1,367 @@
+# Café Plus — calendario de eventos y anomalías (Fase 2.2)
+# confianza: verificado (URL + fecha comprobada) | patron (se infiere de un patrón) | supuesto (sin fuente)
+# El efecto numérico (mult_local/mult_delivery) es SIEMPRE supuesto, incluso cuando el evento
+# en sí está verificado — así lo marca la Regla 7 del encargo.
+#
+# Verificación hecha en Fase 2.2 con WebSearch (7 de ~15 de presupuesto). Dos hallazgos relevantes
+# que CAMBIAN el dato original del enunciado — ver notas inline:
+
+eventos:
+  # --- Festejando Cuautitlán (aniversario del municipio) ---
+  - id: fest-cuautitlan-2022
+    nombre: "Festejando Cuautitlán 2022"
+    tipo: festival_municipal
+    inicio: 2022-08-16
+    fin: 2022-08-23
+    horas_efecto: [15, 20]
+    mult_local: 1.25
+    mult_delivery: 0.95
+    confianza: verificado
+    fuente_url: "https://www.milenio.com/politica/comunidad/cuautitlan-celebra-aniversario-fundacion-actividades-fechas"
+    observacion: "Fuera del rango de datos simulados (antes de 2025-01-01) — se carga por completitud del calendario, no afecta el re-horario ni el generador."
+
+  - id: fest-cuautitlan-2023
+    nombre: "Festejando Cuautitlán 2023 (199° aniversario)"
+    tipo: festival_municipal
+    inicio: 2023-08-16
+    fin: 2023-08-23
+    horas_efecto: [15, 20]
+    mult_local: 1.25
+    mult_delivery: 0.95
+    confianza: verificado
+    fuente_url: "https://www.dondehayferia.com/semana-cultural-y-artistica-cuautitlan-2023"
+    observacion: "Semana Cultural y Artística 2023, 199° aniversario. Verificado en Fase 2.2 (el enunciado lo marcaba 'patrón, VERIFICAR')."
+
+  - id: fest-cuautitlan-2024
+    nombre: "Festejando Cuautitlán 2024"
+    tipo: festival_municipal
+    inicio: 2024-08-16
+    fin: 2024-08-23
+    horas_efecto: [15, 20]
+    mult_local: 1.25
+    mult_delivery: 0.95
+    confianza: patron
+    fuente_url: null
+    observacion: "No se encontró cobertura de prensa específica de 2024 en la búsqueda de Fase 2.2 — se mantiene como patrón (16-23 ago, igual que 2022/2023/2025), sin degradar ni promover."
+
+  - id: fest-cuautitlan-2025
+    nombre: "Festejando Cuautitlán 2025"
+    tipo: festival_municipal
+    inicio: 2025-08-16
+    fin: 2025-08-23
+    horas_efecto: [15, 20]
+    mult_local: 1.25      # SUPUESTO (x1.35 sáb-dom, ver nota)
+    mult_delivery: 0.95   # SUPUESTO
+    mult_local_sabdom: 1.35  # SUPUESTO
+    confianza: verificado
+    fuente_url: "https://www.unotv.com/entretenimiento/festival-de-cuautitlan-2025-fechas-y-artistas-por-dia/"
+    observacion: null
+
+  - id: fest-cuautitlan-2026
+    nombre: "Festejando Cuautitlán 2026 (202° aniversario)"
+    tipo: festival_municipal
+    inicio: 2026-08-12
+    fin: 2026-08-16
+    horas_efecto: [15, 20]
+    mult_local: 1.25
+    mult_delivery: 0.95
+    mult_local_sabdom: 1.35
+    confianza: verificado
+    fuente_url: "https://www.infobae.com/mexico/2026/08/05/conciertos-gratis-en-el-festival-de-cuautitlan-2026-dld-los-cardenales-de-nuevo-leon-y-rayito-colombiano-en-el-programa/"
+    observacion: >
+      CORRIGE el dato del enunciado: no fueron 6 días "por confirmar" — fueron 5 noches,
+      12-16 de agosto (no 16-23), cierre el domingo 16 coincidiendo con la fecha de
+      fundación. Confirmado con 4 fuentes mayores (Infobae, Heraldo de México Edomex,
+      Milenio, Capital Edomex). El patrón 16-23 NO se repitió en 2026 — el festival se
+      movió a fechas más tempranas y se acortó. Reportado al usuario en el resumen de Fase 2.
+
+  # --- Pista de hielo, Concha Acústica, Parque de la Cruz ---
+  - id: pista-hielo-2025-2026
+    nombre: "Pista de hielo navideña — Concha Acústica, Parque de la Cruz"
+    tipo: temporada_navidena
+    inicio: 2025-12-16
+    fin: 2026-01-10
+    horas_efecto: [15, 20]
+    mult_local: 1.20
+    mult_delivery: 1.0
+    confianza: verificado
+    fuente_url: "https://www.mediotiempo.com/actualidad/comunidad/pistas-de-hielo-en-cdmx-y-edomex-2025-guia-definitiva-para-patinar-esta-navidad"
+    observacion: >
+      Inicio (16 dic, tras la posada navideña municipal) verificado con varias fuentes
+      locales (parrafo1224.com.mx, vocesmexiquenses.com, mediotiempo.com). La fecha de
+      CIERRE no se pudo verificar con certeza: las fuentes discrepan entre 5, 10 y 11 de
+      enero de 2026 — se usa 10 de enero como punto medio, marcado como patrón, no
+      verificado, dentro del mismo registro (ver fin_confianza).
+    fin_confianza: patron
+
+  # --- Tianguis ---
+  - id: tianguis-martes
+    nombre: "Tianguis de los martes (La Palma / Prolongación)"
+    tipo: tianguis_semanal
+    inicio: 2025-01-01
+    fin: 2026-12-31
+    recurrencia: "martes"
+    horas_efecto: [6, 14]
+    mult_local: 1.08
+    mult_delivery: 1.0
+    confianza: verificado
+    fuente_url: "https://cuautitlan.gob.mx/publico/Cronicas/EL%20IMBATIBLE%20TIANGUIS%20DE%20LOS%20MARTES.pdf"
+    observacion: "No está en el centro (La Palma y Prolongación), efecto de goteo supuesto."
+
+  - id: tianguis-muertos
+    nombre: "Tianguis de Día de Muertos (junto al mercado municipal)"
+    tipo: tianguis_temporada
+    inicio: 2025-10-30
+    fin: 2025-11-02
+    horas_efecto: [9, 18]
+    mult_local: 1.10
+    mult_delivery: 1.0
+    confianza: supuesto
+    fuente_url: null
+    observacion: >
+      Degradado de 'existencia verificada' (como decía el enunciado) a supuesto: la
+      búsqueda de Fase 2.2 solo confirmó tianguis de Muertos en Cuautitlán IZCALLI y en
+      Cuautla (municipios distintos) — ninguna fuente específica de Cuautitlán propio.
+      Sí existe evidencia de tradición de tianguis semanal en Cuautitlán (ver
+      tianguis-martes), lo que hace plausible un tianguis de temporada, pero no se
+      encontró confirmación directa.
+
+  - id: tianguis-navideno
+    nombre: "Tianguis / Bazar navideño (junto al mercado municipal)"
+    tipo: tianguis_temporada
+    inicio: 2025-12-01
+    fin: 2025-12-24
+    horas_efecto: [9, 20]
+    mult_local: 1.10
+    mult_delivery: 1.0
+    confianza: supuesto
+    fuente_url: null
+    observacion: >
+      Igual que tianguis-muertos: no se encontró una fuente específica y citable de
+      Cuautitlán propio en la búsqueda de Fase 2.2 (hay referencias genéricas a un "Bazar
+      Navideño" organizado por el Mercado Municipal, sin URL limpia que lo confirme) —
+      se deja como supuesto en vez de verificado/patrón.
+
+  # --- Lluvias (SUPUESTO el efecto, fechas verificadas salvo donde se indica) ---
+  - id: lluvia-2024-04-22
+    nombre: "Lluvia con afectación vial"
+    tipo: clima_lluvia
+    inicio: 2024-04-22
+    fin: 2024-04-22
+    horas_efecto: [14, 21]
+    mult_local: 0.55
+    mult_delivery: 1.15
+    confianza: patron
+    fuente_url: "https://www.posta.com.mx/mexico/bajo-el-agua-calles-y-avenidas-en-cuautitlan-video/v-vl1593472"
+    observacion: "Fecha exacta inferida del día de la semana a partir de la nota (ver enunciado original)."
+
+  - id: lluvia-2024-05-29
+    nombre: "Lluvia con afectación vial"
+    tipo: clima_lluvia
+    inicio: 2024-05-29
+    fin: 2024-05-29
+    horas_efecto: [14, 21]
+    mult_local: 0.55
+    mult_delivery: 1.15
+    confianza: verificado
+    fuente_url: "https://www.posta.com.mx/mexico/bajo-el-agua-calles-y-avenidas-en-cuautitlan-video/v-vl1593472"
+    observacion: null
+
+  - id: lluvia-2024-07-15
+    nombre: "Lluvia carretera Cuautitlán-Tlalnepantla"
+    tipo: clima_lluvia
+    inicio: 2024-07-15
+    fin: 2024-07-15
+    horas_efecto: [14, 21]
+    mult_local: 0.55
+    mult_delivery: 1.15
+    confianza: patron
+    fuente_url: "https://www.posta.com.mx/mexico/bajo-el-agua-calles-y-avenidas-en-cuautitlan-video/v-vl1593472"
+    observacion: "Fecha exacta inferida del día de la semana (ver enunciado original)."
+
+  - id: lluvia-2025-07-10
+    nombre: "Inundación por lluvias"
+    tipo: clima_lluvia
+    inicio: 2025-07-10
+    fin: 2025-07-10
+    horas_efecto: [14, 21]
+    mult_local: 0.55
+    mult_delivery: 1.15
+    confianza: verificado
+    fuente_url: "https://www.nmas.com.mx/estado-de-mexico/clima/ecatepec-y-cuautitlan-quedan-completamente-inundados-por-lluvias-vecinos-piden-ayuda/"
+    observacion: null
+
+  # --- Mundial 2026 ---
+  - id: mundial-2026-06-11
+    nombre: "México vs. rival — Mundial 2026"
+    tipo: mundial_mexico
+    inicio: 2026-06-11
+    fin: 2026-06-11
+    horas_efecto: [13, 15]
+    mult_local: 0.60
+    mult_delivery: 1.10
+    confianza: verificado
+    fuente_url: "https://www.razon.com.mx/deportes/2026/03/31/oficial-estas-son-las-fechas-dias-y-horarios-de-todos-los-partidos-de-mexico-en-el-mundial-2026/"
+    observacion: "Horario 13:00 hora centro de México; ventana de efecto 2h desde el inicio."
+
+  - id: mundial-2026-06-18
+    nombre: "México vs. rival — Mundial 2026"
+    tipo: mundial_mexico
+    inicio: 2026-06-18
+    fin: 2026-06-18
+    horas_efecto: [19, 21]
+    mult_local: 0.60
+    mult_delivery: 1.10
+    confianza: verificado
+    fuente_url: "https://www.razon.com.mx/deportes/2026/03/31/oficial-estas-son-las-fechas-dias-y-horarios-de-todos-los-partidos-de-mexico-en-el-mundial-2026/"
+    observacion: "Horario 19:00. Ventana 19-21h cae fuera del horario de operación (06-21) en su mayor parte — efecto aplica solo hasta el cierre."
+
+  - id: mundial-2026-06-24
+    nombre: "México vs. rival — Mundial 2026"
+    tipo: mundial_mexico
+    inicio: 2026-06-24
+    fin: 2026-06-24
+    horas_efecto: [19, 21]
+    mult_local: 0.60
+    mult_delivery: 1.10
+    confianza: verificado
+    fuente_url: "https://www.razon.com.mx/deportes/2026/03/31/oficial-estas-son-las-fechas-dias-y-horarios-de-todos-los-partidos-de-mexico-en-el-mundial-2026/"
+    observacion: "Horario 19:00. Misma nota que el partido anterior."
+
+  # --- Fechas cívicas / religiosas (patrón o supuesto, sin sede local verificada) ---
+  - id: fiestas-patrias-2025
+    nombre: "Fiestas Patrias (15-16 sep)"
+    tipo: civico
+    inicio: 2025-09-15
+    fin: 2025-09-16
+    horas_efecto: [18, 21]
+    mult_local: 1.15
+    mult_delivery: 0.90
+    confianza: supuesto
+    fuente_url: null
+    observacion: "Sede local del Grito no verificada para Cuautitlán centro."
+
+  - id: fiestas-patrias-2026
+    nombre: "Fiestas Patrias (15-16 sep)"
+    tipo: civico
+    inicio: 2026-09-15
+    fin: 2026-09-16
+    horas_efecto: [18, 21]
+    mult_local: 1.15
+    mult_delivery: 0.90
+    confianza: supuesto
+    fuente_url: null
+    observacion: "Sede local del Grito no verificada para Cuautitlán centro."
+
+  - id: santa-cruz-2025
+    nombre: "Día de la Santa Cruz (frente a Catedral de San Buenaventura)"
+    tipo: religioso
+    inicio: 2025-05-03
+    fin: 2025-05-03
+    horas_efecto: [9, 14]
+    mult_local: 1.15
+    mult_delivery: 0.95
+    confianza: patron
+    fuente_url: null
+    observacion: "Fecha fija del santoral; afluencia a la catedral es patrón, no verificado puntualmente."
+
+  - id: dia-muertos-2025
+    nombre: "Día de Muertos"
+    tipo: civico
+    inicio: 2025-10-31
+    fin: 2025-11-02
+    horas_efecto: [9, 20]
+    mult_local: 1.10
+    mult_delivery: 1.0
+    confianza: patron
+    fuente_url: null
+    observacion: null
+
+  - id: dia-nino-2025
+    nombre: "Día del Niño"
+    tipo: civico
+    inicio: 2025-04-30
+    fin: 2025-04-30
+    horas_efecto: [15, 20]
+    mult_local: 1.10
+    mult_delivery: 1.0
+    confianza: patron
+    fuente_url: null
+    observacion: null
+
+  - id: dia-madres-2025
+    nombre: "Día de las Madres"
+    tipo: civico
+    inicio: 2025-05-10
+    fin: 2025-05-10
+    horas_efecto: [9, 20]
+    mult_local: 1.20
+    mult_delivery: 1.10
+    confianza: patron
+    fuente_url: null
+    observacion: null
+
+  - id: reyes-2026
+    nombre: "Día de Reyes"
+    tipo: civico
+    inicio: 2026-01-06
+    fin: 2026-01-06
+    horas_efecto: [9, 20]
+    mult_local: 1.10
+    mult_delivery: 1.0
+    confianza: patron
+    fuente_url: null
+    observacion: null
+
+  - id: cierre-fin-de-ano-2025
+    nombre: "Cierre parcial fin de año (24-25 y 31 dic-1 ene)"
+    tipo: cierre_parcial
+    inicio: 2025-12-24
+    fin: 2026-01-01
+    horas_efecto: [15, 21]
+    mult_local: 0.50
+    mult_delivery: 0.70
+    confianza: supuesto
+    fuente_url: null
+    observacion: "Horario reducido supuesto, sin confirmación — se simula como mult bajo en vez de cierre total para no complicar el generador con horario variable día a día."
+
+  - id: semana-santa-2025
+    nombre: "Jueves y Viernes Santo (procesiones frente a Catedral)"
+    tipo: religioso
+    inicio: 2025-04-17
+    fin: 2025-04-18
+    horas_efecto: [9, 20]
+    mult_local: 1.15
+    mult_delivery: 0.90
+    confianza: supuesto
+    fuente_url: null
+    observacion: "Fechas calculadas con dateutil.easter (Pascua 2025-04-20). Efecto de procesiones sin fuente, supuesto."
+
+  - id: semana-santa-2026
+    nombre: "Jueves y Viernes Santo (procesiones frente a Catedral)"
+    tipo: religioso
+    inicio: 2026-04-02
+    fin: 2026-04-03
+    horas_efecto: [9, 20]
+    mult_local: 1.15
+    mult_delivery: 0.90
+    confianza: supuesto
+    fuente_url: null
+    observacion: "Fechas calculadas con dateutil.easter (Pascua 2026-04-05). Efecto de procesiones sin fuente, supuesto."
+
+# Ventana del lote del generador anterior — se excluye del entrenamiento, no es evento.
+artefacto_generador_previo:
+  inicio: 2026-10-06
+  fin: 2026-10-12
+  nota: "~60 pedidos/día, 0% cancelación, uniforme 24h — generador viejo sin ventana horaria. No se carga en bd_eventos_locales."
+
+# Incidentes internos ficticios: NO se listan aquí a mano — se generan reproduciblemente
+# con seed=42 en scripts/cargar_eventos.py (ver generar_incidentes_ficticios()), ~6 por año,
+# para no tener fechas "elegidas a mano" que parezcan menos honestas que un proceso determinista
+# y auditable. Tipos y multiplicadores SUPUESTO:
+incidentes_tipos:
+  falla_equipo:        { horas_efecto: [6, 12], mult_local: 0.70, mult_delivery: 0.70 }
+  corte_luz:            { horas_efecto: [13, 20], mult_local: 0.40, mult_delivery: 0.40 }
+  faltante_personal:    { horas_efecto: [6, 9],  mult_local: 0.75, mult_delivery: 0.75 }
+  promocion_2x1:        { horas_efecto: [13, 20], mult_local: 1.35, mult_delivery: 1.35 }
+  cierre_imprevisto:    { horas_efecto: [15, 20], mult_local: 0.0,  mult_delivery: 0.0 }
