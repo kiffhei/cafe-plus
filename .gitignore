@@ -58,3 +58,4 @@ analytics/.venv/
 analytics/__pycache__/
 **/__pycache__/
 .pytest_cache/
+analytics/out/_snapshot_*.json

@@ -56,12 +56,14 @@ AFINIDAD_LOCAL = {h: 1.0 for h in HORAS}
 for h in (6, 7, 8):
     AFINIDAD_LOCAL[h] = 1.2
 
-# Medido en Fase 0 (analytics/config.yaml) — shares usados solo para la calibración
-# de afinidades (verificar que la marginal agregada no se salga de la banda), no son
-# un SUPUESTO nuevo.
-SHARE_DELIVERY = 0.447
+# Medido directo de bd_ventas/bd_detalle_pedidos (los 2,916 pedidos que de verdad se
+# re-horarán, no solo los 2,484 "reales" de Fase 0) — shares usados solo para la
+# calibración de afinidades, no son un SUPUESTO. El primer intento usó 0.18 de
+# SHARE_SANDWICH (adivinado) y la banda lun-vie quedó corta (0.3797 contra banda
+# [0.40,0.46]) porque el share real es más del doble — corregido aquí con el dato real.
+SHARE_DELIVERY = 0.4897
 SHARE_LOCAL = 1 - SHARE_DELIVERY
-SHARE_SANDWICH = 0.18  # SUPUESTO — no medido en Fase 0 (no se agregó por categoría de producto); valor editorial razonable para 1 de 4 categorías de producto con 2 líneas/pedido promedio.
+SHARE_SANDWICH = 0.3951
 
 VENTANA_LUNVIE = [HORA_IDX[h] for h in (6, 7, 8)]
 VENTANA_SABDOM = [HORA_IDX[h] for h in (9, 10, 11, 12)]
