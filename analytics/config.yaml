@@ -39,6 +39,15 @@ medido:
     ubereats: { pct: 0.103, pct_cancelado: 0.0272 }
     didi: { pct: 0.027, pct_cancelado: 0.0909 }   # muestra pequeña (n=66) — aplicar shrinkage hacia 0.0129
   mix_delivery: 0.447                    # 1 - mix_canal.local.pct
+  mix_categoria:                         # sum(cantidad*precio) líneas por categoría / total líneas, reales
+    cafe: 0.3347
+    pan: 0.2836
+    sandwich: 0.2253
+    bebida: 0.1565
+  mix_lineas_por_pedido: { 1: 0.3374, 2: 0.3309, 3: 0.3313, otro: 0.0004 }
+  mix_delivery_app: { rappi: 0.7093, ubereats: 0.2313, didi: 0.0594 }  # dentro de delivery, solo reales
+  mix_cantidad_por_linea: { 1: 0.4903, 2: 0.4804, 3: 0.0292 }
+  objetivo_pedidos_dia: 47.8             # salida de economia.py, Fase 1 — volumen objetivo del nuevo generador
 
 # Perfil operativo (Fase 2) — horario y turnos dados por el dueño.
 operacion:
