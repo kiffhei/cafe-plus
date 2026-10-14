@@ -156,6 +156,22 @@ frontend nunca es la fuente de verdad de autorización.
 
 ---
 
+## Simulación de datos y analítica (rama `feat/analytics-sim`)
+
+Ejercicio de portafolio de ingeniería de datos sobre el histórico de `bd_ventas`/
+`bd_detalle_pedidos`: re-horario con zona horaria correcta, un generador sintético propio
+calibrado contra el histórico medido (reemplaza un cron previo que quedó detenido), eventos
+de calendario con etiquetado `verificado`/`patrón`/`supuesto`, y un análisis completo —
+forecast con backtest walk-forward, detección de anomalías, simulación de capacidad (SimPy),
+riesgo de inventario (Monte Carlo) y escenarios de volumen/margen.
+
+Reglas duras: nunca se borra una fila, el re-horario solo toca `fecha_hora`, ningún multiplicador
+de evento se etiqueta como medido. Detalle completo en `analytics/` y `docs/FASE*.md`.
+
+**Dashboard:** [Café+ Analítica Operativa](https://claude.ai/code/artifact/30978221-0481-42da-bb7a-794be1f1b97d)
+
+---
+
 ## Estructura de Google Sheets
 
 | Hoja | Propósito |
