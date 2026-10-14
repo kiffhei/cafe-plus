@@ -1,0 +1,13 @@
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-07-21', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-07-28', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-04', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-08', 'incidente_interno', 0.0, 15, 20, true, 'inc-2026-08-08-cierre_imprevisto');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-11', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-12', 'festival_municipal', 1.1, 15, 20, true, 'fest-cuautitlan-2026');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-13', 'festival_municipal', 1.1, 15, 20, true, 'fest-cuautitlan-2026');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-14', 'festival_municipal', 1.1, 15, 20, true, 'fest-cuautitlan-2026');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-15', 'festival_municipal', 1.15, 15, 20, true, 'fest-cuautitlan-2026');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-16', 'festival_municipal', 1.15, 15, 20, true, 'fest-cuautitlan-2026');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-18', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-22', 'incidente_interno', 0.4, 13, 20, true, 'inc-2026-08-22-corte_luz');
+insert into bd_anomalias_verdad (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id) values ('2026-08-25', 'tianguis_semanal', 1.04, 6, 14, true, 'tianguis-martes');

@@ -30,15 +30,19 @@ if __name__ == "__main__":
     }
     ahora_cdmx = datetime.now(TZ_CDMX)
 
-    pedidos = generar_lote(
+    pedidos, anomalias = generar_lote(
         date.fromisoformat(args.desde), date.fromisoformat(args.hasta),
         args.seed, args.max_id_actual, mix, clientes_descuento, ahora_cdmx,
     )
     reporte = construir_reporte_dry_run(pedidos)
     print(json.dumps(reporte, indent=2, ensure_ascii=False))
+    print(f"Anomalías/eventos activos en el rango: {len(anomalias)}")
+    for a in anomalias:
+        print(" ", a)
 
     out = {
         "reporte": reporte,
+        "anomalias": anomalias,
         "pedidos": [
             {
                 "id_pedido": p.id_pedido,

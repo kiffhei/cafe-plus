@@ -99,6 +99,84 @@ def cargar_mix() -> dict:
     return cfg["medido"]
 
 
+EVENTOS_PATH = Path(__file__).parent.parent / "analytics" / "eventos.yaml"
+
+# Incidentes internos ficticios ya aplicados a bd_observaciones_dia en Fase 2.2
+# (scripts/cargar_eventos.py, generar_incidentes_ficticios(), seed=42). Se copian aquí
+# en vez de volver a generarlos porque son el registro YA PERSISTIDO, auditable vía
+# `select * from bd_observaciones_dia where tipo='incidente_interno'` — generar_incidentes_
+# ficticios() podría drift si algún día cambia; esta lista es la verdad ya escrita.
+INCIDENTES_APLICADOS = [
+    (date(2025, 2, 2), "cierre_imprevisto"),
+    (date(2025, 6, 7), "promocion_2x1"),
+    (date(2025, 6, 8), "promocion_2x1"),
+    (date(2025, 8, 25), "falla_equipo"),
+    (date(2025, 10, 6), "faltante_personal"),
+    (date(2026, 4, 24), "falla_equipo"),
+    (date(2026, 8, 8), "cierre_imprevisto"),
+    (date(2026, 8, 22), "corte_luz"),
+    (date(2026, 9, 17), "falla_equipo"),
+]
+
+
+def _cargar_eventos_yaml() -> dict:
+    return yaml.safe_load(EVENTOS_PATH.read_text())
+
+
+def eventos_activos(fecha: date) -> list[dict]:
+    """Eventos (externos + incidentes internos) activos en `fecha`, con su multiplicador.
+    Cada entrada: {evento_id, tipo, mult_local, mult_delivery, hora_inicio, hora_fin,
+    causa_conocida}. causa_conocida=True siempre aquí porque esta función solo devuelve
+    anomalías que NOSOTROS inyectamos a propósito (nunca una desviación real sin causa
+    conocida — eso lo decidiría el algoritmo de detección de Fase 6, no el generador)."""
+    cfg = _cargar_eventos_yaml()
+    activos = []
+
+    for ev in cfg["eventos"]:
+        inicio, fin = ev["inicio"], ev["fin"]
+        aplica = False
+        if ev.get("recurrencia") == "martes":
+            aplica = inicio <= fecha <= fin and fecha.weekday() == 1
+        else:
+            aplica = inicio <= fecha <= fin
+        if aplica:
+            mult_local = ev["mult_local"]
+            if ev.get("mult_local_sabdom") and fecha.weekday() >= 5:
+                mult_local = ev["mult_local_sabdom"]
+            h_ini, h_fin = ev.get("horas_efecto", [6, 20])
+            activos.append({
+                "evento_id": ev["id"], "tipo": ev["tipo"],
+                "mult_local": mult_local, "mult_delivery": ev["mult_delivery"],
+                "hora_inicio": h_ini, "hora_fin": h_fin, "causa_conocida": True,
+            })
+
+    for fecha_inc, tipo_inc in INCIDENTES_APLICADOS:
+        if fecha_inc == fecha:
+            params = cfg["incidentes_tipos"][tipo_inc]
+            h_ini, h_fin = params["horas_efecto"]
+            activos.append({
+                "evento_id": f"inc-{fecha.isoformat()}-{tipo_inc}", "tipo": "incidente_interno",
+                "mult_local": params["mult_local"], "mult_delivery": params["mult_delivery"],
+                "hora_inicio": h_ini, "hora_fin": h_fin, "causa_conocida": True,
+            })
+
+    return activos
+
+
+def multiplicador_dia(fecha: date, share_local: float, share_delivery: float) -> tuple[float, float, float]:
+    """Combina (producto) todos los eventos activos de `fecha`. Devuelve
+    (mult_local_compuesto, mult_delivery_compuesto, mult_volumen_compuesto) — el tercero
+    es el promedio ponderado por share de canal, usado para escalar el volumen total del
+    día (Regla 7: el multiplicador es siempre SUPUESTO, pero la mezcla local/share ya es
+    medida — ver analytics/config.yaml)."""
+    mult_local = mult_delivery = 1.0
+    for ev in eventos_activos(fecha):
+        mult_local *= ev["mult_local"]
+        mult_delivery *= ev["mult_delivery"]
+    mult_volumen = share_local * mult_local + share_delivery * mult_delivery
+    return mult_local, mult_delivery, mult_volumen
+
+
 @dataclass
 class LineaPedido:
     id_producto: str
@@ -141,17 +219,22 @@ def _seed_rng(seed_global: int, *partes: str) -> np.random.Generator:
     return np.random.default_rng(semilla)
 
 
-def numero_pedidos_dia(fecha: date, seed_global: int, objetivo_base: float) -> int:
-    """Volumen del día: objetivo base (Fase 1, economia.py) * factor_dow * factor_mensual,
-    con ruido Poisson (no determinista en el conteo exacto, sí en todo lo demás)."""
-    lam = objetivo_base * factor_dow(fecha) * factor_mensual(fecha)
+def numero_pedidos_dia(fecha: date, seed_global: int, objetivo_base: float, mult_volumen: float = 1.0) -> int:
+    """Volumen del día: objetivo base (Fase 1, economia.py) * factor_dow * factor_mensual
+    * mult_volumen (eventos/incidentes de ese día, Fase 6 — ver multiplicador_dia), con
+    ruido Poisson (no determinista en el conteo exacto, sí en todo lo demás)."""
+    lam = objetivo_base * factor_dow(fecha) * factor_mensual(fecha) * mult_volumen
     rng = _seed_rng(seed_global, fecha.isoformat(), "n_pedidos")
+    if lam <= 0:
+        return 0  # cierre_imprevisto u otro evento con mult_volumen=0: día sin pedidos, real
     return max(1, int(rng.poisson(lam)))
 
 
-def elegir_canal(rng: np.random.Generator, mix_canal: dict) -> str:
+def elegir_canal(rng: np.random.Generator, mix_canal: dict, mult_local: float = 1.0, mult_delivery: float = 1.0) -> str:
     canales = list(mix_canal.keys())
-    pesos = np.array([mix_canal[c]["pct"] for c in canales])
+    pesos = np.array([
+        mix_canal[c]["pct"] * (mult_local if c == "local" else mult_delivery) for c in canales
+    ])
     pesos = pesos / pesos.sum()
     return str(rng.choice(canales, p=pesos))
 
@@ -214,6 +297,8 @@ def generar_pedido(
     seed_global: int,
     mix: dict,
     clientes_descuento: dict[str, float],
+    mult_local: float = 1.0,
+    mult_delivery: float = 1.0,
 ) -> PedidoGenerado:
     # Salt distinto a perfil._seed_pedido("{seed}:{id_pedido}") a propósito: si este rng
     # y el que usa internamente muestrear_hora_minuto_segundo compartieran semilla, sus
@@ -222,7 +307,7 @@ def generar_pedido(
     # (canal y hora salían perfectamente separados, 100%/0%, para un mismo día).
     rng = _seed_rng(seed_global, id_pedido, "canal_basket")
 
-    canal = elegir_canal(rng, mix["mix_canal"])
+    canal = elegir_canal(rng, mix["mix_canal"], mult_local, mult_delivery)
     cliente = elegir_cliente(rng, canal, mix["mix_canal"])
     lineas, tiene_sandwich = elegir_basket(rng, mix)
 
@@ -274,24 +359,40 @@ def generar_lote(
     mix: dict,
     clientes_descuento: dict[str, float],
     ahora_cdmx: datetime | None = None,
-) -> list[PedidoGenerado]:
+) -> tuple[list[PedidoGenerado], list[dict]]:
     """Genera pedidos para [fecha_inicio, fecha_fin] inclusive. Si ahora_cdmx se da y
-    fecha_fin == ahora_cdmx.date(), solo genera horas ya transcurridas (Regla 5)."""
+    fecha_fin == ahora_cdmx.date(), solo genera horas ya transcurridas (Regla 5).
+    Devuelve (pedidos, anomalias_verdad) — el segundo es la lista de filas a insertar en
+    bd_anomalias_verdad: un registro por (día, evento activo), la verdad-terreno que
+    Fase 6 usa para medir precision/recall del detector de anomalías sin ver el código
+    del generador."""
     objetivo_base = mix["objetivo_pedidos_dia"]
+    share_local = mix["mix_canal"]["local"]["pct"]
+    share_delivery = 1.0 - share_local
     pedidos: list[PedidoGenerado] = []
+    anomalias: list[dict] = []
     offset = 1
     dia = fecha_inicio
     while dia <= fecha_fin:
-        n = numero_pedidos_dia(dia, seed_global, objetivo_base)
+        mult_local, mult_delivery, mult_volumen = multiplicador_dia(dia, share_local, share_delivery)
+        for ev in eventos_activos(dia):
+            anomalias.append({
+                "fecha": dia.isoformat(), "tipo": ev["tipo"],
+                "mult_aplicado": round((mult_local + mult_delivery) / 2, 4),
+                "hora_inicio": ev["hora_inicio"], "hora_fin": ev["hora_fin"],
+                "causa_conocida": ev["causa_conocida"], "evento_id": ev["evento_id"],
+            })
+
+        n = numero_pedidos_dia(dia, seed_global, objetivo_base, mult_volumen)
         for _ in range(n):
             id_pedido = siguiente_id_pedido_local(max_id_actual, offset)
             offset += 1
-            p = generar_pedido(id_pedido, dia, seed_global, mix, clientes_descuento)
+            p = generar_pedido(id_pedido, dia, seed_global, mix, clientes_descuento, mult_local, mult_delivery)
             if ahora_cdmx and dia == ahora_cdmx.date() and p.fecha_hora.astimezone(TZ_CDMX) > ahora_cdmx:
                 continue  # Regla 5: nunca futuro
             pedidos.append(p)
         dia += timedelta(days=1)
-    return pedidos
+    return pedidos, anomalias
 
 
 def construir_reporte_dry_run(pedidos: list[PedidoGenerado]) -> dict:
@@ -377,6 +478,22 @@ def insertar_lote(conn, pedidos: list[PedidoGenerado]) -> None:
         cur.execute("commit;")
 
 
+def insertar_anomalias(conn, anomalias: list[dict]) -> None:
+    with conn.cursor() as cur:
+        cur.execute("begin;")
+        for a in anomalias:
+            cur.execute(
+                """
+                insert into bd_anomalias_verdad
+                  (fecha, tipo, mult_aplicado, hora_inicio, hora_fin, causa_conocida, evento_id)
+                values (%s,%s,%s,%s,%s,%s,%s)
+                """,
+                (a["fecha"], a["tipo"], a["mult_aplicado"], a["hora_inicio"], a["hora_fin"],
+                 a["causa_conocida"], a["evento_id"]),
+            )
+        cur.execute("commit;")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--fecha", type=str, help="Un solo día, YYYY-MM-DD")
@@ -416,7 +533,7 @@ def main() -> None:
     conn = _conectar_db()
     max_id_actual = obtener_max_id_pedido(conn)
 
-    pedidos = generar_lote(
+    pedidos, anomalias = generar_lote(
         fecha_inicio, fecha_fin, args.seed, max_id_actual, mix, clientes_descuento, ahora_cdmx
     )
     reporte = construir_reporte_dry_run(pedidos)
@@ -428,13 +545,15 @@ def main() -> None:
     print(f"Por canal: {reporte['por_canal']}")
     print(f"Por estado: {reporte['por_estado']}")
     print(f"Histograma hora CDMX: {reporte['histograma_hora_cdmx']}")
+    print(f"Eventos/incidentes activos en el rango: {len(anomalias)} ({sorted(set(a['evento_id'] for a in anomalias))})")
 
     if not args.apply:
         print("\nDRY-RUN — no se escribió nada. Corre con --apply para insertar.")
         return
 
     insertar_lote(conn, pedidos)
-    print(f"\nAplicado: {len(pedidos)} pedidos insertados (es_sintetico=true), {sum(len(p.lineas) for p in pedidos)} líneas de detalle.")
+    insertar_anomalias(conn, anomalias)
+    print(f"\nAplicado: {len(pedidos)} pedidos insertados (es_sintetico=true), {sum(len(p.lineas) for p in pedidos)} líneas de detalle, {len(anomalias)} filas en bd_anomalias_verdad.")
 
 
 if __name__ == "__main__":
