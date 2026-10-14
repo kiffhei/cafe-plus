@@ -1,0 +1,123 @@
+{
+  "parametros": {
+    "tiempo_servicio_medio_min": 3.5,
+    "sla_espera_umbral_min": 5,
+    "volumen_objetivo_dia": 47.8,
+    "factor_dow_sabado": 1.089,
+    "volumen_sabado_tipico": 52.0
+  },
+  "simulacion_dia_tipico_entre_semana": {
+    "pedidos_simulados": 47,
+    "espera_media_min": 0.34,
+    "espera_p90_min": 1.44,
+    "espera_max_min": 4.17,
+    "pct_excede_sla": 0.0
+  },
+  "simulacion_dia_tipico_fin_semana": {
+    "pedidos_simulados": 52,
+    "espera_media_min": 1.26,
+    "espera_p90_min": 3.88,
+    "espera_max_min": 12.38,
+    "pct_excede_sla": 9.6
+  },
+  "curva_punto_quiebre_entre_semana": [
+    {
+      "pedidos_simulados": 20,
+      "espera_media_min": 0.02,
+      "espera_p90_min": 0.0,
+      "espera_max_min": 0.32,
+      "pct_excede_sla": 0.0,
+      "volumen_pedidos_dia": 20
+    },
+    {
+      "pedidos_simulados": 30,
+      "espera_media_min": 0.19,
+      "espera_p90_min": 0.0,
+      "espera_max_min": 3.64,
+      "pct_excede_sla": 0.0,
+      "volumen_pedidos_dia": 30
+    },
+    {
+      "pedidos_simulados": 40,
+      "espera_media_min": 0.47,
+      "espera_p90_min": 2.38,
+      "espera_max_min": 3.95,
+      "pct_excede_sla": 0.0,
+      "volumen_pedidos_dia": 40
+    },
+    {
+      "pedidos_simulados": 50,
+      "espera_media_min": 0.53,
+      "espera_p90_min": 2.26,
+      "espera_max_min": 5.34,
+      "pct_excede_sla": 2.0,
+      "volumen_pedidos_dia": 50
+    },
+    {
+      "pedidos_simulados": 60,
+      "espera_media_min": 0.89,
+      "espera_p90_min": 3.96,
+      "espera_max_min": 6.37,
+      "pct_excede_sla": 5.0,
+      "volumen_pedidos_dia": 60
+    },
+    {
+      "pedidos_simulados": 70,
+      "espera_media_min": 2.43,
+      "espera_p90_min": 7.82,
+      "espera_max_min": 19.38,
+      "pct_excede_sla": 17.1,
+      "volumen_pedidos_dia": 70
+    }
+  ],
+  "curva_punto_quiebre_fin_semana": [
+    {
+      "pedidos_simulados": 20,
+      "espera_media_min": 0.02,
+      "espera_p90_min": 0.0,
+      "espera_max_min": 0.32,
+      "pct_excede_sla": 0.0,
+      "volumen_pedidos_dia": 20
+    },
+    {
+      "pedidos_simulados": 30,
+      "espera_media_min": 0.45,
+      "espera_p90_min": 2.66,
+      "espera_max_min": 3.64,
+      "pct_excede_sla": 0.0,
+      "volumen_pedidos_dia": 30
+    },
+    {
+      "pedidos_simulados": 40,
+      "espera_media_min": 0.6,
+      "espera_p90_min": 2.71,
+      "espera_max_min": 5.34,
+      "pct_excede_sla": 2.5,
+      "volumen_pedidos_dia": 40
+    },
+    {
+      "pedidos_simulados": 50,
+      "espera_media_min": 1.23,
+      "espera_p90_min": 4.34,
+      "espera_max_min": 9.97,
+      "pct_excede_sla": 8.0,
+      "volumen_pedidos_dia": 50
+    },
+    {
+      "pedidos_simulados": 60,
+      "espera_media_min": 0.79,
+      "espera_p90_min": 3.07,
+      "espera_max_min": 6.61,
+      "pct_excede_sla": 3.3,
+      "volumen_pedidos_dia": 60
+    },
+    {
+      "pedidos_simulados": 70,
+      "espera_media_min": 1.54,
+      "espera_p90_min": 5.08,
+      "espera_max_min": 11.2,
+      "pct_excede_sla": 11.4,
+      "volumen_pedidos_dia": 70
+    }
+  ]
+}

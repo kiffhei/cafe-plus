@@ -1,0 +1,59 @@
+{
+  "supuesto": "Contribución marginal y ticket promedio tomados de Fase 1 (economia.json), constantes entre escenarios — no se re-calibran por volumen.",
+  "escenarios": [
+    {
+      "escenario": "actual_medido_30d",
+      "nota": "Promedio real de los últimos 30 días del dataset (mezcla histórico+sintético)",
+      "pedidos_dia": 21.5,
+      "pedidos_mes": 654.0,
+      "ventas_mensuales": 86771.94,
+      "utilidad_mensual": -19104.96,
+      "margen_operativo_pct": -22.0
+    },
+    {
+      "escenario": "equilibrio",
+      "nota": "Punto de equilibrio — utilidad = 0 antes de la utilidad objetivo",
+      "pedidos_dia": 33.7,
+      "pedidos_mes": 1024.0,
+      "ventas_mensuales": 136009.96,
+      "utilidad_mensual": -41.73,
+      "margen_operativo_pct": -0.0
+    },
+    {
+      "escenario": "objetivo_fase1",
+      "nota": "Volumen objetivo de Fase 1 (utilidad objetivo $22,000/mes)",
+      "pedidos_dia": 47.8,
+      "pedidos_mes": 1453.0,
+      "ventas_mensuales": 192916.21,
+      "utilidad_mensual": 21990.37,
+      "margen_operativo_pct": 11.4
+    },
+    {
+      "escenario": "objetivo_mas_crecimiento_1a",
+      "nota": "Objetivo con 1 año de crecimiento al 6% (supuesto Fase 1)",
+      "pedidos_dia": 50.7,
+      "pedidos_mes": 1540.0,
+      "ventas_mensuales": 204491.18,
+      "utilidad_mensual": 26471.79,
+      "margen_operativo_pct": 12.9
+    },
+    {
+      "escenario": "objetivo_mas_crecimiento_3a",
+      "nota": "Objetivo con 3 años de crecimiento al 6% anual compuesto",
+      "pedidos_dia": 56.9,
+      "pedidos_mes": 1731.0,
+      "ventas_mensuales": 229766.29,
+      "utilidad_mensual": 36257.42,
+      "margen_operativo_pct": 15.8
+    },
+    {
+      "escenario": "punto_quiebre_capacidad",
+      "nota": "Volumen donde SimPy detecta >10% de pedidos excediendo el SLA de 5 min con 2 cajeros — NO es un escenario recomendado, es el techo operativo actual",
+      "pedidos_dia": 70,
+      "pedidos_mes": 2128.0,
+      "ventas_mensuales": 282513.28,
+      "utilidad_mensual": 56679.2,
+      "margen_operativo_pct": 20.1
+    }
+  ]
+}

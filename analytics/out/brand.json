@@ -1,0 +1,39 @@
+{
+  "fuente": "Extraído de DESIGNER.md, src/index.css y tailwind.config.js — no inventado.",
+  "identidad": "Fresh Matcha — glassmorphism + verde matcha + tipografía premium",
+  "tema_default": "matcha",
+  "fuentes_google": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
+  "tipografia": {
+    "display": "'Plus Jakarta Sans', system-ui, sans-serif",
+    "cuerpo": "'Outfit', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', monospace"
+  },
+  "dark": {
+    "bg_base": "#081910",
+    "accent": "#52b788",
+    "accent2": "#48cae4",
+    "btn": "#2d6a4f",
+    "border": "rgba(82,183,136,0.20)",
+    "kpi_val": "#52b788",
+    "sb_bg": "rgba(8,25,16,0.88)"
+  },
+  "light_vinyl": {
+    "bg_base": "#f5ede0",
+    "accent": "#b74416",
+    "btn": "#8b3010",
+    "border": "rgba(183,68,22,0.22)",
+    "kpi_val": "#b74416",
+    "sb_bg": "rgba(42,24,10,0.92)"
+  },
+  "chart_colors": ["#2d6a4f", "#1e6091", "#40916c", "#48cae4", "#84cba8"],
+  "canal_colors": {
+    "local": "#2d6a4f",
+    "rappi": "#1e6091",
+    "ubereats": "#40916c",
+    "didi": "#48cae4"
+  },
+  "status_colors": {
+    "preparacion_bg": "rgba(72,202,228,.15)", "preparacion_fg": "#48cae4",
+    "entregado_bg": "rgba(82,183,136,.22)", "entregado_fg": "#74d4a2"
+  }
+}
