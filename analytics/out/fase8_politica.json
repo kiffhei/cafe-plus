@@ -1,0 +1,185 @@
+{
+  "supuesto_metodologia": "Punto de reorden con demanda Poisson y nivel de servicio 95% (z=1.645). lambda es medido (Fase 6, 652 dias). lead_time_dias=3 es supuesto uniforme (ningun proveedor investigado publico tiempo de entrega). lote_economico es una regla simple de reabasto a 5 dias de demanda, redondeada a multiplo de 5, no un calculo EOQ financiero completo.",
+  "politicas": [
+    {
+      "id_producto": "PRD-018",
+      "nombre": "Sandwich Pollo BBQ",
+      "categoria": "sandwich",
+      "demanda_diaria_promedio": 1.35,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.35 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-017",
+      "nombre": "Club Sandwich",
+      "categoria": "sandwich",
+      "demanda_diaria_promedio": 1.33,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.33 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-016",
+      "nombre": "Sandwich Caprese",
+      "categoria": "sandwich",
+      "demanda_diaria_promedio": 1.34,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.34 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-015",
+      "nombre": "Sandwich Jamón",
+      "categoria": "sandwich",
+      "demanda_diaria_promedio": 1.2,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.2 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-013",
+      "nombre": "Pan de Elote",
+      "categoria": "pan",
+      "demanda_diaria_promedio": 1.29,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.29 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-010",
+      "nombre": "Croissant",
+      "categoria": "pan",
+      "demanda_diaria_promedio": 1.44,
+      "lead_time_dias": 3,
+      "stock_minimo": 8,
+      "stock_maximo": 13,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.44 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-014",
+      "nombre": "Pan de Nuez",
+      "categoria": "pan",
+      "demanda_diaria_promedio": 1.24,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.24 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-011",
+      "nombre": "Muffin Chocolate",
+      "categoria": "pan",
+      "demanda_diaria_promedio": 1.37,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.37 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-012",
+      "nombre": "Muffin Blueberry",
+      "categoria": "pan",
+      "demanda_diaria_promedio": 1.32,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.32 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-006",
+      "nombre": "Frappé Caramelo",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.22,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.22 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-004",
+      "nombre": "Café Frío",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.39,
+      "lead_time_dias": 3,
+      "stock_minimo": 8,
+      "stock_maximo": 13,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.39 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-007",
+      "nombre": "Chocolate Caliente",
+      "categoria": "bebida",
+      "demanda_diaria_promedio": 1.29,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.29 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-008",
+      "nombre": "Té Verde",
+      "categoria": "bebida",
+      "demanda_diaria_promedio": 1.19,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.19 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-002",
+      "nombre": "Café Latte",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.37,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.37 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-003",
+      "nombre": "Cappuccino",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.35,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.35 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-009",
+      "nombre": "Agua Natural 500ml",
+      "categoria": "bebida",
+      "demanda_diaria_promedio": 1.34,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.34 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-001",
+      "nombre": "Café Americano",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.31,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.31 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    },
+    {
+      "id_producto": "PRD-005",
+      "nombre": "Café Espresso",
+      "categoria": "cafe",
+      "demanda_diaria_promedio": 1.27,
+      "lead_time_dias": 3,
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "metodo_calculo": "ROP=round(lambda*lt + 1.645*sqrt(lambda*lt)), lambda=1.27 (medido, Fase 6), lt=3d (supuesto), lote_economico=5 (round(lambda*lt/5)*5, min 5) -> stock_maximo=ROP+lote_economico"
+    }
+  ]
+}

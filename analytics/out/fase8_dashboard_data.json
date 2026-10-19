@@ -1,0 +1,262 @@
+{
+  "supuesto_metodologia": "Punto de reorden (min/max) por producto, demanda Poisson medida (Fase 6), nivel de servicio 95% (z=1.645), lead_time=3 dias supuesto uniforme. BOM ligero: un insumo principal por producto/familia, no receta completa.",
+  "politica": [
+    {
+      "id_producto": "PRD-001",
+      "nombre": "Café Americano",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.31
+    },
+    {
+      "id_producto": "PRD-002",
+      "nombre": "Café Latte",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.37
+    },
+    {
+      "id_producto": "PRD-003",
+      "nombre": "Cappuccino",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.35
+    },
+    {
+      "id_producto": "PRD-004",
+      "nombre": "Café Frío",
+      "stock_minimo": 8,
+      "stock_maximo": 13,
+      "demanda_diaria_promedio": 1.39
+    },
+    {
+      "id_producto": "PRD-005",
+      "nombre": "Café Espresso",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.27
+    },
+    {
+      "id_producto": "PRD-006",
+      "nombre": "Frappé Caramelo",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.22
+    },
+    {
+      "id_producto": "PRD-007",
+      "nombre": "Chocolate Caliente",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.29
+    },
+    {
+      "id_producto": "PRD-008",
+      "nombre": "Té Verde",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.19
+    },
+    {
+      "id_producto": "PRD-009",
+      "nombre": "Agua Natural 500ml",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.34
+    },
+    {
+      "id_producto": "PRD-010",
+      "nombre": "Croissant",
+      "stock_minimo": 8,
+      "stock_maximo": 13,
+      "demanda_diaria_promedio": 1.44
+    },
+    {
+      "id_producto": "PRD-011",
+      "nombre": "Muffin Chocolate",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.37
+    },
+    {
+      "id_producto": "PRD-012",
+      "nombre": "Muffin Blueberry",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.32
+    },
+    {
+      "id_producto": "PRD-013",
+      "nombre": "Pan de Elote",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.29
+    },
+    {
+      "id_producto": "PRD-014",
+      "nombre": "Pan de Nuez",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.24
+    },
+    {
+      "id_producto": "PRD-015",
+      "nombre": "Sandwich Jamón",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.2
+    },
+    {
+      "id_producto": "PRD-016",
+      "nombre": "Sandwich Caprese",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.34
+    },
+    {
+      "id_producto": "PRD-017",
+      "nombre": "Club Sandwich",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.33
+    },
+    {
+      "id_producto": "PRD-018",
+      "nombre": "Sandwich Pollo BBQ",
+      "stock_minimo": 7,
+      "stock_maximo": 12,
+      "demanda_diaria_promedio": 1.35
+    }
+  ],
+  "ofertas_proveedor": [
+    {
+      "id_insumo": "INS-09",
+      "insumo": "Agua embotellada 500ml",
+      "proveedor": "MayoreoTotal",
+      "url": "https://www.mayoreototal.mx/collections/agua/abarrotes",
+      "precio_unitario": 10.75,
+      "unidad_compra": "pieza",
+      "tamano_lote": 12,
+      "lead_time_dias": 3,
+      "fuente_precio": "supuesto"
+    },
+    {
+      "id_insumo": "INS-01",
+      "insumo": "Café en grano arábica",
+      "proveedor": "Kraken Café",
+      "url": "https://krakencafe.mx/cafe-de-especialidad-al-mayoreo/",
+      "precio_unitario": 380,
+      "unidad_compra": "kg",
+      "tamano_lote": 6,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-10",
+      "insumo": "Chocolate en polvo",
+      "proveedor": "MercadoLibre (vendedor verificado)",
+      "url": "https://www.mercadolibre.com.mx/chocolate-abuelita-granulado-1-kilo-en-polvo/p/MLM19566753",
+      "precio_unitario": 156,
+      "unidad_compra": "kg",
+      "tamano_lote": 1,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-05",
+      "insumo": "Jamón/pavo en pieza",
+      "proveedor": "Saavedra Market",
+      "url": "https://www.saavedramarket.com/market",
+      "precio_unitario": 97.76,
+      "unidad_compra": "kg",
+      "tamano_lote": 4.9,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-02",
+      "insumo": "Leche entera",
+      "proveedor": "Mercanto",
+      "url": "https://mercanto.mx/categorias/panaderia-y-postres",
+      "precio_unitario": 21,
+      "unidad_compra": "litro",
+      "tamano_lote": 1,
+      "lead_time_dias": 3,
+      "fuente_precio": "supuesto"
+    },
+    {
+      "id_insumo": "INS-03",
+      "insumo": "Pan congelado tipo bollería",
+      "proveedor": "Mercanto",
+      "url": "https://mercanto.mx/categorias/panaderia-y-postres",
+      "precio_unitario": 9.5,
+      "unidad_compra": "pieza",
+      "tamano_lote": 1,
+      "lead_time_dias": 3,
+      "fuente_precio": "supuesto"
+    },
+    {
+      "id_insumo": "INS-04",
+      "insumo": "Pan para sándwich",
+      "proveedor": "Mercanto",
+      "url": "https://mercanto.mx/categorias/panaderia-y-postres",
+      "precio_unitario": 62.5,
+      "unidad_compra": "pieza",
+      "tamano_lote": 1,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-07",
+      "insumo": "Pollo empanizado BBQ (tender)",
+      "proveedor": "Sam's Club México",
+      "url": "https://www.sams.com.mx/browse/articulos-para-tu-negocio/abarrotes/50012_50013",
+      "precio_unitario": 224.9,
+      "unidad_compra": "kg",
+      "tamano_lote": 1.36,
+      "lead_time_dias": 3,
+      "fuente_precio": "supuesto"
+    },
+    {
+      "id_insumo": "INS-06",
+      "insumo": "Queso (manchego/monterrey jack)",
+      "proveedor": "Sam's Club México",
+      "url": "https://www.sams.com.mx/browse/articulos-para-tu-negocio/abarrotes/50012_50013",
+      "precio_unitario": 204.6,
+      "unidad_compra": "kg",
+      "tamano_lote": 1.6,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-08",
+      "insumo": "Salsa BBQ",
+      "proveedor": "Sam's Club México",
+      "url": "https://www.sams.com.mx/browse/articulos-para-tu-negocio/abarrotes/50012_50013",
+      "precio_unitario": 66.5,
+      "unidad_compra": "litro",
+      "tamano_lote": 4,
+      "lead_time_dias": 3,
+      "fuente_precio": "verificado"
+    },
+    {
+      "id_insumo": "INS-11",
+      "insumo": "Té verde en bolsitas",
+      "proveedor": "Walmart México (negocio)",
+      "url": "https://www.walmart.com.mx/browse/abarrotes/cafe-te-y-sustitutos/te-verde/120005_120070_970186",
+      "precio_unitario": 39,
+      "unidad_compra": "caja de 25 sobres",
+      "tamano_lote": 25,
+      "lead_time_dias": 3,
+      "fuente_precio": "supuesto"
+    }
+  ],
+  "n_insumos": 11,
+  "n_proveedores": 7,
+  "n_bom_rows": 29,
+  "resumen": {
+    "n_ordenes": 1328,
+    "n_lineas": 1718,
+    "gasto_total": 1475875.03
+  }
+}
