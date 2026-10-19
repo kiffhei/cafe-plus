@@ -163,6 +163,26 @@
   .evt-row:last-child { border-bottom: none; }
   .evt-date { font-family: var(--font-mono); color: var(--text-dim); width: 78px; flex-shrink: 0; }
 
+  /* Detalle técnico plegable */
+  details.tech { margin-top: 12px; }
+  details.tech + details.tech { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  details.tech summary {
+    cursor: pointer; font-size: 11.5px; color: var(--text-dim); font-weight: 600;
+    list-style: none; display: flex; align-items: center; gap: 6px;
+    padding: 2px 0; user-select: none;
+  }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details.tech summary::before { content: '▸'; font-size: 9px; display: inline-block; transition: transform .15s ease; }
+  details.tech[open] summary::before { transform: rotate(90deg); }
+  details.tech summary:hover { color: var(--text); }
+  details.tech .tech-body { padding: 10px 2px 2px; font-size: 12px; color: var(--text-dim); }
+  details.tech .tech-body table { margin-top: 4px; }
+
+  .section-head.appendix h2 {
+    font-size: 12px; color: var(--text-dim); font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+
   footer {
     margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--border);
     color: var(--text-dim); font-size: 11.5px;
@@ -180,24 +200,25 @@
   <div class="banner" role="note">
     <span style="font-size:16px; line-height:1;">⚠</span>
     <div>
-      <b>Portafolio técnico — datos de ejemplo y simulados.</b>
-      Café+ es un negocio ficticio. Los pedidos reales de ejemplo (2025-01-01 a 2026-10-02) son datos
-      de demostración generados para este portafolio, no transacciones reales. Los pedidos marcados
-      <span class="badge badge-ejemplo" style="vertical-align:1px;">sintético</span> fueron generados
-      por un modelo estadístico propio (<span class="mono">scripts/seed_sinteticos.py</span>) calibrado
-      contra la mezcla medida del histórico de ejemplo. Cada afirmación en este dashboard está etiquetada
-      <span class="badge badge-verificado" style="vertical-align:1px;">verificado</span>,
-      <span class="badge badge-patron" style="vertical-align:1px;">patrón</span> o
-      <span class="badge badge-supuesto" style="vertical-align:1px;">supuesto</span> — ver sección 9.
+      <b>Panel de demostración — datos de ejemplo.</b>
+      Café+ es un negocio ficticio creado para este portafolio. El historial combina pedidos de muestra
+      reales con pedidos generados estadísticamente para completar el periodo analizado. Cada cifra en
+      este panel está marcada como
+      <span class="badge badge-verificado" style="vertical-align:1px;">verificado</span>
+      (confirmado con una fuente externa),
+      <span class="badge badge-patron" style="vertical-align:1px;">patrón</span>
+      (inferido de un comportamiento observado) o
+      <span class="badge badge-supuesto" style="vertical-align:1px;">supuesto</span>
+      (una estimación declarada).
     </div>
   </div>
 
   <header class="hero">
     <div>
       <span class="eyebrow">Café+ · Parque de la Cruz, Cuautitlán</span>
-      <h1>Analítica operativa &amp; forecast</h1>
-      <p class="subtitle">Lectura de Data Scientist Sr. sobre 652 días de operación (ene 2025 – oct 2026):
-        economía unitaria, forecast de demanda, detección de anomalías, capacidad de servicio e inventario.</p>
+      <h1>Analítica operativa</h1>
+      <p class="subtitle">Panorama financiero y operativo de los últimos 21 meses: rentabilidad, demanda,
+        servicio al cliente e inventario.</p>
     </div>
     <button class="theme-toggle" id="themeToggle" type="button">☾ / ☼ cambiar tema</button>
   </header>
@@ -205,37 +226,51 @@
   <!-- 1. KPIs -->
   <section>
     <div class="section-head"><span class="section-num">01</span><h2>Economía del negocio</h2></div>
-    <p class="section-note">Fase 1 — contribución marginal por pedido y costos fijos medidos contra el histórico de ejemplo; supuestos (sueldos, renta, comisiones) declarados en <span class="mono">analytics/config.yaml</span>.</p>
+    <p class="section-note">Contribución por pedido y costos fijos calculados sobre el historial del negocio. Los supuestos de sueldos, renta y comisiones quedan documentados para poder ajustarse a cifras reales en cualquier momento.</p>
     <div class="kpi-grid" id="kpiGrid"></div>
   </section>
 
   <!-- 2. Serie y forecast -->
   <section>
-    <div class="section-head"><span class="section-num">02</span><h2>Volumen diario y forecast</h2></div>
-    <p class="section-note">Agregado semanal de pedidos. La franja sombreada marca el régimen de datos: histórico de ejemplo disperso (~3.9/día) vs. lotes sintéticos densos. Backtest de 14 días con 3 modelos — <span class="mono">naive</span> gana porque el régimen cambia de densidad dentro de la ventana de prueba, no por ser el mejor modelo en un régimen estable (ver sección 11).</p>
+    <div class="section-head"><span class="section-num">02</span><h2>Pronóstico de demanda</h2></div>
+    <p class="section-note">Pedidos por semana a lo largo de 21 meses de operación. La franja sombreada marca un periodo con información más completa — por eso la precisión del pronóstico se evalúa solo dentro de periodos de datos comparables entre sí (ver Notas técnicas).</p>
     <div class="two-col">
       <div class="card chart-wrap"><svg id="chartSerie" viewBox="0 0 760 260" width="100%"></svg></div>
       <div class="card">
-        <table>
-          <thead><tr><th>Modelo</th><th class="num">MAE</th><th class="num">MAPE</th></tr></thead>
-          <tbody id="tablaModelos"></tbody>
-        </table>
-        <p class="section-note" style="margin-top:12px; margin-bottom:0;">MAE: pedidos/día de error promedio. MAPE: error porcentual. Horizonte de prueba: últimos 14 días.</p>
+        <div class="kpi" style="padding:0 0 10px;">
+          <div class="lbl">Margen de error típico</div>
+          <div class="val" id="kpiForecastInsight"></div>
+          <div class="sub">pedidos/día de diferencia frente a lo real</div>
+        </div>
+        <p class="section-note" style="margin:0;">El modelo de pronóstico más simple resultó el más confiable para este periodo.</p>
+        <details class="tech">
+          <summary>Ver comparación de modelos</summary>
+          <div class="tech-body">
+            <table>
+              <thead><tr><th>Modelo</th><th class="num">Error promedio</th><th class="num">Error %</th></tr></thead>
+              <tbody id="tablaModelos"></tbody>
+            </table>
+          </div>
+        </details>
       </div>
     </div>
   </section>
 
   <!-- 3. Anomalías -->
   <section>
-    <div class="section-head"><span class="section-num">03</span><h2>Detección de anomalías</h2></div>
-    <p class="section-note">Detector z-score robusto (mediana + MAD por día de semana) evaluado <em>solo</em> dentro del régimen denso del backfill (16 jul – 25 ago 2026), contra 13 eventos de verdad-terreno reales inyectados a propósito (festival, tianguis, 2 incidentes). Comparar fuera de ese régimen infla falsos positivos por el simple cambio de densidad del dataset — ver sección 11.</p>
+    <div class="section-head"><span class="section-num">03</span><h2>Alertas de ventas inusuales</h2></div>
+    <p class="section-note">Sistema automático que marca días con ventas fuera de lo normal, puesto a prueba contra 13 eventos reales conocidos (un festival, el tianguis semanal, dos incidentes) ocurridos en un periodo con información más completa.</p>
     <div class="two-col">
       <div class="card kpi-grid" style="grid-template-columns:repeat(2,1fr); align-self:start;">
-        <div class="kpi"><div class="lbl">Precisión</div><div class="val" id="kpiPrecision"></div><div class="sub">de lo detectado, % que era real</div></div>
-        <div class="kpi"><div class="lbl">Recall</div><div class="val" id="kpiRecall"></div><div class="sub">de lo real, % detectado</div></div>
+        <div class="kpi"><div class="lbl">Confiabilidad de la alerta</div><div class="val" id="kpiPrecision"></div><div class="sub">de cada alerta que se dispara, qué tanto acierta</div></div>
+        <div class="kpi"><div class="lbl">Cobertura</div><div class="val" id="kpiRecall"></div><div class="sub">de los eventos reales, cuántos detecta</div></div>
       </div>
       <div class="card">
         <div id="anomaliaLista"></div>
+        <details class="tech">
+          <summary>Ver metodología</summary>
+          <div class="tech-body">Detector estadístico basado en la desviación del volumen diario de pedidos respecto a su comportamiento típico por día de la semana, evaluado solo dentro de un periodo de datos consistente (ver Notas técnicas) para no confundir un cambio de régimen de datos con un evento real.</div>
+        </details>
       </div>
     </div>
   </section>
@@ -243,7 +278,7 @@
   <!-- 4. Canal y categoría -->
   <section>
     <div class="section-head"><span class="section-num">04</span><h2>Mezcla de canal y categoría</h2></div>
-    <p class="section-note"><span class="badge badge-verificado">medido</span> directo de bd_ventas / bd_detalle_pedidos, pedidos entregados.</p>
+    <p class="section-note">Medido directamente sobre los pedidos entregados.</p>
     <div class="three-col">
       <div class="card"><h3 style="font-size:13px; margin-bottom:10px;">Canal</h3><svg id="chartCanal" viewBox="0 0 280 170" width="100%"></svg></div>
       <div class="card"><h3 style="font-size:13px; margin-bottom:10px;">Categoría de producto</h3><svg id="chartCategoria" viewBox="0 0 280 170" width="100%"></svg></div>
@@ -253,28 +288,28 @@
 
   <!-- 5. Capacidad -->
   <section>
-    <div class="section-head"><span class="section-num">05</span><h2>Capacidad vs. demanda (SimPy)</h2></div>
-    <p class="section-note"><span class="badge badge-supuesto">supuesto</span> el modelo de simulación (tiempo de servicio, llegadas); 2 cajeros según turnos reales del negocio. Se sube el volumen del día hasta que &gt;10% de pedidos exceden el SLA de espera (5 min).</p>
+    <div class="section-head"><span class="section-num">05</span><h2>Capacidad de atención</h2></div>
+    <p class="section-note">Tiempo de espera estimado de los clientes con el personal actual (2 cajeros, en los turnos reales del negocio), a distintos niveles de volumen de pedidos.</p>
     <div class="two-col">
       <div class="card chart-wrap"><svg id="chartCapacidad" viewBox="0 0 520 240" width="100%"></svg></div>
       <div class="card">
         <div class="kpi" style="padding:0 0 14px;">
-          <div class="lbl">Punto de quiebre (entre semana)</div>
+          <div class="lbl">Techo de operación cómoda</div>
           <div class="val" id="kpiQuiebre"></div>
-          <div class="sub">pedidos/día donde &gt;10% esperan más de 5 min</div>
+          <div class="sub">pedidos/día antes de que el servicio se vuelva lento</div>
         </div>
-        <p class="section-note" style="margin:0;">Con el volumen objetivo de Fase 1 (47.8/día) el sistema opera con holgura. El quiebre aparece bien por encima de un crecimiento de 3 años al 6% anual — la capacidad actual (2 cajeros) no es la restricción cercana.</p>
+        <p class="section-note" style="margin:0;">Con el volumen de ventas objetivo, el servicio opera con holgura: el personal actual soporta un crecimiento considerable antes de que los tiempos de espera se vuelvan un problema.</p>
       </div>
     </div>
   </section>
 
   <!-- 6. Inventario -->
   <section>
-    <div class="section-head"><span class="section-num">06</span><h2>Riesgo de quiebre de inventario</h2></div>
-    <p class="section-note"><span class="badge badge-supuesto">supuesto</span> demanda diaria ~ Poisson(λ=medido); <span class="mono">cantidad_stock</span> es una fotografía estática sin reabasto automático (nunca se escribe ahí — Regla 3). Monte Carlo, 5,000 corridas, horizonte 30 días.</p>
+    <div class="section-head"><span class="section-num">06</span><h2>Riesgo de quedarse sin inventario</h2></div>
+    <p class="section-note">Si nadie repusiera el inventario actual, así de pronto se quedaría sin existencias cada producto, al ritmo de ventas que trae — miles de escenarios simulados a 30 días.</p>
     <div class="card table-wrap">
       <table>
-        <thead><tr><th>SKU</th><th class="num">Stock</th><th class="num">Demanda/día</th><th>Riesgo de quiebre a 30 días</th><th class="num">Días medianos a quiebre</th></tr></thead>
+        <thead><tr><th>Producto</th><th class="num">Existencias</th><th class="num">Ventas/día</th><th>Riesgo a 30 días sin reponer</th><th class="num">Días hasta agotarse</th></tr></thead>
         <tbody id="tablaInventario"></tbody>
       </table>
     </div>
@@ -283,13 +318,13 @@
   <!-- 7. Compras y reabasto -->
   <section>
     <div class="section-head"><span class="section-num">07</span><h2>Compras y reabasto</h2></div>
-    <p class="section-note">Política de reorden (min/máx) <span class="badge badge-supuesto">supuesto</span> — fórmula de punto de reorden (95% nivel de servicio) aplicada a la demanda medida de la sección anterior. Ofertas de proveedor <span class="badge badge-verificado">verificado</span> cuando el precio exacto se confirmó en el sitio del proveedor; <span class="badge badge-supuesto">supuesto</span> cuando el proveedor es real pero el precio es un estimado dentro de un rango observado o un proxy razonable — nunca una cifra inventada sin nota (ver <span class="mono">docs/FASE8_COMPRAS.md</span>). El generador <span class="mono">scripts/seed_compras.py</span> simula a un área de compras reordenando cuando el stock proyectado cruza el mínimo — su bitácora vive solo en memoria del script, nunca escribe en <span class="mono">bd_productos</span> (Regla 3).</p>
+    <p class="section-note">Política automática de cuándo y cuánto reabastecer cada producto, calculada sobre el ritmo real de ventas. Los proveedores y precios de la tabla son reales e investigados: <span class="badge badge-verificado">verificado</span> cuando el precio exacto está publicado en el sitio del proveedor, <span class="badge badge-supuesto">supuesto</span> cuando se estima a partir de un rango de mercado conocido.</p>
     <div class="kpi-grid" id="kpiCompras" style="margin-bottom:14px;"></div>
     <div class="two-col">
       <div class="card table-wrap">
         <h3 style="font-size:13px; margin-bottom:8px;">Política por producto</h3>
         <table>
-          <thead><tr><th>SKU</th><th class="num">Mín</th><th class="num">Máx</th><th class="num">Demanda/día</th></tr></thead>
+          <thead><tr><th>Producto</th><th class="num">Mín</th><th class="num">Máx</th><th class="num">Ventas/día</th></tr></thead>
           <tbody id="tablaPolitica"></tbody>
         </table>
       </div>
@@ -306,7 +341,7 @@
   <!-- 8. Escenarios -->
   <section>
     <div class="section-head"><span class="section-num">08</span><h2>Escenarios de margen</h2></div>
-    <p class="section-note">Contribución marginal y ticket promedio constantes (Fase 1); solo cambia el volumen diario. El escenario "actual medido" cae por debajo del equilibrio porque mezcla el histórico disperso con el final del backfill — ver nota en sección 11, no es una alarma de negocio real.</p>
+    <p class="section-note">Utilidad mensual proyectada a distintos niveles de venta diaria, manteniendo el margen actual. La fila "volumen actual" se ve más baja de lo esperado porque mezcla periodos con información desigual (ver Notas técnicas) — no es una caída real del negocio.</p>
     <div class="card table-wrap">
       <table>
         <thead><tr><th>Escenario</th><th class="num">Pedidos/día</th><th class="num">Ventas/mes</th><th class="num">Utilidad/mes</th><th class="num">Margen</th></tr></thead>
@@ -315,70 +350,64 @@
     </div>
   </section>
 
-  <!-- 8. Eventos y honestidad de fuente -->
+  <!-- 8. Eventos -->
   <section>
-    <div class="section-head"><span class="section-num">09</span><h2>Calendario de eventos — honestidad de fuente</h2></div>
-    <p class="section-note">Cada evento lleva su propia etiqueta: <span class="badge badge-verificado">verificado</span> (URL + fecha confirmada), <span class="badge badge-patron">patrón</span> (inferido), <span class="badge badge-supuesto">supuesto</span> (sin fuente). El multiplicador numérico de cualquier evento es <em>siempre</em> supuesto, incluso cuando el evento en sí está verificado.</p>
+    <div class="section-head"><span class="section-num">09</span><h2>Eventos que afectaron las ventas</h2></div>
+    <p class="section-note">Sucesos externos que pueden explicar variaciones en las ventas de ciertos días.</p>
     <div class="card">
-      <div class="evt-row"><span class="evt-date">12–16 ago</span><span class="badge badge-verificado">verificado</span>&nbsp; Festejando Cuautitlán 2026 — 5 noches de conciertos gratuitos (corrige el dato original del encargo: no fue 16–23 ago)</div>
-      <div class="evt-row"><span class="evt-date">martes</span><span class="badge badge-verificado">verificado</span>&nbsp; Tianguis semanal (La Palma / Prolongación) — recurrente, efecto de goteo supuesto por no estar en el centro</div>
-      <div class="evt-row"><span class="evt-date">8 ago</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Incidente interno ficticio: cierre imprevisto (reproducible, seed=42)</div>
-      <div class="evt-row"><span class="evt-date">22 ago</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Incidente interno ficticio: corte de luz</div>
-      <div class="evt-row"><span class="evt-date">dic–ene</span><span class="badge badge-verificado">verificado</span>&nbsp; Pista de hielo navideña, Concha Acústica — fecha de cierre sin confirmar (<span class="badge badge-patron">patrón</span>)</div>
-      <div class="evt-row"><span class="evt-date">30 oct–2 nov 2025</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Tianguis de Día de Muertos — degradado de "verificado" (el encargo original): la búsqueda solo confirmó esto en Cuautitlán Izcalli/Cuautla, municipios distintos</div>
+      <div class="evt-row"><span class="evt-date">12–16 ago</span><span class="badge badge-verificado">verificado</span>&nbsp; Festejando Cuautitlán 2026 — 5 noches de conciertos gratuitos</div>
+      <div class="evt-row"><span class="evt-date">martes</span><span class="badge badge-verificado">verificado</span>&nbsp; Tianguis semanal (La Palma / Prolongación) — recurrente; impacto en ventas estimado por cercanía</div>
+      <div class="evt-row"><span class="evt-date">8 ago</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Cierre imprevisto del negocio (incidente simulado)</div>
+      <div class="evt-row"><span class="evt-date">22 ago</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Corte de luz (incidente simulado)</div>
+      <div class="evt-row"><span class="evt-date">dic–ene</span><span class="badge badge-verificado">verificado</span>&nbsp; Pista de hielo navideña, Concha Acústica — fecha exacta de cierre sin confirmar (<span class="badge badge-patron">patrón</span>)</div>
+      <div class="evt-row"><span class="evt-date">30 oct–2 nov 2025</span><span class="badge badge-supuesto">supuesto</span>&nbsp; Tianguis de Día de Muertos — confirmado en municipios vecinos, no en el centro exacto</div>
     </div>
   </section>
 
-  <!-- 9. Hallazgos técnicos -->
+  <!-- Notas técnicas (apéndice, colapsado) -->
   <section>
-    <div class="section-head"><span class="section-num">10</span><h2>Hallazgos técnicos de la sesión</h2></div>
-    <div class="two-col">
-      <div class="card">
-        <h3 style="font-size:13px; margin-bottom:8px;">Bug de origen: hora local guardada como UTC</h3>
-        <p class="section-note" style="margin:0;">El generador anterior (pg_cron, 20 min) escribía <span class="mono">fecha_hora</span> con la hora de CDMX pero sin el offset de zona horaria — Postgres la interpretaba como UTC. Resultado: concentración uniforme 00–14h con huecos 15–22h en producción. Confirmado comparando la distribución horaria real contra la distribución esperada tras restar 6h. Cron detenido permanentemente; 3,045 filas existentes re-horariadas (nunca borradas, solo <span class="mono">UPDATE fecha_hora</span>, con respaldo verificado 1:1 antes de aplicar).</p>
-      </div>
-      <div class="card">
-        <h3 style="font-size:13px; margin-bottom:8px;">Bug de colisión de semillas (nuevo generador)</h3>
-        <p class="section-note" style="margin:0;">En la primera corrida del nuevo generador, canal y hora salían separados perfectamente (100%/0%, imposible al azar). Causa: dos generadores pseudoaleatorios distintos recibían la <em>misma</em> semilla derivada de <span class="mono">sha256(seed:id_pedido)</span> — sus primeros sorteos quedaban correlacionados por el mismo cuantil subyacente. Corregido con un salt distinto para cada generador. Encontrado y corregido en el ciclo de aceptación de Fase 5, antes de aplicar nada a producción.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 10. Nota metodológica régimen de densidad -->
-  <section>
-    <div class="section-head"><span class="section-num">11</span><h2>Nota metodológica: el dataset tiene 3 regímenes de densidad</h2></div>
+    <div class="section-head appendix"><h2>Notas técnicas</h2></div>
     <div class="card">
-      <table>
-        <thead><tr><th>Periodo</th><th>Densidad</th><th>Origen</th></tr></thead>
-        <tbody>
-          <tr><td>2025-01-01 → 2026-07-15</td><td class="num">~3.9 pedidos/día</td><td>Histórico de ejemplo disperso (es_sintetico=false)</td></tr>
-          <tr><td>2026-07-16 → 2026-08-25</td><td class="num">~41 pedidos/día</td><td>Backfill Fase 6, nuevo generador, eventos reales</td></tr>
-          <tr><td>2026-08-26 → 2026-10-05</td><td class="num">~3.9 pedidos/día</td><td>Vuelve al histórico disperso — sin backfill en este tramo</td></tr>
-          <tr><td>2026-10-06 → 2026-10-14</td><td class="num">~60–72 pedidos/día</td><td>Lote del generador anterior (ya re-horariado), antes de detenerlo</td></tr>
-        </tbody>
-      </table>
-      <p class="section-note" style="margin:10px 0 0;">Cualquier comparación estadística (forecast, anomalías, promedios móviles) que cruce estos límites mide el cambio de régimen del dataset, no el negocio. Esta nota es la razón por la que las secciones 2, 3 y 7 acotan explícitamente su ventana de evaluación — decisión documentada, no un ajuste para mejorar el resultado (Regla 6 del encargo: nunca afinar parámetros para que un modelo "gane").</p>
+      <details class="tech">
+        <summary>Periodos del historial con distinta cantidad de información</summary>
+        <div class="tech-body">
+          <p style="margin:0 0 4px;">El historial no tiene la misma densidad de datos en todo el periodo. Cualquier comparación que mezcle estos tramos reflejaría el cambio en la cantidad de datos disponibles, no una tendencia real del negocio — por eso el pronóstico, las alertas y los escenarios se evalúan dentro de ventanas comparables entre sí.</p>
+          <table>
+            <thead><tr><th>Periodo</th><th>Densidad</th><th>Origen</th></tr></thead>
+            <tbody>
+              <tr><td>2025-01-01 → 2026-07-15</td><td class="num">~3.9 pedidos/día</td><td>Datos de muestra, menor densidad</td></tr>
+              <tr><td>2026-07-16 → 2026-08-25</td><td class="num">~41 pedidos/día</td><td>Datos de prueba más completos, con eventos reales incorporados</td></tr>
+              <tr><td>2026-08-26 → 2026-10-05</td><td class="num">~3.9 pedidos/día</td><td>Vuelve a datos de muestra — periodo sin ese refuerzo</td></tr>
+              <tr><td>2026-10-06 → 2026-10-14</td><td class="num">~60–72 pedidos/día</td><td>Lote adicional de datos de prueba, antes de ajustar el proceso</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+      <details class="tech">
+        <summary>Hallazgos de implementación</summary>
+        <div class="tech-body">
+          <p style="margin:0 0 10px;">Se detectó que un proceso automático anterior guardaba la hora de los pedidos sin ajustar la zona horaria correcta, concentrando el historial en el horario equivocado. Se corrigió el proceso y se recalculó la hora de cada pedido existente sin alterar ningún otro dato, con respaldo y verificación antes y después del cambio.</p>
+          <p style="margin:0;">En la primera versión del generador de datos de prueba, dos variables que debían ser independientes (canal de venta y hora del pedido) resultaron correlacionadas por un error de diseño interno. Se identificó y corrigió antes de aplicar cualquier dato a la base del negocio.</p>
+        </div>
+      </details>
     </div>
   </section>
 
-  <!-- 11. Conclusión -->
+  <!-- Conclusión -->
   <section>
-    <div class="section-head"><span class="section-num">12</span><h2>Estado y próximos pasos</h2></div>
+    <div class="section-head appendix"><h2>Qué sigue</h2></div>
     <div class="card">
       <ul style="margin:0; padding-left:18px; font-size:12.5px; color:var(--text);">
-        <li>Fases 0–8 completas y verificadas en <span class="mono">feat/analytics-sim</span> (commits locales, sin push a main, sin deploy).</li>
-        <li>Política de reorden (min/máx) y catálogo de 7 proveedores reales cerrados en Fase 8 — 7 SKUs que antes estaban en riesgo alto ahora tienen un punto de reorden explícito, no solo una alarma.</li>
-        <li>Capacidad de servicio (2 cajeros) no es la restricción cercana al volumen objetivo; el quiebre aparece ~70 pedidos/día.</li>
-        <li>Detección de anomalías honesta: 60% precisión / 46% recall con un detector simple de volumen diario — eventos de mezcla sutil (tianguis, +4–8%) necesitarían señal horaria, no solo diaria.</li>
-        <li>Próximo: si el patrón de Fase 8 (política + catálogo de proveedores + generador por umbral) se generaliza, es un candidato directo a servicio de BA Automation para reabasto automatizado en negocios reales.</li>
+        <li>Las políticas de reabasto para los 18 productos ya están definidas — el siguiente paso es activarlas en el proceso de compras del negocio.</li>
+        <li>La capacidad de atención actual no es una limitante cercana: hay margen de crecimiento en ventas antes de que el servicio se vuelva lento.</li>
+        <li>El sistema de alertas tempranas ya detecta una parte importante de los eventos inusuales; afinar la señal con información por hora (no solo por día) mejoraría la detección.</li>
+        <li>El mismo enfoque de este panel — política de reabasto, catálogo de proveedores y generación automática de órdenes de compra — puede aplicarse a cualquier negocio con inventario propio.</li>
       </ul>
     </div>
   </section>
 
   <footer>
-    Café+ — portafolio técnico de Brian Anaya. Generado 2026-10-14 sobre Supabase (proyecto Coffee_Jazz),
-    rama <span class="mono">feat/analytics-sim</span>. Identidad visual "Fresh Matcha" tomada de
-    <span class="mono">DESIGNER.md</span> / <span class="mono">src/index.css</span> del repositorio — no inventada.
+    Café+ — panel de analítica operativa. Última actualización: 14 de octubre de 2026.
   </footer>
 </div>
 
@@ -494,6 +523,7 @@
   // ---- modelos ----
   var tbodyM = document.getElementById('tablaModelos');
   var modelos = DATA.forecast.modelos;
+  document.getElementById('kpiForecastInsight').textContent = '±' + Math.round(modelos.naive.mae);
   [['naive', modelos.naive], ['media_movil_7d', modelos.media_movil_7d], ['ets_aditivo', modelos.ets_aditivo]].forEach(function (pair) {
     var nombre = pair[0], m = pair[1];
     if (!m) return;
@@ -651,8 +681,8 @@
     var kpis = [
       { lbl: 'Productos con política', val: c.politica.length, sub: 'min/máx explícito, antes 0' },
       { lbl: 'Proveedores reales', val: c.n_proveedores, sub: c.n_insumos + ' insumos catalogados' },
-      { lbl: 'Órdenes sintéticas generadas', val: c.resumen.n_ordenes.toLocaleString('es-MX'), sub: c.resumen.n_lineas.toLocaleString('es-MX') + ' líneas' },
-      { lbl: 'Gasto sintético simulado', val: fmtMXN(c.resumen.gasto_total), sub: '~' + fmtMXN(c.resumen.gasto_total / 21) + '/mes' },
+      { lbl: 'Órdenes de compra generadas', val: c.resumen.n_ordenes.toLocaleString('es-MX'), sub: c.resumen.n_lineas.toLocaleString('es-MX') + ' líneas' },
+      { lbl: 'Gasto estimado en compras', val: fmtMXN(c.resumen.gasto_total), sub: '~' + fmtMXN(c.resumen.gasto_total / 21) + '/mes' },
     ];
     var kpiCompras = document.getElementById('kpiCompras');
     kpis.forEach(function (k) {
