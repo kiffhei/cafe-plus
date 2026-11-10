@@ -128,29 +128,44 @@ export const productos = {
   },
 }
 
+// Cumpleaños: compara el MM-DD de fecha_nacimiento contra hoy en America/Mexico_City.
+// Misma regla que Codigo.gs enrichCliente() — 30% el día del cumpleaños, 5% el resto.
+function hoyMX() {
+  return new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date()).split('/').reverse().join('-')
+}
+
+function enrichCliente(c, today) {
+  const cumple = String(c.fecha_nacimiento || '')
+  const esCumple = cumple.length >= 10 && cumple.substring(5, 10) === today.substring(5, 10)
+  return { ...c, es_cumpleanos: esCumple, descuento_activo: esCumple ? 0.30 : 0.05 }
+}
+
 export const clientes = {
   async getAll(params = {}) {
     let q = supabase.from('bd_clientes').select('*').order('nombre')
     if (params.activo !== undefined) q = q.eq('activo', params.activo === 'true' || params.activo === true)
     const { data, error } = await q
-    return error ? fail(error) : ok(data)
+    const today = hoyMX()
+    return error ? fail(error) : ok(data.map(c => enrichCliente(c, today)))
   },
-  async create({ nombre, apellidos, telefono, email, descuento_fijo }) {
+  async create({ nombre, apellidos, fecha_nacimiento, telefono, email, descuento_fijo }) {
     try {
       const id_cliente = await nextId('bd_clientes', 'id_cliente', 'CLI')
       const { data, error } = await supabase.from('bd_clientes')
         .insert({
-          id_cliente, nombre, apellidos, telefono, email,
+          id_cliente, nombre, apellidos, fecha_nacimiento: fecha_nacimiento || null, telefono, email,
           descuento_fijo: descuento_fijo || 0, visitas_acumuladas: 0, activo: true,
         })
         .select().single()
-      return error ? fail(error) : ok(data)
+      return error ? fail(error) : ok(enrichCliente(data, hoyMX()))
     } catch (error) { return fail(error) }
   },
   async update({ id_cliente, ...rest }) {
+    if (rest.fecha_nacimiento === '') rest.fecha_nacimiento = null
     const { data, error } = await supabase.from('bd_clientes')
       .update(rest).eq('id_cliente', id_cliente).select().single()
-    return error ? fail(error) : ok(data)
+    return error ? fail(error) : ok(enrichCliente(data, hoyMX()))
   },
   async toggle(id, activo) {
     const { data, error } = await supabase.from('bd_clientes')

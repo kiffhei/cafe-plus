@@ -13,7 +13,7 @@ import re
 import sys
 
 # `git add` / `git stage` seguido de algo que contenga .env, incluido `git add -A .env`.
-PATRON_ADD_ENV = re.compile(r"git\s+(?:add|stage)\b[^\n&|;]*\.env")
+PATRON_ADD_ENV = re.compile(r"git\s+(?:add|stage)\b[^\n&|;]*\.env(?!\.example)")
 
 # `git add .` y `git add -A` no nombran .env, pero lo arrastran si no está ignorado.
 PATRON_ADD_TODO = re.compile(r"git\s+(?:add|stage)\s+(?:-A\b|--all\b|\.(?:\s|$))")

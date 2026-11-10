@@ -7,5 +7,7 @@ export default defineConfig({
   // Vitest solo corre tests de src/ — .claude/ trae suites de gstack (bun:test) que no son nuestras.
   test: {
     include: ['src/**/*.{test,spec}.{js,jsx}'],
+    environment: 'jsdom',
+    setupFiles: ['./src/test-setup.js'],
   },
 })
